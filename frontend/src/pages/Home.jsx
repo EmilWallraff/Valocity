@@ -13,6 +13,11 @@ function Home() {
             Log In
           </button>
         </Link>
+        <Link to="/winprobability">
+          <button className="bg-gray-200 text-darkness px-6 py-2 rounded-xl hover:bg-gray-300 transition">
+            Win Probability Calculator
+          </button>
+        </Link>
         <Link to="/dashboard">
           <button className="bg-gray-200 text-darkness px-6 py-2 rounded-xl hover:bg-gray-300 transition">
             Dashboard
