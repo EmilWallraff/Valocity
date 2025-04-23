@@ -49,9 +49,9 @@ export const weaponOptions = [
     { label: "Phantom", hashcode: "EE8E8D15-496B-07AC-E5F6-8FAE5D4C7B1A" },
     { label: "Vandal", hashcode: "9C82E19D-4575-0200-1A81-3EACF00CF872" },
     { label: "Marshall", hashcode: "C4883E50-4494-202C-3EC3-6B8A9284F00B" },
-    { label: "Ares", hashcode: "55D8A0F4-4274-CA67-FE2C-06AB45EFDF58" },
-    { label: "Operator", hashcode: "A03B24D3-4319-996D-0F8C-94BBFBA1DFC7" },
     { label: "Outlaw", hashcode: "5F0AAF7A-4289-3998-D5FF-EB9A5CF7EF5C" },
+    { label: "Operator", hashcode: "A03B24D3-4319-996D-0F8C-94BBFBA1DFC7" },
+    { label: "Ares", hashcode: "55D8A0F4-4274-CA67-FE2C-06AB45EFDF58" },
     { label: "Odin", hashcode: "63E6C2B6-4A8E-869C-3D4C-E38355226584" },
 ].map(weapon => ({
     ...weapon,
