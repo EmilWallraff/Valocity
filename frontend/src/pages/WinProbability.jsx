@@ -1,4 +1,10 @@
+import { useEffect } from 'react';
+
 function WinProbability() {
+    useEffect(() => {
+      document.title = 'Win Probability Calculator - valocity.gg';
+    }, []);
+
     return (
       <div className="min-h-screen p-6 bg-darkness text-white">
         <h2 className="text-3xl font-bold text-brand mb-4">Win Probability Calculator</h2>

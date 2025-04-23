@@ -1,4 +1,10 @@
+import { useEffect } from 'react';
+
 function Login() {
+    useEffect(() => {
+      document.title = 'Login - valocity.gg';
+    }, []);
+
     return (
       <div>
         <h2>Login</h2>

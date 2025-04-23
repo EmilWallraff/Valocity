@@ -1,6 +1,11 @@
+import { useEffect } from 'react';
 import { Link } from "react-router-dom";
 
 function Home() {
+    useEffect(() => {
+      document.title = 'valocity.gg';
+    }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-darkness text-white text-center p-4">
 
