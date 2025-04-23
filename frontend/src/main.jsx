@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 
 import Layout from './components/Layout';
+import ScrollToTop from './components/ScrollToTop';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -17,6 +18,7 @@ import '@fontsource/rajdhani';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
+    <ScrollToTop />
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
