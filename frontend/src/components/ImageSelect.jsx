@@ -38,7 +38,7 @@ function ImageSelect({ items = [], sizeClass = "w-16 h-16", fillUp = false, defa
       {/* Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`bg-gray-800 border border-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-700 ${sizeClass}`}
+        className={`bg-element border border-element-lighter rounded-xl flex items-center justify-center hover:bg-element-light ${sizeClass}`}
       >
         {fillUp ? (
           <img src={selected.image} alt={selected.label} className={`${sizeClass} rounded-md object-cover`} />
