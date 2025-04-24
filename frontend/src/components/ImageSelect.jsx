@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-function ImageSelect({ items = [], sizeClass = "w-16 h-16", defaultLabel }) {
+function ImageSelect({ items = [], sizeClass = "w-16 h-16", fillUp = false, defaultLabel }) {
   const [selected, setSelected] = useState(() => items.find(item => item.label === defaultLabel) || items[0]);
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -34,20 +34,24 @@ function ImageSelect({ items = [], sizeClass = "w-16 h-16", defaultLabel }) {
   
 
   return (
-    <div className="relative w-64" ref={dropdownRef}>
+    <div className={`relative ${sizeClass}`} ref={dropdownRef}>
       {/* Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`bg-gray-800 border border-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-700 ${sizeClass}`}
       >
-        <div className="w-3/4 h-3/4 flex items-center justify-center">
+        {fillUp ? (
+          <img src={selected.image} alt={selected.label} className={`${sizeClass} rounded-md object-cover`} />
+        ) : (
+          <div className="w-3/4 h-3/4 flex items-center justify-center">
             <img src={selected.image} alt={selected.label} className={"rounded-md max-w-full max-h-full object-contain"} />
-        </div>
+          </div>
+        )}
       </button>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-lg z-50 max-h-80 overflow-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-gray-900 border border-gray-700 rounded-xl shadow-lg z-50 max-h-80 overflow-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           <input
             type="text"
             placeholder="Search..."
@@ -85,9 +89,13 @@ function ImageSelect({ items = [], sizeClass = "w-16 h-16", defaultLabel }) {
                   setSearch("");
                 }}
               >
-                <div className="w-8 h-8 flex items-center justify-center">
-                    <img src={item.image} alt={item.label} className={"rounded-md max-w-full max-h-full object-contain"}/>
-                </div>
+                {fillUp ? (
+                  <img src={item.image} alt={item.label} className="w-8 h-8 rounded-md object-cover" />
+                ) : (
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <img src={item.image} alt={item.label} className="rounded-md max-w-full max-h-full object-contain" />
+                  </div>
+                )}
                 <span>{item.label}</span>
               </li>
             ))}
