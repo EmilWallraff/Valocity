@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-function ImageSelect({ items = [], sizeClass = "w-16 h-16", fillUp = false, defaultLabel }) {
+function ImageSelect({ items = [], sizeClass = "w-16 h-16", fillUp = false, defaultLabel, onChange }) {
   const [selected, setSelected] = useState(() => items.find(item => item.label === defaultLabel) || items[0]);
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -85,6 +85,7 @@ function ImageSelect({ items = [], sizeClass = "w-16 h-16", fillUp = false, defa
                 className={`flex items-center gap-3 p-3 cursor-pointer ${index === highlightedIndex ? "bg-gray-700" : "hover:bg-gray-700"}`}
                 onClick={() => {
                   setSelected(item);
+                  onChange && onChange(item.label);
                   setIsOpen(false);
                   setSearch("");
                 }}
