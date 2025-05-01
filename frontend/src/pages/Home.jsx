@@ -10,7 +10,7 @@ function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-darkness text-white text-center p-4">
 
       <h1 className="text-4xl font-raj font-bold text-brand mb-4">valocity.gg</h1>
-      <p className="mb-8">Your personalized AI dashboard</p>
+      <p className="mb-8">The soon-to-be greatest Valorant stats page!</p>
 
       <div className="space-x-4">
         <Link to="/login">

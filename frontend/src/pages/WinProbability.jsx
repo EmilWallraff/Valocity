@@ -23,6 +23,9 @@ function WinProbability() {
     { agent: "Jett", armor: "Heavy Armor", weapon: "Phantom" },
     { agent: "Phoenix", armor: "Heavy Armor", weapon: "Phantom" }
   ]);
+  const [blueProbability, setBlueProbability] = useState(0.0);
+  const [redProbability, setRedProbability] = useState(0.0);
+  const [probabilityState, setProbabilityState] = useState("Outdated");
 
   useEffect(() => {
     document.title = 'Win Probability - valocity.gg';
@@ -74,8 +77,11 @@ function WinProbability() {
       throw new Error("Failed to fetch prediction");
     }
   
-    const data = await response.json();
-    console.log("Win Probability:", data.win_probability);
+    const responseData = await response.json();
+    setBlueProbability((responseData.BLUE * 100).toFixed(2));
+    setRedProbability((responseData.RED * 100).toFixed(2));
+    setProbabilityState("Updated");
+    console.log("Win Probability:", redProbability, blueProbability);
   }
 
   function updatePlayer(index, team, field, value) {
@@ -94,6 +100,7 @@ function WinProbability() {
         return updated;
       });
     }
+    setProbabilityState("Outdated");
   }
  
   return (
@@ -103,13 +110,13 @@ function WinProbability() {
 
         <div className="flex flex-row gap-4">
           <button
-            onClick={() => setIsAttackers(prev => !prev)}
+            onClick={() => (setIsAttackers(prev => !prev), setProbabilityState("Outdated"))}
             className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition font-semibold text-lg flex items-center justify-center"
           >
             Switch Sides
           </button>
 
-          <ImageSelect items={mapOptions} sizeClass="w-60 h-20" fillUp="true" defaultLabel={map} onChange={(selected) => setMap(selected)} />
+          <ImageSelect items={mapOptions} sizeClass="w-60 h-20" fillUp="true" defaultLabel={map} onChange={(selected) => (setMap(selected), setProbabilityState("Outdated"))} />
 
           <button
             onClick={() => predictWinProbability()}
@@ -133,7 +140,8 @@ function WinProbability() {
             </div>
           ))}
         </div>
-      </div> 
+        <h3 className={`text-2xl font-semibold text-${probabilityState == "Updated" ? "white" : "element-lighter"}`}>{(redProbability == 0.0 && blueProbability == 0.0) ? '\u00A0' : `Win Probability: ${redProbability}%`}</h3>
+      </div>
 
       <div className="w-full flex flex-col items-center space-y-4">
         <h3 className={`text-2xl font-semibold text-${isAttackers ? "brand" : "accent"}`}>{isAttackers ? "Defenders" : "Attackers"}</h3>
@@ -148,6 +156,7 @@ function WinProbability() {
             </div>
           ))}
         </div>
+        <h3 className={`text-2xl font-semibold text-${probabilityState == "Updated" ? "white" : "element-lighter"}`}>{(redProbability == 0.0 && blueProbability == 0.0) ? '\u00A0' : `Win Probability: ${blueProbability}%`}</h3>
       </div>
     </div>
   );

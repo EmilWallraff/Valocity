@@ -68,6 +68,7 @@ function ImageSelect({ items = [], sizeClass = "w-16 h-16", fillUp = false, defa
                 } else if (e.key === "Enter") {
                 if (filteredItems[highlightedIndex]) {
                     setSelected(filteredItems[highlightedIndex]);
+                    onChange && onChange(filteredItems[highlightedIndex].label);
                     setIsOpen(false);
                     setSearch("");
                 }

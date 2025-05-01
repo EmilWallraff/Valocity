@@ -6,6 +6,11 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    'text-brand',
+    'text-accent',
+    'text-element-lighter',
+  ],
   theme: {
     extend: {
       fontFamily: {
