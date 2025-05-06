@@ -30,14 +30,6 @@ model = round_prediction.RoundClassifier(
     num_maps=len(encoders['map'].classes_)
 )
 
-
-shield_names = {
-    "No Armor": "None",
-    "Light Armor": "Light",
-    "Regen Shield": "Regen",
-    "Heavy Armor": "Heavy"
-}
-
 # Load weights
 model.load_state_dict(torch.load('models/round_win_predictor_v01.pth', map_location=torch.device('cpu')))
 model.eval()
@@ -86,34 +78,34 @@ def predict(request: PredictRequest):
         "map": request.map,
         "RED_1_agent": request.RED_1_agent,
         "RED_1_weapon": request.RED_1_weapon,
-        "RED_1_armor": shield_names[request.RED_1_armor],
+        "RED_1_armor": request.RED_1_armor,
         "RED_2_agent": request.RED_2_agent,
         "RED_2_weapon": request.RED_2_weapon,
-        "RED_2_armor": shield_names[request.RED_2_armor],
+        "RED_2_armor": request.RED_2_armor,
         "RED_3_agent": request.RED_3_agent,
         "RED_3_weapon": request.RED_3_weapon,
-        "RED_3_armor": shield_names[request.RED_3_armor],
+        "RED_3_armor": request.RED_3_armor,
         "RED_4_agent": request.RED_4_agent,
         "RED_4_weapon": request.RED_4_weapon,
-        "RED_4_armor": shield_names[request.RED_4_armor],
+        "RED_4_armor": request.RED_4_armor,
         "RED_5_agent": request.RED_5_agent,
         "RED_5_weapon": request.RED_5_weapon,
-        "RED_5_armor": shield_names[request.RED_5_armor],
+        "RED_5_armor": request.RED_5_armor,
         "BLUE_1_agent": request.BLUE_1_agent,
         "BLUE_1_weapon": request.BLUE_1_weapon,
-        "BLUE_1_armor": shield_names[request.BLUE_1_armor],
+        "BLUE_1_armor": request.BLUE_1_armor,
         "BLUE_2_agent": request.BLUE_2_agent,
         "BLUE_2_weapon": request.BLUE_2_weapon,
-        "BLUE_2_armor": shield_names[request.BLUE_2_armor],
+        "BLUE_2_armor": request.BLUE_2_armor,
         "BLUE_3_agent": request.BLUE_3_agent,
         "BLUE_3_weapon": request.BLUE_3_weapon,
-        "BLUE_3_armor": shield_names[request.BLUE_3_armor],
+        "BLUE_3_armor": request.BLUE_3_armor,
         "BLUE_4_agent": request.BLUE_4_agent,
         "BLUE_4_weapon": request.BLUE_4_weapon,
-        "BLUE_4_armor": shield_names[request.BLUE_4_armor],
+        "BLUE_4_armor": request.BLUE_4_armor,
         "BLUE_5_agent": request.BLUE_5_agent,
         "BLUE_5_weapon": request.BLUE_5_weapon,
-        "BLUE_5_armor": shield_names[request.BLUE_5_armor]
+        "BLUE_5_armor": request.BLUE_5_armor
     })
     dataframe = pd.DataFrame(round_variables)
 
@@ -136,5 +128,3 @@ def predict(request: PredictRequest):
     logits = model.predict_proba_from_row(dataframe)
     class_names = encoders['team'].classes_
     return {k: float(v) for k, v in zip(class_names, logits)}
-
-#TODO: fix inconsistent shield names in a prettier way!
