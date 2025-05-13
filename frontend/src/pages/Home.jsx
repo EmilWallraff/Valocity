@@ -23,9 +23,9 @@ function Home() {
             Win Probability Calculator
           </button>
         </Link>
-        <Link to="/dashboard">
+        <Link to="/weapons">
           <button className="bg-gray-200 text-darkness px-6 py-2 rounded-xl hover:bg-gray-300 transition">
-            Dashboard
+            Weapons
           </button>
         </Link>
       </div>
