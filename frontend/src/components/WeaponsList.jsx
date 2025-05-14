@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-const headers = ["Weapon", "Kills/Round", "Damage/Round", "Win%", "HS%"];
+const headers = ["Weapon", "Damage/Round", "Kills/Round", "Win%", "HS%"];
 
 const statKeyMap = {
   "Kills/Round": "kills",
@@ -27,7 +27,7 @@ const mockData = [
     id: 2,
     name: "Vandal",
     image: `/images/valorant/weapons/9C82E19D-4575-0200-1A81-3EACF00CF872_killstream.png`,
-    stats: { kills: 0.609, damage: 134.2342, win: 48.2342, headshot: 29.234 },
+    stats: { kills: 0.609, damage: 112.2342, win: 48.2342, headshot: 29.234 },
     subentries: [
       { name: "Pistol Round", kills: 3, damage: 1, win: 0, headshot: 1.20 },
       { name: "vs Eco (<1000$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
@@ -63,7 +63,7 @@ const mockData = [
 
 export default function WeaponsList() {
   const [expanded, setExpanded] = useState({});
-  const [sortKey, setSortKey] = useState("rating");
+  const [sortKey, setSortKey] = useState("damage");
   const [sortOrder, setSortOrder] = useState("desc");
 
   const toggleExpand = (id) => {
@@ -82,7 +82,6 @@ export default function WeaponsList() {
     }
   };
 
-
   const sortedData = [...mockData].sort((a, b) => {
     const aVal = a.stats[sortKey];
     const bVal = b.stats[sortKey];
@@ -91,7 +90,7 @@ export default function WeaponsList() {
 
   return (
     <div className="p-4 w-full max-w-5xl mx-auto">
-      <div className="flex font-bold border-b pb-2 mb-2 text-left">
+      <div className="flex font-bold border border-element-lighter py-2 text-left bg-element">
         <div className="w-6" />
         <div className="flex-2 flex items-center gap-2 basis-2/6">Weapon</div>
         {headers.slice(1).map((header) => (
@@ -105,9 +104,9 @@ export default function WeaponsList() {
         ))}
       </div>
 
-      {sortedData.map((weapon) => (
+      {sortedData.map((weapon, index) => (
         <div key={weapon.id}>
-          <div className="flex items-center py-2 border-b">
+          <div className={`flex items-center py-2 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}>
             <div
               onClick={() => toggleExpand(weapon.id)}
               className="w-8 cursor-pointer flex justify-center"
@@ -120,8 +119,8 @@ export default function WeaponsList() {
               </div>
               <span className="truncate">{weapon.name}</span>
             </div>
-            <div className="flex-1 text-center">{weapon.stats.kills.toFixed(2)}</div>
             <div className="flex-1 text-center">{weapon.stats.damage.toFixed(2)}</div>
+            <div className="flex-1 text-center">{weapon.stats.kills.toFixed(2)}</div>
             <div className="flex-1 text-center">{weapon.stats.win.toFixed(2)}</div>
             <div className="flex-1 text-center">{weapon.stats.headshot.toFixed(2)}</div>
           </div>
@@ -131,12 +130,12 @@ export default function WeaponsList() {
               {weapon.subentries.map((entry, i) => (
                 <div
                   key={i}
-                  className="flex items-center text-gray-600 py-1 border-b"
+                  className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element" : "element-dark"}`}
                 >
                   <div className="w-8" />
                   <div className="basis-2/6">{entry.name}</div>
-                  <div className="flex-1 text-center">{entry.kills.toFixed(2)}</div>
                   <div className="flex-1 text-center">{entry.damage.toFixed(2)}</div>
+                  <div className="flex-1 text-center">{entry.kills.toFixed(2)}</div>
                   <div className="flex-1 text-center">{entry.win.toFixed(2)}</div>
                   <div className="flex-1 text-center">{entry.headshot.toFixed(2)}</div>
                 </div>

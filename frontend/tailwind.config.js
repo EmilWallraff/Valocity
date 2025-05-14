@@ -10,6 +10,9 @@ export default {
     'text-brand',
     'text-accent',
     'text-element-lighter',
+    'bg-element',
+    'bg-element-light',
+    'bg-element-dark',
   ],
   theme: {
     extend: {
