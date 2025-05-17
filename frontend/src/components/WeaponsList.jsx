@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-const headers = ["Weapon", "Damage/Round", "Kills/Round", "Win%", "HS%"];
+import { weapons } from "../data/hashcodes";
+
+const headers = [
+  "Weapon",
+  "Damage/Round",
+  "Kills/Round",
+  "Win%",
+  "HS%"
+];
 
 const statKeyMap = {
   "Kills/Round": "kills",
@@ -64,7 +72,7 @@ export default function WeaponsList({ data }) {
             </div>
             <div className="flex items-center gap-2 h-16 basis-2/6">
               <div className="w-32 h-16 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img src={weapon.image} alt={weapon.name} className="max-w-full max-h-full object-contain" />
+                <img src={`/images/valorant/weapons/${weapons[weapon.name]}_killstream.png`} alt={weapon.name} className="max-w-full max-h-full object-contain" />
               </div>
               <span className="truncate">{weapon.name}</span>
             </div>
