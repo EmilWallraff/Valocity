@@ -10,58 +10,7 @@ const statKeyMap = {
   "HS%": "headshot",
 };
 
-const mockData = [
-  {
-    id: 1,
-    name: "Phantom",
-    image: `/images/valorant/weapons/EE8E8D15-496B-07AC-E5F6-8FAE5D4C7B1A_killstream.png`,
-    stats: { kills: 0.712, damage: 123.2342, win: 52.234, headshot: 26.234 },
-    subentries: [
-      { name: "Pistol Round", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Eco (<1000$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Halfbuy (1000$-3500$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Fullbuy (>3500$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-    ],
-  },
-  {
-    id: 2,
-    name: "Vandal",
-    image: `/images/valorant/weapons/9C82E19D-4575-0200-1A81-3EACF00CF872_killstream.png`,
-    stats: { kills: 0.609, damage: 112.2342, win: 48.2342, headshot: 29.234 },
-    subentries: [
-      { name: "Pistol Round", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Eco (<1000$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Halfbuy (1000$-3500$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Fullbuy (>3500$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-    ],
-  },
-  {
-    id: 3,
-    name: "Frenzy",
-    image: `/images/valorant/weapons/44D4E95C-4157-0037-81B2-17841BF2E8E3_killstream.png`,
-    stats: { kills: 0.919, damage: 98.234, win: 56.234, headshot: 18.2423342 },
-    subentries: [
-      { name: "Pistol Round", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Eco (<1000$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Halfbuy (1000$-3500$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Fullbuy (>3500$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-    ],
-  },
-  {
-    id: 4,
-    name: "Marshall",
-    image: `/images/valorant/weapons/C4883E50-4494-202C-3EC3-6B8A9284F00B_killstream.png`,
-    stats: { kills: 0.3012, damage: 45.234, win: 23.234, headshot: 34.213426 },
-    subentries: [
-      { name: "Pistol Round", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Eco (<1000$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Halfbuy (1000$-3500$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-      { name: "vs Fullbuy (>3500$)", kills: 3, damage: 1, win: 0, headshot: 1.20 },
-    ],
-  }
-];
-
-export default function WeaponsList() {
+export default function WeaponsList({ data }) {
   const [expanded, setExpanded] = useState({});
   const [sortKey, setSortKey] = useState("damage");
   const [sortOrder, setSortOrder] = useState("desc");
@@ -82,7 +31,7 @@ export default function WeaponsList() {
     }
   };
 
-  const sortedData = [...mockData].sort((a, b) => {
+  const sortedData = [...data].sort((a, b) => {
     const aVal = a.stats[sortKey];
     const bVal = b.stats[sortKey];
     return sortOrder === "asc" ? aVal - bVal : bVal - aVal;

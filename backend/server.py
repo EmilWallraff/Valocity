@@ -6,6 +6,7 @@ import joblib
 import pandas as pd
 
 import round_prediction
+import weapon_processing
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -128,3 +129,9 @@ def predict(request: PredictRequest):
     logits = model.predict_proba_from_row(dataframe)
     class_names = encoders['team'].classes_
     return {k: float(v) for k, v in zip(class_names, logits)}
+
+@app.get("/weapons")
+def get_weapons():
+    filename_test = "logs25-1"
+    path = "data/" + filename_test + ".json"
+    return weapon_processing.get_weapon_stats(path)
