@@ -25,7 +25,7 @@ function Weapons() {
         <h2 className="text-3xl font-bold text-brand mb-4">Weapons</h2>
         <div className="flex flex-col items-center space-y-4">
           <ImageSelect items={weaponOptions} sizeClass="w-44 h-20" defaultLabel="Frenzy" />
-          <MultiSelect items={weaponOptions} defaultSelected={weaponOptions} />
+          <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" />
         </div>
         <p className="">User data will show here soon.</p>
         <div className="">
