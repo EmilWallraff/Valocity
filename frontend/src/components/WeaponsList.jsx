@@ -78,8 +78,8 @@ export default function WeaponsList({ data }) {
             </div>
             <div className="flex-1 text-center">{weapon.stats.damage.toFixed(2)}</div>
             <div className="flex-1 text-center">{weapon.stats.kills.toFixed(2)}</div>
-            <div className="flex-1 text-center">{weapon.stats.win.toFixed(2)}</div>
-            <div className="flex-1 text-center">{weapon.stats.headshot.toFixed(2)}</div>
+            <div className="flex-1 text-center">{(weapon.stats.win * 100).toFixed(0)}%</div>
+            <div className="flex-1 text-center">{(weapon.stats.headshot * 100).toFixed(0)}%</div>
           </div>
 
           {expanded[weapon.id] && (
@@ -87,14 +87,14 @@ export default function WeaponsList({ data }) {
               {weapon.subentries.map((entry, i) => (
                 <div
                   key={i}
-                  className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element" : "element-dark"}`}
+                  className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}
                 >
                   <div className="w-8" />
                   <div className="basis-2/6">{entry.name}</div>
                   <div className="flex-1 text-center">{entry.damage.toFixed(2)}</div>
                   <div className="flex-1 text-center">{entry.kills.toFixed(2)}</div>
-                  <div className="flex-1 text-center">{entry.win.toFixed(2)}</div>
-                  <div className="flex-1 text-center">{entry.headshot.toFixed(2)}</div>
+                  <div className="flex-1 text-center">{(entry.win * 100).toFixed(0)}%</div>
+                  <div className="flex-1 text-center">{(entry.headshot * 100).toFixed(0)}%</div>
                 </div>
               ))}
             </div>

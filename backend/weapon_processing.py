@@ -217,6 +217,9 @@ def get_weapon_stats(json_file: str):
             processed_stats[index]["subentries"][3]["win"] = safe_divide(total_stats[weapon]["fullbuy"]["wins"], total_stats[weapon]["fullbuy"]["wins"] + total_stats[weapon]["fullbuy"]["losses"])
             processed_stats[index]["subentries"][3]["headshot"] =safe_divide(total_stats[weapon]["fullbuy"]["headshots"], total_stats[weapon]["fullbuy"]["headshots"] + total_stats[weapon]["fullbuy"]["bodyshots"] + total_stats[weapon]["fullbuy"]["legshots"])
 
+            if total_stats[weapon]["pistol"]["rounds"] <= 0:
+                del processed_stats[index]["subentries"][0]
+
         del processed_stats[0]
         return processed_stats
     
