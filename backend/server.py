@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
 import torch
 import joblib
 import pandas as pd
@@ -130,8 +131,14 @@ def predict(request: PredictRequest):
     class_names = encoders['team'].classes_
     return {k: float(v) for k, v in zip(class_names, logits)}
 
-@app.get("/weapons")
-def get_weapons():
+
+class WeaponsRequest(BaseModel):
+    weapons: List[str]
+    maps: List[str]
+    agents: List[str]
+
+@app.post("/weapons")
+def predict(request: WeaponsRequest):
     filename_test = "logs25-1"
     path = "data/" + filename_test + ".json"
-    return weapon_processing.get_weapon_stats(path)
+    return weapon_processing.get_weapon_stats(path, request.weapons, request.maps, request.agents)

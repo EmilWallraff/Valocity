@@ -69,7 +69,7 @@ agent_names = {
     "95b78ed7-4637-86d9-7e41-71ba8c293152": "Harbor"
 }
 
-def get_weapon_stats(json_file: str):
+def get_weapon_stats(json_file: str, filtered_weapons, filtered_maps, filtered_agents):
     try:
         with open(json_file, 'r', encoding='utf-8') as file:
             data = json.load(file)
@@ -79,6 +79,8 @@ def get_weapon_stats(json_file: str):
         for match in data.get("matches", []):
             player_match_data = ds.BiKeyDict()
             map = map_names[match.get("matchInfo").get("mapId")]
+            if map not in filtered_maps:
+                continue
 
 
             red_player_count = 1
@@ -115,6 +117,11 @@ def get_weapon_stats(json_file: str):
                 blue_loadout = blue_total_loadout / 5
 
                 for player_stat in round.get("playerStats", []):
+                    if player_match_data.get(player_stat.get("puuid"))["agent"] not in filtered_agents:
+                        continue
+                    if weapon_names[player_stat.get("economy").get("weapon")] not in filtered_weapons:
+                        continue
+
                     kills = 0
                     damage = 0
                     headshots = 0
@@ -220,7 +227,13 @@ def get_weapon_stats(json_file: str):
             if total_stats[weapon]["pistol"]["rounds"] <= 0:
                 del processed_stats[index]["subentries"][0]
 
-        del processed_stats[0]
+        for index in reversed(range(len(processed_stats))):
+            if processed_stats[index]["name"] not in filtered_weapons:
+                print(f'{processed_stats[index]["name"]} is not in filtered weapons -> gonna delete')
+                del processed_stats[index]
+
+
+        #del processed_stats[0]
         return processed_stats
     
     except (FileNotFoundError, json.JSONDecodeError) as e:

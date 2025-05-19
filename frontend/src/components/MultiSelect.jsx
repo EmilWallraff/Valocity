@@ -62,7 +62,7 @@ function MultiSelect({ items = [], label = "Select Items", sizeClass = "w-16 h-1
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-gray-900 border border-gray-700 rounded-xl shadow-lg max-h-80 overflow-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-gray-900 border border-gray-700 rounded-xl shadow-lg z-50 max-h-80 overflow-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           <input
             ref={searchInputRef}
             type="text"
