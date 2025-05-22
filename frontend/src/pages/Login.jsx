@@ -6,13 +6,10 @@ function Login() {
     }, []);
 
     return (
-      <div>
-        <h2>Login</h2>
-        <form>
-          <input type="text" placeholder="Username" /><br />
-          <input type="password" placeholder="Password" /><br />
-          <button>Log In</button>
-        </form>
+      <div className="bg-darkness items-center pt-16 p-6 space-y-16">
+        <div className="flex flex-col items-center space-y-8">
+          <h2 className="text-4xl font-bold text-white mb-4">Profiles will be available soon.</h2>
+        </div>
       </div>
     );
   }

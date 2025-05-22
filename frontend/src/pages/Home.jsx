@@ -7,29 +7,30 @@ function Home() {
     }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-darkness text-white text-center p-4">
+    <div className="bg-darkness items-center pt-16 p-6 space-y-16">
+      <div className="flex flex-col items-center space-y-28">
+        <h1 className="text-8xl font-raj font-bold text-brand mb-4">valocity.gg</h1>
 
-      <h1 className="text-4xl font-raj font-bold text-brand mb-4">valocity.gg</h1>
-      <p className="mb-8">The soon-to-be greatest Valorant stats page!</p>
-
-      <div className="space-x-4">
-        <Link to="/login">
-          <button className="bg-brand text-darkness px-6 py-2 rounded-xl hover:bg-brand-light transition">
-            Log In
-          </button>
-        </Link>
-        <Link to="/winprobability">
-          <button className="bg-gray-200 text-darkness px-6 py-2 rounded-xl hover:bg-gray-300 transition">
+        <div className="flex flex-col items-center space-y-4">
+          <h2 className="text-2xl text-white text-center max-w-3xl">Calculate the probability to win a round with certain agents, shields and weapons on a given map and side.</h2>
+          <Link
+            to="/winprobability"
+            className="w-80 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
+          >
             Win Probability Calculator
-          </button>
-        </Link>
-        <Link to="/weapons">
-          <button className="bg-gray-200 text-darkness px-6 py-2 rounded-xl hover:bg-gray-300 transition">
-            Weapons
-          </button>
-        </Link>
-      </div>
+          </Link>
+        </div>
 
+        <div className="flex flex-col items-center space-y-4">
+          <h2 className="text-2xl text-white text-center max-w-3xl">Weapon stats can be filtered by map and agent and available for different opponent loadout values.</h2>
+          <Link
+            to="/weapons"
+            className="w-80 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
+          >
+            Weapon Stats
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

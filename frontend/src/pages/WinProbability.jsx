@@ -111,7 +111,7 @@ function WinProbability() {
         <div className="flex flex-row gap-4">
           <button
             onClick={() => (setIsAttackers(prev => !prev), setProbabilityState("Outdated"))}
-            className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition font-semibold text-lg flex items-center justify-center"
+            className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
           >
             Switch Sides
           </button>
@@ -120,7 +120,7 @@ function WinProbability() {
 
           <button
             onClick={() => predictWinProbability()}
-            className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition font-semibold text-lg flex items-center justify-center"
+            className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
           >
             Calculate
           </button>

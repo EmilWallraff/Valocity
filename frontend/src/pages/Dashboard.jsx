@@ -6,9 +6,10 @@ function Dashboard() {
     }, []);
 
     return (
-      <div className="min-h-screen p-6 bg-darkness text-white">
-        <h2 className="text-3xl font-bold text-brand mb-4">Dashboard</h2>
-        <p className="">User data will show here soon.</p>
+      <div className="bg-darkness items-center pt-16 p-6 space-y-16">
+        <div className="flex flex-col items-center space-y-8">
+          <h2 className="text-4xl font-bold text-white mb-4">Dashboard will be available soon.</h2>
+        </div>
       </div>
     );
   }

@@ -51,18 +51,22 @@ function Weapons() {
     }
 
     return (
-      <div className="min-h-screen p-6 bg-darkness text-white">
-        <h2 className="text-3xl font-bold text-brand mb-4">Weapons</h2>
-        <div className="flex flex-col items-center space-y-4">
-          <button onClick={() => updateWeaponValues()}>Update</button>
-          <MultiSelect items={weaponOptions} label="Filter Weapons" sizeClass="w-44 h-20" onChange={(selected) => (setFilteredWeapons(selected))} />
-          <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredMaps(selected))} />
-          <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => (setFiltereAgents(selected))} />
+      <div className="bg-darkness items-center pt-16 p-6 space-y-16">
+        <div className="flex flex-col items-center space-y-8">
+          <h2 className="text-4xl font-bold text-white mb-4">Stats when Starting the Round with each Weapon</h2>
+
+          <div className="flex flex-row gap-4">
+            <MultiSelect items={weaponOptions} label="Filter Weapons" sizeClass="w-44 h-20" onChange={(selected) => (setFilteredWeapons(selected))} />
+            <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredMaps(selected))} />
+            <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => (setFiltereAgents(selected))} />
+          </div>
         </div>
-        <p className="">User data will show here soon.</p>
+
         <div className="">
           {!data ? (
-            <p>Loading weapon data...</p>
+            <div className="flex flex-col items-center space-y-8">
+              <h2 className="text-4xl font-bold text-accent mb-4">Loading Data...</h2>
+            </div>
           ) : (
             <div>
               <WeaponsList data={data} />
