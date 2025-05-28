@@ -14,6 +14,7 @@ function Layout() {
             ] } label="Tools" />
             <NavigationDropdown items={ [
               { label: "Weapons", image: `/images/valorant/weapons/9C82E19D-4575-0200-1A81-3EACF00CF872_killstream.png`, path: "/weapons" },
+              { label: "Agents", image: `/images/valorant/roles/1B47567F-8F7B-444B-AAE3-B0C634622D10.png`, path: "/agents" },
             ] } label="Global Stats" />
         </div>
         <div className="space-x-4">

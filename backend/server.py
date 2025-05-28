@@ -8,6 +8,7 @@ import pandas as pd
 
 import round_prediction
 import weapon_processing
+import agent_processing
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -138,7 +139,18 @@ class WeaponsRequest(BaseModel):
     agents: List[str]
 
 @app.post("/weapons")
-def predict(request: WeaponsRequest):
+def calculate(request: WeaponsRequest):
     filename_test = "logs25-1"
     path = "data/" + filename_test + ".json"
     return weapon_processing.get_weapon_stats(path, request.weapons, request.maps, request.agents)
+
+
+class AgentsRequest(BaseModel):
+    agents: List[str]
+    maps: List[str]
+
+@app.post("/agents")
+def calculate(request: AgentsRequest):
+    filename_test = "logs25-1"
+    path = "data/" + filename_test + ".json"
+    return agent_processing.get_agent_stats(path, request.agents, request.maps)

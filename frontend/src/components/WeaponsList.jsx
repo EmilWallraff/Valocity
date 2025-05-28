@@ -3,22 +3,16 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { weapons } from "../data/hashcodes";
 
-const headers = [
-  "Weapon",
-  "Damage/Round",
-  "Kills/Round",
-  "Win%",
-  "HS%"
-];
-
 const statKeyMap = {
   "Kills/Round": "kills",
   "Damage/Round": "damage",
   "Win%": "win",
   "HS%": "headshot",
+  "Pick%": "pick",
+  "K/D": "kd"
 };
 
-export default function WeaponsList({ data }) {
+export default function WeaponsList({ data, headers = [] }) {
   const [expanded, setExpanded] = useState({});
   const [sortKey, setSortKey] = useState("damage");
   const [sortOrder, setSortOrder] = useState("desc");

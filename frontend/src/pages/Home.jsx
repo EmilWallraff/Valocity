@@ -22,7 +22,7 @@ function Home() {
         </div>
 
         <div className="flex flex-col items-center space-y-4">
-          <h2 className="text-2xl text-white text-center max-w-3xl">Weapon stats can be filtered by map and agent and available for different opponent loadout values.</h2>
+          <h2 className="text-2xl text-white text-center max-w-3xl">Weapon stats can be filtered by map and agent and are available for different opponent loadout values.</h2>
           <Link
             to="/weapons"
             className="w-80 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
