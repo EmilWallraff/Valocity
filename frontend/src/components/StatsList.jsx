@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
+import { agents } from "../data/hashcodes";
 import { weapons } from "../data/hashcodes";
+import { armors } from "../data/hashcodes";
+import { maps } from "../data/hashcodes"; 
 
 const statKeyMap = {
   "Kills/Round": "kills",
@@ -12,9 +15,9 @@ const statKeyMap = {
   "K/D": "kd"
 };
 
-export default function WeaponsList({ data, headers = [] }) {
+export default function StatsList({ data, headers = [], defaultHeader, imageType }) {
   const [expanded, setExpanded] = useState({});
-  const [sortKey, setSortKey] = useState("damage");
+  const [sortKey, setSortKey] = useState(statKeyMap[defaultHeader] || "damage");
   const [sortOrder, setSortOrder] = useState("desc");
 
   const toggleExpand = (id) => {
@@ -43,7 +46,7 @@ export default function WeaponsList({ data, headers = [] }) {
     <div className="p-4 w-full max-w-5xl mx-auto">
       <div className="flex font-bold border border-element-lighter py-2 text-left bg-element">
         <div className="w-6" />
-        <div className="flex-2 flex items-center gap-2 basis-2/6">Weapon</div>
+        <div className="flex-2 flex items-center gap-2 basis-2/6">{headers[0]}</div>
         {headers.slice(1).map((header) => (
           <div
             key={header}
@@ -55,40 +58,62 @@ export default function WeaponsList({ data, headers = [] }) {
         ))}
       </div>
 
-      {sortedData.map((weapon, index) => (
-        <div key={weapon.id}>
+      {sortedData.map((element, index) => (
+        <div key={element.id}>
           <div className={`flex items-center py-2 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}>
-            <div
-              onClick={() => toggleExpand(weapon.id)}
-              className="w-8 cursor-pointer flex justify-center"
-            >
-              {expanded[weapon.id] ? <ChevronDown /> : <ChevronRight />}
-            </div>
+            {Array.isArray(element.subentries) && element.subentries.length > 0 ? (
+              <div
+                onClick={() => toggleExpand(element.id)}
+                className="w-8 cursor-pointer flex justify-center"
+              >
+                {expanded[element.id] ? <ChevronDown /> : <ChevronRight />}
+              </div>
+            ) : (
+              <div className="w-8" />
+            )}
             <div className="flex items-center gap-2 h-16 basis-2/6">
               <div className="w-32 h-16 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img src={`/images/valorant/weapons/${weapons[weapon.name]}_killstream.png`} alt={weapon.name} className="max-w-full max-h-full object-contain" />
+                <img
+                  src={`/images/valorant/${
+                    {
+                      agents: 'agents/' + agents[element.name],
+                      weapons: 'weapons/' + weapons[element.name] + '_killstream',
+                      armors: 'armors/' + armors[element.name],
+                      maps: 'maps/' + maps[element.name] + '_listview',
+                    }[imageType]
+                  }.png`}
+                  alt={element.name}
+                  className="max-w-full max-h-full object-contain"
+                />
               </div>
-              <span className="truncate">{weapon.name}</span>
+              <span className="truncate">{element.name}</span>
             </div>
-            <div className="flex-1 text-center">{weapon.stats.damage.toFixed(2)}</div>
-            <div className="flex-1 text-center">{weapon.stats.kills.toFixed(2)}</div>
-            <div className="flex-1 text-center">{(weapon.stats.win * 100).toFixed(0)}%</div>
-            <div className="flex-1 text-center">{(weapon.stats.headshot * 100).toFixed(0)}%</div>
+
+            {headers.map((header, index) => {
+              if (index === 0) return null;
+
+              return (
+                <div className="flex-1 text-center">{header.includes("%") ? (element.stats[statKeyMap[header]] * 100).toFixed(0) + "%" :  element.stats[statKeyMap[header]].toFixed(2)}</div>
+              );
+            })}
           </div>
 
-          {expanded[weapon.id] && (
+          {expanded[element.id] && (
             <div>
-              {weapon.subentries.map((entry, i) => (
+              {element.subentries.map((entry, i) => (
                 <div
                   key={i}
                   className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}
                 >
                   <div className="w-8" />
                   <div className="basis-2/6">{entry.name}</div>
-                  <div className="flex-1 text-center">{entry.damage.toFixed(2)}</div>
-                  <div className="flex-1 text-center">{entry.kills.toFixed(2)}</div>
-                  <div className="flex-1 text-center">{(entry.win * 100).toFixed(0)}%</div>
-                  <div className="flex-1 text-center">{(entry.headshot * 100).toFixed(0)}%</div>
+                  {headers.map((header, index) => {
+                    if (index === 0) return null;
+
+                    return (
+                      <div className="flex-1 text-center">{header.includes("%") ? (entry[statKeyMap[header]] * 100).toFixed(0) + "%" :  entry[statKeyMap[header]].toFixed(2)}</div>
+                    );
+                  })}
                 </div>
               ))}
             </div>

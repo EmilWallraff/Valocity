@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import MultiSelect from "../components/MultiSelect";
-import WeaponsList from "../components/WeaponsList";
+import StatsList from "../components/StatsList";
 import { mapOptions } from "../data/imageSelectSets";
 import { agentOptions } from "../data/imageSelectSets";
 
@@ -72,7 +72,7 @@ function Agents() {
             </div>
           ) : (
             <div>
-              <WeaponsList data={data} headers={headers} />
+              <StatsList data={data} headers={headers} defaultHeader={"Win%"} imageType={"agents"} />
             </div>
           )}
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import MultiSelect from "../components/MultiSelect";
-import WeaponsList from "../components/WeaponsList";
+import StatsList from "../components/StatsList";
 import { weaponOptions } from "../data/imageSelectSets";
 import { mapOptions } from "../data/imageSelectSets";
 import { agentOptions } from "../data/imageSelectSets";
@@ -77,7 +77,7 @@ function Weapons() {
             </div>
           ) : (
             <div>
-              <WeaponsList data={data} headers={headers} />
+              <StatsList data={data} headers={headers} defaultHeader={"Damage/Round"} imageType={"weapons"} />
             </div>
           )}
         </div>
