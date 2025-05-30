@@ -28,7 +28,7 @@ function WinProbability() {
   const [probabilityState, setProbabilityState] = useState("Outdated");
 
   useEffect(() => {
-    document.title = 'Win Probability - valocity.gg';
+    document.title = 'Win Probability - valocity';
   }, []);
 
   async function predictWinProbability() {

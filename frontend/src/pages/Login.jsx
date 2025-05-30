@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 function Login() {
     useEffect(() => {
-      document.title = 'Login - valocity.gg';
+      document.title = 'Login - valocity';
     }, []);
 
     return (

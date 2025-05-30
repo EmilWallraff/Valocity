@@ -14,6 +14,14 @@ const headers = [
   "Damage/Round",
 ];
 
+const headerTooltips = {
+  "Pick%": "Percentage of teams where one player picked the agent",
+  "Win%": "Wins per non-drawn match against a team without the agent",
+  "K/D": "Kills per death",
+  "Kills/Round": "Kills per round",
+  "Damage/Round": "Damage per round"
+};
+
 function Agents() {
   const [data, setData] = useState(null);
   const [filteredAgents, setFiltereAgents] = useState(() => 
@@ -24,7 +32,7 @@ function Agents() {
   );
 
     useEffect(() => {
-      document.title = 'Agents - valocity.gg';
+      document.title = 'Agents - valocity';
 
       updateAgentValues()
     }, []);
@@ -72,7 +80,7 @@ function Agents() {
             </div>
           ) : (
             <div>
-              <StatsList data={data} headers={headers} defaultHeader={"Win%"} imageType={"agents"} />
+              <StatsList data={data} headers={headers} defaultHeader={"Win%"} headerTooltips={headerTooltips} imageType={"agents"} />
             </div>
           )}
         </div>

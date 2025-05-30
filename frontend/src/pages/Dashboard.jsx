@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 function Dashboard() {
     useEffect(() => {
-      document.title = 'Dashboard - valocity.gg';
+      document.title = 'Dashboard - valocity';
     }, []);
 
     return (

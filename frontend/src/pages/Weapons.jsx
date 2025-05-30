@@ -14,6 +14,13 @@ const headers = [
   "HS%"
 ];
 
+const headerTooltips = {
+  "Damage/Round": "Damage per round",
+  "Kills/Round": "Kills per round",
+  "Win%": "Percentage of rounds won when starting with the weapon as main weapon",
+  "HS%": "Headshots per hits on enemy agents"
+};
+
 function Weapons() {
   const [data, setData] = useState(null);
   const [filteredWeapons, setFilteredWeapons] = useState(() => 
@@ -27,7 +34,7 @@ function Weapons() {
   );
 
     useEffect(() => {
-      document.title = 'Weapons - valocity.gg';
+      document.title = 'Weapons - valocity';
 
       updateWeaponValues()
     }, []);
@@ -77,7 +84,7 @@ function Weapons() {
             </div>
           ) : (
             <div>
-              <StatsList data={data} headers={headers} defaultHeader={"Damage/Round"} imageType={"weapons"} />
+              <StatsList data={data} headers={headers} defaultHeader={"Damage/Round"} headerTooltips={headerTooltips} imageType={"weapons"} />
             </div>
           )}
         </div>

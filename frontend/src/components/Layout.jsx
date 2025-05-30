@@ -8,7 +8,7 @@ function Layout() {
       {/* Navigation bar */}
       <nav className="sticky top-0 z-50 flex items-center justify-between p-4 bg-black shadow-md">
         <div className="flex items-center space-x-6">
-          <Link to="/" className="text-2xl font-raj font-bold text-brand hover:text-brand-light">valocity.gg</Link>
+          <Link to="/" className="text-2xl font-raj font-bold text-brand hover:text-brand-light">valocity</Link>
           <NavigationDropdown items={ [
               { label: "Win Probability", image: `/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png`, path: "/winprobability" },
             ] } label="Tools" />

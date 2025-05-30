@@ -15,7 +15,7 @@ const statKeyMap = {
   "K/D": "kd"
 };
 
-export default function StatsList({ data, headers = [], defaultHeader, imageType }) {
+export default function StatsList({ data, headers = [], defaultHeader, headerTooltips = {}, imageType }) {
   const [expanded, setExpanded] = useState({});
   const [sortKey, setSortKey] = useState(statKeyMap[defaultHeader] || "damage");
   const [sortOrder, setSortOrder] = useState("desc");
@@ -51,9 +51,14 @@ export default function StatsList({ data, headers = [], defaultHeader, imageType
           <div
             key={header}
             onClick={() => handleSort(header)}
-            className={`flex-1 text-${sortKey === statKeyMap[header] ? sortOrder === "asc" ? "accent" : "brand" : "white"} text-center cursor-pointer`}
+            className={`group relative flex-1 text-${sortKey === statKeyMap[header] ? sortOrder === "asc" ? "accent" : "brand" : "white"} text-center cursor-pointer`}
           >
             {header}
+            {headerTooltips[header] && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-2 py-1 font-normal text-white bg-element-dark rounded border border-element-lighter shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                {headerTooltips[header]}
+              </div>
+            )}
           </div>
         ))}
       </div>
