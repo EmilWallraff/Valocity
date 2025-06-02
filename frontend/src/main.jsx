@@ -7,6 +7,8 @@ import Layout from './components/Layout';
 import ScrollToTop from './components/ScrollToTop';
 
 import Home from './pages/Home';
+import Impressum from './pages/Impressum';
+import Rights from './pages/Rights';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import WinProbability from './pages/WinProbability';
@@ -24,6 +26,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="impressum" element={<Impressum />} />
+        <Route path="rights" element={<Rights />} />
         <Route path="login" element={<Login />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="winprobability" element={<WinProbability />} />

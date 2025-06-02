@@ -23,6 +23,7 @@ const headerTooltips = {
 };
 
 function Agents() {
+  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const [data, setData] = useState(null);
   const [filteredAgents, setFiltereAgents] = useState(() => 
     agentOptions.map(agentOption => agentOption.label)
@@ -42,7 +43,7 @@ function Agents() {
     }, [filteredAgents, filteredMaps]);
 
     async function updateAgentValues() {
-      const response = await fetch("https://valocity.onrender.com/agents", {
+      const response = await fetch(`${BASE_URL}/agents`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

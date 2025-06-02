@@ -4,7 +4,7 @@ import NavigationDropdown from "../components/NavigationDropdown";
 
 function Layout() {
   return (
-    <div className="min-h-screen bg-darkness text-white">
+    <div className="flex flex-col min-h-screen bg-darkness text-white">
       {/* Navigation bar */}
       <nav className="sticky top-0 z-50 flex items-center justify-between p-4 bg-black shadow-md">
         <div className="flex items-center space-x-6">
@@ -23,9 +23,21 @@ function Layout() {
       </nav>
 
       {/* Page content */}
-      <main className="p-0">
+      <main className="flex-1">
         <Outlet />
       </main>
+
+      {/* Footer */}
+      <footer className="bg-black text-sm text-center text-white py-3">
+        <div className="flex justify-center space-x-6">
+          <Link to="/impressum" className="text-brand hover:text-brand-light transition">
+            Impressum
+          </Link>
+          <Link to="/rights" className="text-brand hover:text-brand-light transition">
+            Datenschutzerklärung
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }

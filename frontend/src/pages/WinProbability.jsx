@@ -7,6 +7,7 @@ import { armorOptions } from "../data/imageSelectSets";
 import { mapOptions } from "../data/imageSelectSets";
 
 function WinProbability() {
+  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const [isAttackers, setIsAttackers] = useState(true);
   const [map, setMap] = useState("Ascent");
   const [playersRed, setPlayersRed] = useState([
@@ -32,7 +33,7 @@ function WinProbability() {
   }, []);
 
   async function predictWinProbability() {
-    const response = await fetch("https://valocity.onrender.com/predict", {
+    const response = await fetch(`${BASE_URL}/predict`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

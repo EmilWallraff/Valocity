@@ -22,6 +22,7 @@ const headerTooltips = {
 };
 
 function Weapons() {
+  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const [data, setData] = useState(null);
   const [filteredWeapons, setFilteredWeapons] = useState(() => 
     weaponOptions.map(weaponOption => weaponOption.label)
@@ -44,7 +45,7 @@ function Weapons() {
     }, [filteredWeapons, filteredMaps, filteredAgents]);
 
     async function updateWeaponValues() {
-      const response = await fetch("https://valocity.onrender.com/weapons", {
+      const response = await fetch(`${BASE_URL}/weapons`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
