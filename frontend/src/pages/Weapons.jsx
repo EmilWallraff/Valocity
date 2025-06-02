@@ -44,7 +44,7 @@ function Weapons() {
     }, [filteredWeapons, filteredMaps, filteredAgents]);
 
     async function updateWeaponValues() {
-      const response = await fetch("http://localhost:8000/weapons", {
+      const response = await fetch("https://valocity.onrender.com/weapons", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

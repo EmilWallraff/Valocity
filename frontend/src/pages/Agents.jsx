@@ -42,7 +42,7 @@ function Agents() {
     }, [filteredAgents, filteredMaps]);
 
     async function updateAgentValues() {
-      const response = await fetch("http://localhost:8000/agents", {
+      const response = await fetch("https://valocity.onrender.com/agents", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
