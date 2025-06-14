@@ -38,10 +38,6 @@ function Weapons() {
       document.title = 'Weapons - valocity';
 
       updateWeaponValues()
-    }, []);
-
-    useEffect(() => {
-      updateWeaponValues();
     }, [filteredWeapons, filteredMaps, filteredAgents]);
 
     async function updateWeaponValues() {

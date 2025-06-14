@@ -35,10 +35,6 @@ function Agents() {
     useEffect(() => {
       document.title = 'Agents - valocity';
 
-      updateAgentValues()
-    }, []);
-
-    useEffect(() => {
       updateAgentValues();
     }, [filteredAgents, filteredMaps]);
 
