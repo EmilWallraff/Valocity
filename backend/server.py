@@ -6,18 +6,21 @@ import torch
 import joblib
 import pandas as pd
 
+import json
+
 import round_prediction
 import weapon_processing
 import agent_processing
 
 # Initialize FastAPI app
-app = FastAPI()
+#app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None) # Disables FastAPI docs from being exposed publicly
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # in production, set this more securely
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],  # Set this to frontend domain as soon as it works otherwise: "https://valocity.vercel.app"
+    allow_credentials=False, # Might have to be switched to True for cookies and stuff
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -142,7 +145,11 @@ class WeaponsRequest(BaseModel):
 def calculate(request: WeaponsRequest):
     filename_test = "logs25-1"
     path = "data/" + filename_test + ".json"
-    return weapon_processing.get_weapon_stats(path, request.weapons, request.maps, request.agents)
+    print("server weapons function called!")
+    #return weapon_processing.get_weapon_stats(path, request.weapons, request.maps, request.agents)
+    with open("data/weapons_placeholder_data.json", "r") as f:
+        return json.load(f)
+
 
 
 class AgentsRequest(BaseModel):
@@ -153,4 +160,7 @@ class AgentsRequest(BaseModel):
 def calculate(request: AgentsRequest):
     filename_test = "logs25-1"
     path = "data/" + filename_test + ".json"
-    return agent_processing.get_agent_stats(path, request.agents, request.maps)
+    print("server agents function called!")
+    #return agent_processing.get_agent_stats(path, request.agents, request.maps)
+    with open("data/agents_placeholder_data.json", "r") as f:
+        return json.load(f)
