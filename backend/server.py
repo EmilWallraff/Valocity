@@ -13,14 +13,15 @@ import weapon_processing
 import agent_processing
 
 # Initialize FastAPI app
-#app = FastAPI()
-app = FastAPI(docs_url=None, redoc_url=None) # Disables FastAPI docs from being exposed publicly
+app = FastAPI()
+#app = FastAPI(docs_url=None, redoc_url=None) # Disables FastAPI docs from being exposed publicly
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Set this to frontend domain as soon as it works otherwise: "https://valocity.vercel.app"
-    allow_credentials=False, # Might have to be switched to True for cookies and stuff
-    allow_methods=["GET", "POST"],
+    allow_credentials=True, # False is more secure but might have to be switched to True for cookies and stuff
+    #allow_methods=["GET", "POST"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
