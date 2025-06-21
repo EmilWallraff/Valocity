@@ -41,6 +41,7 @@ function Weapons() {
     }, [filteredWeapons, filteredMaps, filteredAgents]);
 
     async function updateWeaponValues() {
+      console.log(BASE_URL);
       const response = await fetch(`${BASE_URL}/weapons`, {
         method: "POST",
         headers: {

@@ -39,6 +39,7 @@ function Agents() {
     }, [filteredAgents, filteredMaps]);
 
     async function updateAgentValues() {
+      console.log(BASE_URL);
       const response = await fetch(`${BASE_URL}/agents`, {
         method: "POST",
         headers: {

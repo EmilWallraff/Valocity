@@ -33,6 +33,7 @@ function WinProbability() {
   }, []);
 
   async function predictWinProbability() {
+    console.log(BASE_URL);
     const response = await fetch(`${BASE_URL}/predict`, {
       method: "POST",
       headers: {
