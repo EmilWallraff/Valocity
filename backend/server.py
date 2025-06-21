@@ -165,3 +165,9 @@ def calculate(request: AgentsRequest):
     #return agent_processing.get_agent_stats(path, request.agents, request.maps)
     with open("data/agents_placeholder_data.json", "r") as f:
         return json.load(f)
+
+
+
+@app.get("/ping")
+def ping():
+    return {"status": "ok"}
