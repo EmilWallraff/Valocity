@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import MultiSelect from "../components/MultiSelect";
 import StatsList from "../components/StatsList";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { mapOptions } from "../data/imageSelectSets";
 import { agentOptions } from "../data/imageSelectSets";
 
@@ -39,24 +40,23 @@ function Agents() {
     }, [filteredAgents, filteredMaps]);
 
     async function updateAgentValues() {
-      const response = await fetch(`${BASE_URL}/agents`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          agents: filteredAgents,
-          maps: filteredMaps
-        }),
-      });
+      try {
+        const responseData = await fetchWithRetry(`${BASE_URL}/agents`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            agents: filteredAgents,
+            maps: filteredMaps
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch agent stats");
+        setData(responseData);
+        console.log("Agent Data: ", responseData);
+      } catch (error) {
+        console.error("Failed to fetch agent stats: ", error);
       }
-    
-      const responseData = await response.json();
-      setData(responseData);
-      console.log("Agent Data:", data);
     }
 
     return (

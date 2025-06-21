@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import ImageSelect from "../components/ImageSelect";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { agentOptions } from "../data/imageSelectSets";
 import { weaponOptions } from "../data/imageSelectSets";
 import { armorOptions } from "../data/imageSelectSets";
@@ -33,56 +34,55 @@ function WinProbability() {
   }, []);
 
   async function predictWinProbability() {
-    const response = await fetch(`${BASE_URL}/predict`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        attacker_team: isAttackers ? "RED" : "BLUE",
-        map: map,
-        RED_1_agent: playersRed[0]["agent"],
-        RED_1_weapon: playersRed[0]["weapon"],
-        RED_1_armor: playersRed[0]["armor"],
-        RED_2_agent: playersRed[1]["agent"],
-        RED_2_weapon: playersRed[1]["weapon"],
-        RED_2_armor: playersRed[1]["armor"],
-        RED_3_agent: playersRed[2]["agent"],
-        RED_3_weapon: playersRed[2]["weapon"],
-        RED_3_armor: playersRed[2]["armor"],
-        RED_4_agent: playersRed[3]["agent"],
-        RED_4_weapon: playersRed[3]["weapon"],
-        RED_4_armor: playersRed[3]["armor"],
-        RED_5_agent: playersRed[4]["agent"],
-        RED_5_weapon: playersRed[4]["weapon"],
-        RED_5_armor: playersRed[4]["armor"],
-        BLUE_1_agent: playersBlue[0]["agent"],
-        BLUE_1_weapon: playersBlue[0]["weapon"],
-        BLUE_1_armor: playersBlue[0]["armor"],
-        BLUE_2_agent: playersBlue[1]["agent"],
-        BLUE_2_weapon: playersBlue[1]["weapon"],
-        BLUE_2_armor: playersBlue[1]["armor"],
-        BLUE_3_agent: playersBlue[2]["agent"],
-        BLUE_3_weapon: playersBlue[2]["weapon"],
-        BLUE_3_armor: playersBlue[2]["armor"],
-        BLUE_4_agent: playersBlue[3]["agent"],
-        BLUE_4_weapon: playersBlue[3]["weapon"],
-        BLUE_4_armor: playersBlue[3]["armor"],
-        BLUE_5_agent: playersBlue[4]["agent"],
-        BLUE_5_weapon: playersBlue[4]["weapon"],
-        BLUE_5_armor: playersBlue[4]["armor"]
-      }),
-    });
+    try {
+      const responseData = await fetchWithRetry(`${BASE_URL}/predict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          attacker_team: isAttackers ? "RED" : "BLUE",
+          map: map,
+          RED_1_agent: playersRed[0]["agent"],
+          RED_1_weapon: playersRed[0]["weapon"],
+          RED_1_armor: playersRed[0]["armor"],
+          RED_2_agent: playersRed[1]["agent"],
+          RED_2_weapon: playersRed[1]["weapon"],
+          RED_2_armor: playersRed[1]["armor"],
+          RED_3_agent: playersRed[2]["agent"],
+          RED_3_weapon: playersRed[2]["weapon"],
+          RED_3_armor: playersRed[2]["armor"],
+          RED_4_agent: playersRed[3]["agent"],
+          RED_4_weapon: playersRed[3]["weapon"],
+          RED_4_armor: playersRed[3]["armor"],
+          RED_5_agent: playersRed[4]["agent"],
+          RED_5_weapon: playersRed[4]["weapon"],
+          RED_5_armor: playersRed[4]["armor"],
+          BLUE_1_agent: playersBlue[0]["agent"],
+          BLUE_1_weapon: playersBlue[0]["weapon"],
+          BLUE_1_armor: playersBlue[0]["armor"],
+          BLUE_2_agent: playersBlue[1]["agent"],
+          BLUE_2_weapon: playersBlue[1]["weapon"],
+          BLUE_2_armor: playersBlue[1]["armor"],
+          BLUE_3_agent: playersBlue[2]["agent"],
+          BLUE_3_weapon: playersBlue[2]["weapon"],
+          BLUE_3_armor: playersBlue[2]["armor"],
+          BLUE_4_agent: playersBlue[3]["agent"],
+          BLUE_4_weapon: playersBlue[3]["weapon"],
+          BLUE_4_armor: playersBlue[3]["armor"],
+          BLUE_5_agent: playersBlue[4]["agent"],
+          BLUE_5_weapon: playersBlue[4]["weapon"],
+          BLUE_5_armor: playersBlue[4]["armor"]
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch prediction");
+      setBlueProbability((responseData.BLUE * 100).toFixed(2));
+      setRedProbability((responseData.RED * 100).toFixed(2));
+      setProbabilityState("Updated");
+      console.log("Win Probability:", redProbability, blueProbability);
+    } catch (error) {
+      console.error("Failed to fetch prediction: ", error);
     }
-  
-    const responseData = await response.json();
-    setBlueProbability((responseData.BLUE * 100).toFixed(2));
-    setRedProbability((responseData.RED * 100).toFixed(2));
-    setProbabilityState("Updated");
-    console.log("Win Probability:", redProbability, blueProbability);
   }
 
   function updatePlayer(index, team, field, value) {

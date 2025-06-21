@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import MultiSelect from "../components/MultiSelect";
 import StatsList from "../components/StatsList";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { weaponOptions } from "../data/imageSelectSets";
 import { mapOptions } from "../data/imageSelectSets";
 import { agentOptions } from "../data/imageSelectSets";
@@ -41,25 +42,24 @@ function Weapons() {
     }, [filteredWeapons, filteredMaps, filteredAgents]);
 
     async function updateWeaponValues() {
-      const response = await fetch(`${BASE_URL}/weapons`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          weapons: filteredWeapons,
-          maps: filteredMaps,
-          agents: filteredAgents
-        }),
-      });
+      try {
+        const responseData = await fetchWithRetry(`${BASE_URL}/weapons`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            weapons: filteredWeapons,
+            maps: filteredMaps,
+            agents: filteredAgents
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch weapon stats");
+        setData(responseData);
+        console.log("Weapon Data: ", responseData);
+      } catch (error) {
+        console.error("Failed to fetch weapon stats: ", error);
       }
-    
-      const responseData = await response.json();
-      setData(responseData);
-      console.log("Weapon Data:", data);
     }
 
     return (
