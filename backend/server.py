@@ -20,7 +20,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Set this to frontend domain as soon as it works otherwise: "https://valocity.vercel.app"
     allow_credentials=True, # False is more secure but might have to be switched to True for cookies and stuff
-    #allow_methods=["GET", "POST"],
+    #allow_methods=["GET", "POST", "HEAD"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -168,6 +168,6 @@ def calculate(request: AgentsRequest):
 
 
 
-@app.get("/ping")
+@app.api_route("/ping", methods=["GET", "HEAD"])
 def ping():
     return {"status": "ok"}
