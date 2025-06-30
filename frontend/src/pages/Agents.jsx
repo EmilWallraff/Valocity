@@ -17,7 +17,7 @@ const headers = [
 
 const headerTooltips = {
   "Pick%": "Percentage of teams where one player picked the agent",
-  "Win%": "Wins per non-drawn match against a team without the agent",
+  "Win%": "Wins per non-drawn matches against a team without the agent",
   "K/D": "Kills per death",
   "Kills/Round": "Kills per round",
   "Damage/Round": "Damage per round"
