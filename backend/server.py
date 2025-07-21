@@ -147,7 +147,9 @@ def calculate(request: WeaponsRequest):
     filename_test = "logs25-1"
     path = "data/" + filename_test + ".json"
     print("server weapons function called!")
+
     #return weapon_processing.get_weapon_stats(path, request.weapons, request.maps, request.agents)
+    
     with open("data/weapons_placeholder_data.json", "r") as f:
         return json.load(f)
 
@@ -162,7 +164,9 @@ def calculate(request: AgentsRequest):
     filename_test = "logs25-1"
     path = "data/" + filename_test + ".json"
     print("server agents function called!")
+
     #return agent_processing.get_agent_stats(path, request.agents, request.maps)
+
     with open("data/agents_placeholder_data.json", "r") as f:
         return json.load(f)
 
