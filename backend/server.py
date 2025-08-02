@@ -137,6 +137,7 @@ def predict(request: PredictRequest):
     return {k: float(v) for k, v in zip(class_names, logits)}
 
 
+
 class WeaponsRequest(BaseModel):
     weapons: List[str]
     maps: List[str]
