@@ -33,8 +33,11 @@ function Layout() {
           <Link to="/impressum" className="text-brand hover:text-brand-light transition">
             Impressum
           </Link>
-          <Link to="/rights" className="text-brand hover:text-brand-light transition">
+          <Link to="/datenschutz" className="text-brand hover:text-brand-light transition">
             Datenschutzerklärung
+          </Link>
+          <Link to="/rights" className="text-brand hover:text-brand-light transition">
+            Terms of Service and Privacy
           </Link>
         </div>
       </footer>

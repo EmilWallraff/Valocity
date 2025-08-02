@@ -9,6 +9,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Impressum from './pages/Impressum';
 import Rights from './pages/Rights';
+import Datenschutz from './pages/Datenschutz';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import WinProbability from './pages/WinProbability';
@@ -28,6 +29,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route index element={<Home />} />
         <Route path="impressum" element={<Impressum />} />
         <Route path="rights" element={<Rights />} />
+        <Route path="datenschutz" element={<Datenschutz />} />
         <Route path="login" element={<Login />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="winprobability" element={<WinProbability />} />
