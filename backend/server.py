@@ -78,6 +78,8 @@ class PredictRequest(BaseModel):
     BLUE_5_weapon: str
     BLUE_5_armor: str
 
+
+
 # Define prediction endpoint
 @app.post("/predict")
 def predict(request: PredictRequest):
