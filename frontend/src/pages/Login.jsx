@@ -25,7 +25,7 @@ function Login() {
       .then(data => setUser(data))
       .catch(() => setUser(null));
 
-    console.log("User: ", user.user_id);
+    console.log("User: ", user);
   };
 
   return (
