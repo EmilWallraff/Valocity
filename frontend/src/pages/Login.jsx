@@ -14,7 +14,16 @@ function Login() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = "http://localhost:8000/login";
+    window.location.href = "/login";
+  };
+
+  const testLogin = () => {
+    fetch(`${BASE_URL}/me`, { credentials: "include" })
+      .then(res => res.json())
+      .then(data => setUser(data))
+      .catch(() => setUser(null));
+
+    console.log("User: ", user.user_id);
   };
 
   return (
@@ -28,6 +37,12 @@ function Login() {
         </button>
 {/*       <h2 className="text-4xl font-bold text-white mb-4">Working on Profiles, {user.user_id}.</h2> */}
         <h2 className="text-4xl font-bold text-white mb-4">Working on Profiles</h2>
+        <button
+          onClick={testLogin}
+          className="px-6 py-3 bg-red-600 text-white rounded-2xl shadow-md"
+        >
+          Test
+        </button>
       </div>
      </div>
     );
