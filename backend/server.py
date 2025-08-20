@@ -13,6 +13,9 @@ import json
 from dotenv import load_dotenv
 from jose import jwt
 import time
+from sqlalchemy.orm import Session
+
+from database import UserToken, get_db
 
 import round_prediction
 import weapon_processing
@@ -34,6 +37,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    #allow_origins=["*"], # Allows all sources (for example for local testing)
     allow_credentials=True, # False is more secure but must be True for cookies
     #allow_methods=["GET", "POST", "HEAD"],
     allow_methods=["*"],
@@ -231,7 +235,7 @@ async def login():
     return RedirectResponse(link)
 
 @app.get("/oauth/callback")
-async def oauth_callback(request: Request):
+async def oauth_callback(response: Response, request: Request, db: Session = Depends(get_db)):
     code = request.query_params.get("code")
     if not code:
         return JSONResponse({"error": "Missing code"}, status_code=400)
@@ -263,7 +267,24 @@ async def oauth_callback(request: Request):
 
     # Save refresh token & user data in DB (placeholder)
     user_id = userinfo["sub"]  # unique Riot user ID
-    save_tokens_to_db(user_id, tokens)  # <-- implement
+
+    # Save/update tokens in SQLite
+    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
+    if db_user:
+        db_user.access_token = tokens["access_token"]
+        db_user.refresh_token = tokens["refresh_token"]
+        db_user.id_token = tokens["id_token"]
+        db_user.scope = tokens.get("scope", "")
+    else:
+        db_user = UserToken(
+            user_id=user_id,
+            access_token=tokens["access_token"],
+            refresh_token=tokens["refresh_token"],
+            id_token=tokens["id_token"],
+            scope=tokens.get("scope", "")
+        )
+        db.add(db_user)
+    db.commit()
 
     # Create your own session cookie
     session_token = create_session_token(user_id)
@@ -279,7 +300,7 @@ async def oauth_callback(request: Request):
     return response
 
 @app.get("/me")
-async def me(request: Request):
+async def me(request: Request, db: Session = Depends(get_db)):
     session_token = request.cookies.get(COOKIE_NAME)
     if not session_token:
         raise HTTPException(401, "Not logged in")
@@ -289,16 +310,18 @@ async def me(request: Request):
         raise HTTPException(401, "Invalid session")
 
     user_id = payload["sub"]
-    user_tokens = get_tokens_from_db(user_id)  # <-- implement
+    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
+    if not db_user:
+        raise HTTPException(404, "User not found")
 
-    return {"user_id": user_id, "tokens": "hidden for frontend"}
+    return {"user_id": user_id, "scope": db_user.scope}
 
 
 
 def create_session_token(user_id: str):
     payload = {
         "sub": user_id,
-        "exp": int(time.time()) + 3600,  # 1h expiry for session
+        "exp": int(time.time()) + 3600, # 1h expiry for session
     }
     return jwt.encode(payload, APP_SECRET, algorithm=ALGORITHM)
 
@@ -308,30 +331,24 @@ def verify_session_token(token: str):
     except Exception:
         return None
 
-# Example helpers (replace with DB)
-user_db = {}
-def save_tokens_to_db(user_id, tokens):
-    user_db[user_id] = tokens
-def get_tokens_from_db(user_id):
-    return user_db.get(user_id)
-
-
-
-def refresh_access_token(user_id: str):
-    tokens = get_tokens_from_db(user_id)
-    refresh_token = tokens["refresh_token"]
+def refresh_access_token(user_id: str, db: Session):
+    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
+    if not db_user:
+        raise Exception("User not found")
 
     auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
 
     resp = requests.post(
         TOKEN_URL,
         headers={"Authorization": f"Basic {auth_header}"},
-        data={"grant_type": "refresh_token", "refresh_token": refresh_token},
+        data={"grant_type": "refresh_token", "refresh_token": db_user.refresh_token},
     )
 
     if resp.status_code == 200:
         new_tokens = resp.json()
-        save_tokens_to_db(user_id, new_tokens)
+        db_user.access_token = new_tokens["access_token"]
+        db_user.refresh_token = new_tokens.get("refresh_token", db_user.refresh_token)
+        db.commit()
         return new_tokens["access_token"]
 
     raise Exception("Failed to refresh token")
