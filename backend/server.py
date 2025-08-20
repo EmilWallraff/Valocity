@@ -1,18 +1,26 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Depends, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel
 from typing import List
 import torch
 import joblib
 import pandas as pd
-
+import requests
+import base64
+import os
 import json
+from dotenv import load_dotenv
+from jose import jwt
+import time
 
 import round_prediction
 import weapon_processing
 import agent_processing
 
 
+
+load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -26,6 +34,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Riot OAuth config
+CLIENT_ID = os.getenv("RIOT_CLIENT_ID")
+CLIENT_SECRET = os.getenv("RIOT_CLIENT_SECRET")
+if not CLIENT_ID or not CLIENT_SECRET:
+    raise RuntimeError("Missing Riot OAuth environment variables")
+
+#APP_BASE_URL = "http://localhost:8000" # backend
+APP_BASE_URL = "https://valocity.onrender.com" # backend
+REDIRECT_URI = f"{APP_BASE_URL}/oauth/callback"
+
+PROVIDER = "https://auth.riotgames.com"
+AUTHORIZE_URL = f"{PROVIDER}/authorize"
+TOKEN_URL = f"{PROVIDER}/token"
+USERINFO_URL = f"{PROVIDER}/userinfo"
+
+# Your app’s secret (for signing cookies)
+APP_SECRET = os.getenv("APP_SECRET", "dev_secret")
+if not APP_SECRET:
+    raise RuntimeError("Missing app secret variable")
+ALGORITHM = "HS256"
+COOKIE_NAME = "session"
+
+FRONTEND_URL = "https://valocity.app"
+
+
 
 # Load encoders
 encoders = joblib.load("models/round_win_predictor_v01_encoders.pkl")
@@ -77,8 +111,6 @@ class PredictRequest(BaseModel):
     BLUE_5_agent: str
     BLUE_5_weapon: str
     BLUE_5_armor: str
-
-
 
 # Define prediction endpoint
 @app.post("/predict")
@@ -180,3 +212,116 @@ def calculate(request: AgentsRequest):
 @app.api_route("/ping", methods=["GET", "HEAD"])
 def ping():
     return {"status": "ok"}
+
+
+
+@app.get("/login")
+async def login():
+    link = (
+        f"{AUTHORIZE_URL}?redirect_uri={REDIRECT_URI}"
+        f"&client_id={CLIENT_ID}"
+        f"&response_type=code"
+        f"&scope=openid offline_access"
+    )
+    return RedirectResponse(link)
+
+@app.get("/oauth/callback")
+async def oauth_callback(request: Request):
+    code = request.query_params.get("code")
+    if not code:
+        return JSONResponse({"error": "Missing code"}, status_code=400)
+
+    # Auth header for client_id + client_secret
+    auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+
+    # Exchange code for tokens
+    token_resp = requests.post(
+        TOKEN_URL,
+        headers={"Authorization": f"Basic {auth_header}"},
+        data={
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": REDIRECT_URI,
+        },
+    )
+
+    if token_resp.status_code != 200:
+        return JSONResponse({"error": "Token request failed", "details": token_resp.text}, status_code=400)
+
+    tokens = token_resp.json()
+
+    # Fetch Riot user info
+    userinfo = requests.get(
+        USERINFO_URL,
+        headers={"Authorization": f"Bearer {tokens['access_token']}"},
+    ).json()
+
+    # Save refresh token & user data in DB (placeholder)
+    user_id = userinfo["sub"]  # unique Riot user ID
+    save_tokens_to_db(user_id, tokens)  # <-- implement
+
+    # Create your own session cookie
+    session_token = create_session_token(user_id)
+    response = RedirectResponse(url=FRONTEND_URL)  # redirect to frontend
+    response.set_cookie(key=COOKIE_NAME, value=session_token, httponly=True, secure=False)
+
+    return response
+
+@app.get("/me")
+async def me(request: Request):
+    session_token = request.cookies.get(COOKIE_NAME)
+    if not session_token:
+        raise HTTPException(401, "Not logged in")
+
+    payload = verify_session_token(session_token)
+    if not payload:
+        raise HTTPException(401, "Invalid session")
+
+    user_id = payload["sub"]
+    user_tokens = get_tokens_from_db(user_id)  # <-- implement
+
+    return {"user_id": user_id, "tokens": "hidden for frontend"}
+
+
+
+def create_session_token(user_id: str):
+    payload = {
+        "sub": user_id,
+        "exp": int(time.time()) + 3600,  # 1h expiry for session
+    }
+    return jwt.encode(payload, APP_SECRET, algorithm=ALGORITHM)
+
+def verify_session_token(token: str):
+    try:
+        return jwt.decode(token, APP_SECRET, algorithms=[ALGORITHM])
+    except Exception:
+        return None
+
+# Example helpers (replace with DB)
+user_db = {}
+def save_tokens_to_db(user_id, tokens):
+    user_db[user_id] = tokens
+def get_tokens_from_db(user_id):
+    return user_db.get(user_id)
+
+
+
+def refresh_access_token(user_id: str):
+    tokens = get_tokens_from_db(user_id)
+    refresh_token = tokens["refresh_token"]
+
+    auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+
+    resp = requests.post(
+        TOKEN_URL,
+        headers={"Authorization": f"Basic {auth_header}"},
+        data={"grant_type": "refresh_token", "refresh_token": refresh_token},
+    )
+
+    if resp.status_code == 200:
+        new_tokens = resp.json()
+        save_tokens_to_db(user_id, new_tokens)
+        return new_tokens["access_token"]
+
+    raise Exception("Failed to refresh token")
+

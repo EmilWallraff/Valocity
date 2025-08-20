@@ -172,3 +172,13 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+
+# CUSTOM SECTION:
+
+# local save for secret login information
+.env
+
+# folder that VS Code created (and I don't think anyone else needs)
+.vscode/

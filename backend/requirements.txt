@@ -11,3 +11,7 @@ joblib
 fastapi
 pydantic
 uvicorn
+requests
+python-dotenv
+python-jose[cryptography]
+itsdangerous
