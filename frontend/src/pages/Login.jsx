@@ -20,13 +20,14 @@ function Login() {
   return (
     <div className="bg-darkness items-center pt-16 p-6 space-y-16">
       <div className="flex flex-col items-center space-y-8">
-         <button
-           onClick={handleLogin}
-           className="px-6 py-3 bg-red-600 text-white rounded-2xl shadow-md"
-         >
-           Sign in with Riot
-         </button>
-        <h2 className="text-4xl font-bold text-white mb-4">Working on Profiles, {user.user_id}.</h2>
+        <button
+          onClick={handleLogin}
+          className="px-6 py-3 bg-red-600 text-white rounded-2xl shadow-md"
+        >
+          Sign in with Riot
+        </button>
+{/*       <h2 className="text-4xl font-bold text-white mb-4">Working on Profiles, {user.user_id}.</h2> */}
+        <h2 className="text-4xl font-bold text-white mb-4">Working on Profiles</h2>
       </div>
      </div>
     );
