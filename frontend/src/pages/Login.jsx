@@ -7,10 +7,12 @@ function Login() {
   useEffect(() => {
     document.title = 'Login - valocity';
 
+    {/*
     fetch(`${BASE_URL}/me`, { credentials: "include" })
       .then(res => res.json())
       .then(data => setUser(data))
       .catch(() => setUser(null));
+    */}
   }, []);
 
   const handleLogin = () => {
@@ -35,7 +37,6 @@ function Login() {
         >
           Sign in with Riot
         </button>
-{/*       <h2 className="text-4xl font-bold text-white mb-4">Working on Profiles, {user.user_id}.</h2> */}
         <h2 className="text-4xl font-bold text-white mb-4">Working on Profiles</h2>
         <button
           onClick={testLogin}

@@ -26,10 +26,15 @@ load_dotenv()
 app = FastAPI()
 #app = FastAPI(docs_url=None, redoc_url=None) # Disables FastAPI docs from being exposed publicly
 
+origins = [
+    "https://valocity.app",
+    "https://valocity.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Set this to frontend domain as soon as it works otherwise: "https://valocity.vercel.app"
-    allow_credentials=True, # False is more secure but might have to be switched to True for cookies and stuff
+    allow_origins=origins,
+    allow_credentials=True, # False is more secure but must be True for cookies
     #allow_methods=["GET", "POST", "HEAD"],
     allow_methods=["*"],
     allow_headers=["*"],
@@ -263,7 +268,13 @@ async def oauth_callback(request: Request):
     # Create your own session cookie
     session_token = create_session_token(user_id)
     response = RedirectResponse(url=FRONTEND_URL)  # redirect to frontend
-    response.set_cookie(key=COOKIE_NAME, value=session_token, httponly=True, secure=False)
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=session_token,
+        httponly=True,
+        secure=True,        # must be True in production (https only)
+        samesite="none",    # required for cross-site cookies
+    )
 
     return response
 
