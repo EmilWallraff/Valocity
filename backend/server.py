@@ -295,6 +295,7 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
         httponly=True,
         secure=True,        # must be True in production (https only)
         samesite="none",    # required for cross-site cookies
+        domain="valocity.onrender.com"  # ⬅ force backend domain
     )
 
     return response
