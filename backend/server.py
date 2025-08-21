@@ -51,7 +51,8 @@ if not CLIENT_ID or not CLIENT_SECRET:
     raise RuntimeError("Missing Riot OAuth environment variables")
 
 #APP_BASE_URL = "http://localhost:8000" # backend
-APP_BASE_URL = "https://valocity.onrender.com" # backend
+APP_BASE_DOMAIN = "valocity.onrender.com"
+APP_BASE_URL = f"https://{APP_BASE_DOMAIN}" # backend
 REDIRECT_URI = f"{APP_BASE_URL}/oauth/callback"
 
 PROVIDER = "https://auth.riotgames.com"
@@ -226,9 +227,6 @@ def ping():
 
 @app.get("/login")
 async def login():
-
-    print("called /login")
-
     link = (
         f"{AUTHORIZE_URL}?redirect_uri={REDIRECT_URI}"
         f"&client_id={CLIENT_ID}"
@@ -239,14 +237,11 @@ async def login():
 
 @app.get("/oauth/callback")
 async def oauth_callback(response: Response, request: Request, db: Session = Depends(get_db)):
-
-    print("called /oauth/callback")
-
     code = request.query_params.get("code")
     if not code:
         return JSONResponse({"error": "Missing code"}, status_code=400)
 
-    # Auth header for client_id + client_secret
+    # Exchange code for tokens
     auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
 
     # Exchange code for tokens
@@ -271,23 +266,31 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
         headers={"Authorization": f"Bearer {tokens['access_token']}"},
     ).json()
 
-    # Save refresh token & user data in DB (placeholder)
-    user_id = userinfo["sub"]  # unique Riot user ID
+    user_id = userinfo["sub"]
+    puuid = userinfo.get("puuid")
+    game_name = userinfo.get("acct", {}).get("game_name")
+    tag_line = userinfo.get("acct", {}).get("tag_line")
 
-    # Save/update tokens in SQLite
+    # Save/update in SQLite
     db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
     if db_user:
         db_user.access_token = tokens["access_token"]
         db_user.refresh_token = tokens["refresh_token"]
         db_user.id_token = tokens["id_token"]
         db_user.scope = tokens.get("scope", "")
+        db_user.puuid = puuid
+        db_user.game_name = game_name
+        db_user.tag_line = tag_line
     else:
         db_user = UserToken(
             user_id=user_id,
             access_token=tokens["access_token"],
             refresh_token=tokens["refresh_token"],
             id_token=tokens["id_token"],
-            scope=tokens.get("scope", "")
+            scope=tokens.get("scope", ""),
+            puuid=puuid,
+            game_name=game_name,
+            tag_line=tag_line,
         )
         db.add(db_user)
     db.commit()
@@ -299,18 +302,15 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
         key=COOKIE_NAME,
         value=session_token,
         httponly=True,
-        secure=True,        # must be True in production (https only)
-        samesite="none",    # required for cross-site cookies
-        domain="valocity.onrender.com" # force backend domain
+        secure=True,            # must be True in production (https only)
+        samesite="none",        # required for cross-site cookies
+        domain=APP_BASE_DOMAIN  # force backend domain
     )
 
     return response
 
 @app.get("/me")
 async def me(request: Request, db: Session = Depends(get_db)):
-
-    print("called /me")
-
     session_token = request.cookies.get(COOKIE_NAME)
     if not session_token:
         raise HTTPException(401, "Not logged in")
@@ -324,7 +324,13 @@ async def me(request: Request, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(404, "User not found")
 
-    return {"user_id": user_id, "scope": db_user.scope}
+    return {
+        "user_id": user_id,
+        "scope": db_user.scope,
+        "puuid": db_user.puuid,
+        "game_name": db_user.game_name,
+        "tag_line": db_user.tag_line,
+    }
 
 
 

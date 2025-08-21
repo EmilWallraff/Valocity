@@ -18,6 +18,10 @@ class UserToken(Base):
     id_token = Column(Text)
     scope = Column(String)
 
+    puuid = Column(String, unique=True, index=True, nullable=True)
+    game_name = Column(String, nullable=True)
+    tag_line = Column(String, nullable=True)
+
 Base.metadata.create_all(bind=engine)
 
 # Dependency for FastAPI
