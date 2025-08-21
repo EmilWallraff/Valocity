@@ -17,10 +17,6 @@ function Login() {
 
   const handleLogin = () => {
     window.location.href = `${BASE_URL}/login`;
-
-    {/*
-    window.location.href = "/login";
-    */}
   };
 
   const testLogin = () => {
