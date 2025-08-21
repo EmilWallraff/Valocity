@@ -270,7 +270,7 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
     ).json()
 
     user_id = userinfo["sub"]
-    puuid = userinfo.get("puuid")
+    puuid = userinfo["puuid"]
     game_name = userinfo.get("acct", {}).get("game_name")
     tag_line = userinfo.get("acct", {}).get("tag_line")
 
