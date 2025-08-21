@@ -1,5 +1,6 @@
-from sqlalchemy import create_engine, Column, String, Integer, Text
+from sqlalchemy import create_engine, Column, String, Integer, Text, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker
+from datetime import datetime, timedelta
 
 DATABASE_URL = "sqlite:///./riot_tokens.db"
 
@@ -12,7 +13,7 @@ class UserToken(Base):
     __tablename__ = "user_tokens"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, unique=True, index=True)  # Riot's "sub"
+    user_id = Column(String, unique=True, index=True)
     access_token = Column(Text)
     refresh_token = Column(Text)
     id_token = Column(Text)
@@ -21,6 +22,8 @@ class UserToken(Base):
     puuid = Column(String, unique=True, index=True, nullable=True)
     game_name = Column(String, nullable=True)
     tag_line = Column(String, nullable=True)
+
+    expires_at = Column(DateTime, nullable=True)
 
 Base.metadata.create_all(bind=engine)
 

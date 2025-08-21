@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from jose import jwt
 import time
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
 
 from database import UserToken, get_db
 
@@ -260,6 +261,8 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
 
     tokens = token_resp.json()
 
+    expires_in = tokens.get("expires_in", 3600)
+
     # Fetch Riot user info
     userinfo = requests.get(
         USERINFO_URL,
@@ -281,6 +284,7 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
         db_user.puuid = puuid
         db_user.game_name = game_name
         db_user.tag_line = tag_line
+        db_user.expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
     else:
         db_user = UserToken(
             user_id=user_id,
@@ -291,6 +295,7 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
             puuid=puuid,
             game_name=game_name,
             tag_line=tag_line,
+            expires_at=datetime.utcnow() + timedelta(seconds=expires_in)
         )
         db.add(db_user)
     db.commit()
@@ -324,8 +329,15 @@ async def me(request: Request, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(404, "User not found")
 
+    # Refresh if expired
+    if not db_user.expires_at or datetime.utcnow() >= db_user.expires_at:
+        refreshed = refresh_tokens(db, db_user)
+        if not refreshed:
+            raise HTTPException(401, "Failed to refresh token")
+        db_user = refreshed
+
     return {
-        "user_id": user_id,
+        "user_id": db_user.user_id,
         "scope": db_user.scope,
         "puuid": db_user.puuid,
         "game_name": db_user.game_name,
@@ -347,6 +359,7 @@ def verify_session_token(token: str):
     except Exception:
         return None
 
+'''
 def refresh_access_token(user_id: str, db: Session):
     db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
     if not db_user:
@@ -368,4 +381,32 @@ def refresh_access_token(user_id: str, db: Session):
         return new_tokens["access_token"]
 
     raise Exception("Failed to refresh token")
+'''
+
+def refresh_tokens(db, user: UserToken):
+    if not user.refresh_token:
+        return None
+
+    auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+    resp = requests.post(
+        TOKEN_URL,
+        headers={"Authorization": f"Basic {auth_header}"},
+        data={"grant_type": "refresh_token", "refresh_token": user.refresh_token},
+    )
+
+    if resp.status_code != 200:
+        return None
+
+    new_tokens = resp.json()
+    expires_in = new_tokens.get("expires_in", 3600)
+
+    # Update DB
+    user.access_token = new_tokens["access_token"]
+    user.refresh_token = new_tokens.get("refresh_token", user.refresh_token)
+    user.id_token = new_tokens.get("id_token", user.id_token)
+    user.expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+    db.commit()
+    db.refresh(user)
+
+    return user
 
