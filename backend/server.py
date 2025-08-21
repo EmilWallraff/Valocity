@@ -226,6 +226,9 @@ def ping():
 
 @app.get("/login")
 async def login():
+
+    print("called /login")
+
     link = (
         f"{AUTHORIZE_URL}?redirect_uri={REDIRECT_URI}"
         f"&client_id={CLIENT_ID}"
@@ -236,6 +239,9 @@ async def login():
 
 @app.get("/oauth/callback")
 async def oauth_callback(response: Response, request: Request, db: Session = Depends(get_db)):
+
+    print("called /oauth/callback")
+
     code = request.query_params.get("code")
     if not code:
         return JSONResponse({"error": "Missing code"}, status_code=400)
@@ -295,13 +301,18 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
         httponly=True,
         secure=True,        # must be True in production (https only)
         samesite="none",    # required for cross-site cookies
-        domain="valocity.onrender.com"  # ⬅ force backend domain
+        domain=APP_BASE_URL  # ⬅ force backend domain
     )
+
+    print("executed /oauth/callback including cookie creation")
 
     return response
 
 @app.get("/me")
 async def me(request: Request, db: Session = Depends(get_db)):
+
+    print("called /me")
+
     session_token = request.cookies.get(COOKIE_NAME)
     if not session_token:
         raise HTTPException(401, "Not logged in")
