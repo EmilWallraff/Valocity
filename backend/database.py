@@ -18,11 +18,6 @@ class UserToken(Base):
     refresh_token = Column(Text)
     id_token = Column(Text)
     scope = Column(String)
-
-    puuid = Column(String, unique=True, index=True, nullable=True)
-    game_name = Column(String, nullable=True)
-    tag_line = Column(String, nullable=True)
-
     expires_at = Column(DateTime, nullable=True)
 
 Base.metadata.create_all(bind=engine)

@@ -269,12 +269,7 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
         headers={"Authorization": f"Bearer {tokens['access_token']}"},
     ).json()
 
-    print(userinfo)
-
     user_id = userinfo["sub"]
-    puuid = userinfo.get("puuid")
-    game_name = userinfo.get("acct", {}).get("game_name")
-    tag_line = userinfo.get("acct", {}).get("tag_line")
 
     # Save/update in SQLite
     db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
@@ -283,9 +278,6 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
         db_user.refresh_token = tokens["refresh_token"]
         db_user.id_token = tokens["id_token"]
         db_user.scope = tokens.get("scope", "")
-        db_user.puuid = puuid
-        db_user.game_name = game_name
-        db_user.tag_line = tag_line
         db_user.expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
     else:
         db_user = UserToken(
@@ -294,9 +286,6 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
             refresh_token=tokens["refresh_token"],
             id_token=tokens["id_token"],
             scope=tokens.get("scope", ""),
-            puuid=puuid,
-            game_name=game_name,
-            tag_line=tag_line,
             expires_at=datetime.utcnow() + timedelta(seconds=expires_in)
         )
         db.add(db_user)
@@ -341,9 +330,6 @@ async def me(request: Request, db: Session = Depends(get_db)):
     return {
         "user_id": db_user.user_id,
         "scope": db_user.scope,
-        "puuid": db_user.puuid,
-        "game_name": db_user.game_name,
-        "tag_line": db_user.tag_line,
     }
 
 
