@@ -26,7 +26,6 @@ function Login() {
       .catch(() => setUser(null));
 
     console.log("User: ", user);
-    console.log("User id .: ", user.user_id);
   };
 
   return (
