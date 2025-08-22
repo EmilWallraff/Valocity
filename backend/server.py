@@ -353,6 +353,7 @@ def verify_session_token(token: str):
     try:
         return jwt.decode(token, APP_SECRET, algorithms=[ALGORITHM])
     except Exception:
+        print("failed to verify session token!")
         return None
 
 '''
