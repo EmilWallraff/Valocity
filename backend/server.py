@@ -315,16 +315,16 @@ async def me(request: Request, db: Session = Depends(get_db)):
 
     payload = verify_session_token(session_token)
     if not payload:
-        raise HTTPException(401, "Invalid session")
+        raise HTTPException(401, "Session expired, please log in again")
     else:
         print("session token verified")
 
     user_id = payload["sub"]
     db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
     if not db_user:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, "User not found in database")
     else:
-        print("user found")
+        print("user found in database")
 
     # Refresh if expired
     if not db_user.expires_at or datetime.utcnow() >= db_user.expires_at:
@@ -341,11 +341,11 @@ async def me(request: Request, db: Session = Depends(get_db)):
     }
 
 
-# RESET EXPIRATION TIME TO 3600!!!
+
 def create_session_token(user_id: str):
     payload = {
         "sub": user_id,
-        "exp": int(time.time()) + 60, # 1h expiry for session
+        "exp": int(time.time()) + 7*24*3600, # expiry for session
     }
     return jwt.encode(payload, APP_SECRET, algorithm=ALGORITHM)
 
@@ -353,7 +353,6 @@ def verify_session_token(token: str):
     try:
         return jwt.decode(token, APP_SECRET, algorithms=[ALGORITHM])
     except Exception:
-        print("failed to verify session token!")
         return None
 
 '''
@@ -381,9 +380,6 @@ def refresh_access_token(user_id: str, db: Session):
 '''
 
 def refresh_tokens(db, user: UserToken):
-
-    print("refreshing token")
-
     if not user.refresh_token:
         return None
 
