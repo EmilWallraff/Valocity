@@ -27,7 +27,6 @@ function Login() {
 
     console.log("User: ", user);
     console.log("User id []: ", user["user_id"]);
-    console.log("User id .: ", user.user_id);
   };
 
   return (
