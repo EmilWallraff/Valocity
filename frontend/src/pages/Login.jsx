@@ -46,6 +46,7 @@ function Login() {
         >
           Test (No Effect for Users)
         </button>
+        {/*
         <div className="">
           {!user ? (
             <h2 className="text-2xl text-white text-center max-w-3xl">No user identified yet</h2>
@@ -53,6 +54,7 @@ function Login() {
             <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {user}!</h2>
           )}
         </div>
+        */}
 
       </div>
      </div>
