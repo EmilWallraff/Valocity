@@ -14,13 +14,31 @@ function Login() {
     window.location.href = `${BASE_URL}/login`;
   };
 
-  const updateUser = () => {
-    fetch(`${BASE_URL}/me`, { credentials: "include" })
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(() => setUser(null));
+  const updateUser = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/me`, { credentials: "include" });
 
-    console.log("User: ", user);
+      if (!res.ok) {
+        console.error("Failed to fetch user:", res.status);
+        setUser(null);
+        return;
+      }
+
+      const data = await res.json();
+
+      if (!data || !data.user_id) {
+        console.warn("User data missing or malformed:", data);
+        setUser(null);
+        return;
+      }
+
+      setUser(data);
+      console.log("User: ", user);
+
+    } catch (err) {
+      console.error("Error fetching user:", err);
+      setUser(null);
+    }
   };
 
   return (
@@ -42,15 +60,16 @@ function Login() {
           Test (No Effect for Users)
         </button>
         <div className="">
-          {!user || user == null ? (
-            <h2 className="text-2xl text-white text-center max-w-3xl">No user identified yet</h2>
+          {!user ? (
+            <h2 className="text-2xl text-white text-center max-w-3xl">No user identified yet.</h2>
           ) : (
-            <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {user.user_id.slice(0, 10)}!</h2>
+            <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {user.user_id?.slice(0, 10) ?? "Unknown"}!</h2>
           )}
         </div>
+
       </div>
-     </div>
-    );
-  }
+    </div>
+  );
+}
   
-  export default Login;
+export default Login;
