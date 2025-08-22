@@ -7,19 +7,14 @@ function Login() {
   useEffect(() => {
     document.title = 'Login - valocity';
 
-    {/*
-    fetch(`${BASE_URL}/me`, { credentials: "include" })
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(() => setUser(null));
-    */}
+    updateUser();
   }, []);
 
   const handleLogin = () => {
     window.location.href = `${BASE_URL}/login`;
   };
 
-  const testLogin = () => {
+  const updateUser = () => {
     fetch(`${BASE_URL}/me`, { credentials: "include" })
       .then(res => res.json())
       .then(data => setUser(data))
@@ -41,7 +36,7 @@ function Login() {
         </button>
         <h2 className="text-2xl text-white text-center max-w-3xl">By signing in with Riot you acknowledge that your profile becomes public.</h2>
         <button
-          onClick={testLogin}
+          onClick={updateUser}
           className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
         >
           Test (No Effect for Users)
