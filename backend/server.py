@@ -310,21 +310,29 @@ async def me(request: Request, db: Session = Depends(get_db)):
     session_token = request.cookies.get(COOKIE_NAME)
     if not session_token:
         raise HTTPException(401, "Not logged in")
+    else:
+        print("session token found")
 
     payload = verify_session_token(session_token)
     if not payload:
         raise HTTPException(401, "Invalid session")
+    else:
+        print("session token verified")
 
     user_id = payload["sub"]
     db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
     if not db_user:
         raise HTTPException(404, "User not found")
+    else:
+        print("user found")
 
     # Refresh if expired
     if not db_user.expires_at or datetime.utcnow() >= db_user.expires_at:
         refreshed = refresh_tokens(db, db_user)
         if not refreshed:
             raise HTTPException(401, "Failed to refresh token")
+        else:
+            print("token refreshed")
         db_user = refreshed
 
     return {
@@ -333,11 +341,11 @@ async def me(request: Request, db: Session = Depends(get_db)):
     }
 
 
-
+# RESET EXPIRATION TIME TO 3600!!!
 def create_session_token(user_id: str):
     payload = {
         "sub": user_id,
-        "exp": int(time.time()) + 3600, # 1h expiry for session
+        "exp": int(time.time()) + 60, # 1h expiry for session
     }
     return jwt.encode(payload, APP_SECRET, algorithm=ALGORITHM)
 
