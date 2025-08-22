@@ -62,7 +62,7 @@ TOKEN_URL = f"{PROVIDER}/token"
 USERINFO_URL = f"{PROVIDER}/userinfo"
 
 # Your app’s secret (for signing cookies)
-APP_SECRET = os.getenv("APP_SECRET", "dev_secret")
+APP_SECRET = os.getenv("APP_SECRET")
 if not APP_SECRET:
     raise RuntimeError("Missing app secret variable")
 ALGORITHM = "HS256"
@@ -372,6 +372,9 @@ def refresh_access_token(user_id: str, db: Session):
 '''
 
 def refresh_tokens(db, user: UserToken):
+
+    print("refreshing token")
+
     if not user.refresh_token:
         return None
 
