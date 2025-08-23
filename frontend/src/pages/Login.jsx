@@ -54,7 +54,7 @@ function Login() {
 
       const data = await res.json();
 
-      if (!data || !data.user_id) {
+      if (!data) {
         console.warn("Username data missing or malformed:", data);
         setUsername(null);
         return;
@@ -113,5 +113,5 @@ function Login() {
     </div>
   );
 }
-  
+
 export default Login;
