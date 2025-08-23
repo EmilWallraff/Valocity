@@ -97,7 +97,6 @@ function Login() {
             <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {user.user_id?.slice(0, 10) ?? "Unknown"}!</h2>
           )}
         </div>
-        */}
 
         <button
           onClick={updateUserinfo}
@@ -105,11 +104,13 @@ function Login() {
         >
           Test 2
         </button>
+        */}
+
         <div className="">
           {!userinfo ? (
             <h2 className="text-2xl text-white text-center max-w-3xl">You are currently not logged in.</h2>
           ) : (
-            <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {userinfo.gameName ?? "Unknown"}{userinfo.tagLine ?? ""}!</h2>
+            <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {userinfo.gameName ?? "Unknown"}{userinfo.tagLine ? "#" : ""}{userinfo.tagLine ?? ""}!</h2>
           )}
         </div>
 
