@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 function Login() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const [user, setUser] = useState(null);
-  const [username, setUsername] = useState(null);
+  const [userinfo, setUserinfo] = useState(null);
 
   useEffect(() => {
     document.title = 'Login - valocity';
 
-    updateUser();
+    //updateUser();
+    updateUserinfo();
   }, []);
 
   const handleLogin = () => {
@@ -42,30 +43,30 @@ function Login() {
     }
   };
 
-  const updateUsername = async () => {
+  const updateUserinfo = async () => {
     try {
       const res = await fetch(`${BASE_URL}/riot/me`, { credentials: "include" });
 
       if (!res.ok) {
-        console.error("Failed to fetch username:", res.status);
-        setUsername(null);
+        console.error("Failed to fetch userinfo:", res.status);
+        setUserinfo(null);
         return;
       }
 
       const data = await res.json();
 
       if (!data) {
-        console.warn("Username data missing or malformed:", data);
-        setUsername(null);
+        console.warn("Userinfo data missing or malformed:", data);
+        setUserinfo(null);
         return;
       }
 
-      setUsername(data);
-      console.log("Username: ", username);
+      setUserinfo(data);
+      console.log("Userinfo: ", userinfo);
 
     } catch (err) {
-      console.error("Error fetching username:", err);
-      setUsername(null);
+      console.error("Error fetching userinfo:", err);
+      setUserinfo(null);
     }
   };
 
@@ -81,6 +82,8 @@ function Login() {
           Sign in with Riot
         </button>
         <h2 className="text-2xl text-white text-center max-w-3xl">By signing in with Riot you acknowledge that your profile becomes public.</h2>
+
+        {/*
         <button
           onClick={updateUser}
           className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
@@ -94,18 +97,19 @@ function Login() {
             <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {user.user_id?.slice(0, 10) ?? "Unknown"}!</h2>
           )}
         </div>
+        */}
 
         <button
-          onClick={updateUsername}
+          onClick={updateUserinfo}
           className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
         >
           Test 2
         </button>
         <div className="">
-          {!username ? (
-            <h2 className="text-2xl text-white text-center max-w-3xl">No username identified yet.</h2>
+          {!userinfo ? (
+            <h2 className="text-2xl text-white text-center max-w-3xl">You are currently not logged in.</h2>
           ) : (
-            <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {username.gameName ?? "Unknown"}!</h2>
+            <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {userinfo.gameName ?? "Unknown"}{userinfo.tagLine ?? ""}!</h2>
           )}
         </div>
 
