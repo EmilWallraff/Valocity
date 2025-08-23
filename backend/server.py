@@ -406,3 +406,48 @@ def refresh_tokens(db, user: UserToken):
 
     return user
 
+
+
+@app.get("/riot/me")
+async def riot_me(request: Request, db: Session = Depends(get_db)):
+    # Verify session cookie
+    session_token = request.cookies.get(COOKIE_NAME)
+    if not session_token:
+        raise HTTPException(401, "Not logged in")
+
+    payload = verify_session_token(session_token)
+    if not payload:
+        raise HTTPException(401, "Invalid session")
+
+    user_id = payload["sub"]
+    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
+    if not db_user:
+        raise HTTPException(404, "User not found")
+
+    access_token = db_user.access_token
+
+    # Riot account endpoint (choose region closest to your server)
+    riot_endpoint = "https://europe.api.riotgames.com/riot/account/v1/accounts/me"
+
+    resp = requests.get(
+        riot_endpoint,
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+
+    '''
+    # If access token expired, refresh and retry once
+    if resp.status_code == 401:
+        try:
+            new_access_token = refresh_access_token(user_id, db)
+            resp = requests.get(
+                riot_endpoint,
+                headers={"Authorization": f"Bearer {new_access_token}"}
+            )
+        except Exception as e:
+            raise HTTPException(401, f"Token refresh failed: {e}")
+    '''
+
+    if resp.status_code != 200:
+        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
+
+    return resp.json()
