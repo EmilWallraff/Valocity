@@ -21,17 +21,18 @@ function Layout() {
             ] } label="Global Stats" />
         </div>
         <div className="space-x-4">
-          {/* <Link to="/login" className="text-brand hover:text-brand-light font-bold transition">Login</Link> */}
           {loading ? (
             <span className="text-gray-400">Loading...</span>
           ) : userinfo ? (
-            <span className="text-brand font-bold">
+            <Link to="/login" className="text-brand hover:text-brand-light font-bold transition">
               {userinfo.gameName ?? "Unknown"}
               {userinfo.tagLine ? "#" : ""}
               {userinfo.tagLine ?? ""}
-            </span>
+            </Link>
           ) : (
-            <Link to="/login" className="text-brand hover:text-brand-light font-bold transition">Login</Link>
+            <Link to="/login" className="text-brand hover:text-brand-light font-bold transition">
+              Login
+            </Link>
           )}
         </div>
       </nav>

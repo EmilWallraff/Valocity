@@ -16,35 +16,6 @@ function Login() {
     window.location.href = `${BASE_URL}/login`;
   };
 
-  {/*
-  const updateUserinfo = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/riot/me`, { credentials: "include" });
-
-      if (!res.ok) {
-        console.error("Failed to fetch userinfo:", res.status);
-        setUserinfo(null);
-        return;
-      }
-
-      const data = await res.json();
-
-      if (!data) {
-        console.warn("Userinfo data missing or malformed:", data);
-        setUserinfo(null);
-        return;
-      }
-
-      setUserinfo(data);
-      console.log("Userinfo: ", userinfo);
-
-    } catch (err) {
-      console.error("Error fetching userinfo:", err);
-      setUserinfo(null);
-    }
-  };
-  */}
-
   return (
     <div className="bg-darkness items-center pt-16 p-6 space-y-16">
       <div className="flex flex-col items-center space-y-8">
@@ -57,29 +28,6 @@ function Login() {
           Sign in with Riot
         </button>
         <h2 className="text-2xl text-white text-center max-w-3xl">By signing in with Riot you acknowledge that your profile becomes public.</h2>
-
-        {/*
-        <button
-          onClick={updateUser}
-          className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
-        >
-          Test 1
-        </button>
-        <div className="">
-          {!user ? (
-            <h2 className="text-2xl text-white text-center max-w-3xl">No user identified yet.</h2>
-          ) : (
-            <h2 className="text-2xl text-white text-center max-w-3xl">Welcome, {user.user_id?.slice(0, 10) ?? "Unknown"}!</h2>
-          )}
-        </div>
-
-        <button
-          onClick={updateUserinfo}
-          className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center"
-        >
-          Test 2
-        </button>
-        */}
 
         <div>
           {!userinfo ? (
