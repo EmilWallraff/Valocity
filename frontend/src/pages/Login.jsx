@@ -1,48 +1,22 @@
 import { useEffect, useState } from 'react';
+import { useUser } from "../contexts/UserContext";
 
 function Login() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
-  const [user, setUser] = useState(null);
-  const [userinfo, setUserinfo] = useState(null);
+
+  const { userinfo, fetchUserinfo } = useUser();
 
   useEffect(() => {
     document.title = 'Login - valocity';
 
-    //updateUser();
-    updateUserinfo();
+    fetchUserinfo();
   }, []);
 
   const handleLogin = () => {
     window.location.href = `${BASE_URL}/login`;
   };
 
-  const updateUser = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/me`, { credentials: "include" });
-
-      if (!res.ok) {
-        console.error("Failed to fetch user:", res.status);
-        setUser(null);
-        return;
-      }
-
-      const data = await res.json();
-
-      if (!data || !data.user_id) {
-        console.warn("User data missing or malformed:", data);
-        setUser(null);
-        return;
-      }
-
-      setUser(data);
-      console.log("User: ", user);
-
-    } catch (err) {
-      console.error("Error fetching user:", err);
-      setUser(null);
-    }
-  };
-
+  {/*
   const updateUserinfo = async () => {
     try {
       const res = await fetch(`${BASE_URL}/riot/me`, { credentials: "include" });
@@ -69,6 +43,7 @@ function Login() {
       setUserinfo(null);
     }
   };
+  */}
 
   return (
     <div className="bg-darkness items-center pt-16 p-6 space-y-16">
@@ -106,7 +81,7 @@ function Login() {
         </button>
         */}
 
-        <div className="">
+        <div>
           {!userinfo ? (
             <h2 className="text-2xl text-white text-center max-w-3xl">You are currently not logged in.</h2>
           ) : (

@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 
+import { UserProvider } from './contexts/UserContext';
+
 import Layout from './components/Layout';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -22,21 +24,25 @@ import '@fontsource/rajdhani';
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <ScrollToTop />
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="impressum" element={<Impressum />} />
-        <Route path="rights" element={<Rights />} />
-        <Route path="datenschutz" element={<Datenschutz />} />
-        <Route path="login" element={<Login />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="winprobability" element={<WinProbability />} />
-        <Route path="weapons" element={<Weapons />} />
-        <Route path="agents" element={<Agents />} />
-      </Route>
-    </Routes>
-  </BrowserRouter>
+  <React.StrictMode>
+    <UserProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="impressum" element={<Impressum />} />
+            <Route path="rights" element={<Rights />} />
+            <Route path="datenschutz" element={<Datenschutz />} />
+            <Route path="login" element={<Login />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="winprobability" element={<WinProbability />} />
+            <Route path="weapons" element={<Weapons />} />
+            <Route path="agents" element={<Agents />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </UserProvider>
+  </React.StrictMode>
 );
 

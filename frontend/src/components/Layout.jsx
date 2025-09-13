@@ -1,8 +1,11 @@
 import { Link, Outlet } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 import NavigationDropdown from "../components/NavigationDropdown";
 
 function Layout() {
+  const { userinfo, loading } = useUser();
+
   return (
     <div className="flex flex-col min-h-screen bg-darkness text-white">
       {/* Navigation bar */}
@@ -18,7 +21,18 @@ function Layout() {
             ] } label="Global Stats" />
         </div>
         <div className="space-x-4">
-          <Link to="/login" className="text-brand hover:text-brand-light font-bold transition">Login</Link>
+          {/* <Link to="/login" className="text-brand hover:text-brand-light font-bold transition">Login</Link> */}
+          {loading ? (
+            <span className="text-gray-400">Loading...</span>
+          ) : userinfo ? (
+            <span className="text-brand font-bold">
+              {userinfo.gameName ?? "Unknown"}
+              {userinfo.tagLine ? "#" : ""}
+              {userinfo.tagLine ?? ""}
+            </span>
+          ) : (
+            <Link to="/login" className="text-brand hover:text-brand-light font-bold transition">Login</Link>
+          )}
         </div>
       </nav>
 
