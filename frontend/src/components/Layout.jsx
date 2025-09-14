@@ -13,12 +13,17 @@ function Layout() {
         <div className="flex items-center space-x-6">
           <Link to="/" className="text-2xl font-raj font-bold text-brand hover:text-brand-light">valocity</Link>
           <NavigationDropdown items={ [
-              { label: "Win Probability", image: `/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png`, path: "/winprobability" },
-            ] } label="Tools" />
-            <NavigationDropdown items={ [
-              { label: "Weapons", image: `/images/valorant/weapons/9C82E19D-4575-0200-1A81-3EACF00CF872_killstream.png`, path: "/weapons" },
-              { label: "Agents", image: `/images/valorant/roles/1B47567F-8F7B-444B-AAE3-B0C634622D10.png`, path: "/agents" },
-            ] } label="Global Stats" />
+            { label: "Win Probability", image: `/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png`, path: "/winprobability" },
+          ] } label="Tools" />
+          <NavigationDropdown items={ [
+            { label: "Weapons", image: `/images/valorant/weapons/9C82E19D-4575-0200-1A81-3EACF00CF872_killstream.png`, path: "/weapons" },
+            { label: "Agents", image: `/images/valorant/roles/1B47567F-8F7B-444B-AAE3-B0C634622D10.png`, path: "/agents" },
+          ] } label="Global Stats" />
+
+          <NavigationDropdown items={ [
+            { label: "Profile", image: `/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png`, path: "/playerprofile" },
+          ] } label="Profile" />
+          
         </div>
         <div className="space-x-4">
           {loading ? (

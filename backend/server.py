@@ -455,3 +455,52 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
 
     return resp.json()
+
+
+
+@app.get("/riot/matchlist")
+async def riot_matchlist(request: Request, puuid: str, db: Session = Depends(get_db)):
+    # Verify session cookie
+    session_token = request.cookies.get(COOKIE_NAME)
+    if not session_token:
+        raise HTTPException(401, "Not logged in")
+    else:
+        print("session token found")
+
+    payload = verify_session_token(session_token)
+    if not payload:
+        raise HTTPException(401, "Invalid session")
+    else:
+        print("session token verified")
+
+    user_id = payload["sub"]
+    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
+    if not db_user:
+        raise HTTPException(404, "User not found")
+    else:
+        print("user found in database")
+
+    # Refresh if expired
+    if not db_user.expires_at or datetime.utcnow() >= db_user.expires_at:
+        refreshed = refresh_tokens(db, db_user)
+        if not refreshed:
+            print("tried and failed to refresh token")
+            raise HTTPException(401, "Failed to refresh token")
+        else:
+            print("token refreshed")
+        db_user = refreshed
+
+    access_token = db_user.access_token
+
+    riot_endpoint = f"https://europe.api.riotgames.com//val/match/v1/matchlists/by-puuid/{puuid}"
+
+    resp = requests.get(
+        riot_endpoint,
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+
+    if resp.status_code != 200:
+        print("riot wrong response code, probably some error")
+        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
+
+    return resp.json()

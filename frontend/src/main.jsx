@@ -17,6 +17,7 @@ import Dashboard from './pages/Dashboard';
 import WinProbability from './pages/WinProbability';
 import Weapons from './pages/Weapons';
 import Agents from './pages/Agents';
+import PlayerProfile from './pages/PlayerProfile';
 
 import '@fontsource/inter/index.css';
 import '@fontsource/rajdhani';
@@ -39,6 +40,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="winprobability" element={<WinProbability />} />
             <Route path="weapons" element={<Weapons />} />
             <Route path="agents" element={<Agents />} />
+            <Route path="playerprofile" element={<PlayerProfile />} />
           </Route>
         </Routes>
       </BrowserRouter>
