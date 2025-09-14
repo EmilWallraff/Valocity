@@ -51,6 +51,10 @@ CLIENT_SECRET = os.getenv("RIOT_CLIENT_SECRET")
 if not CLIENT_ID or not CLIENT_SECRET:
     raise RuntimeError("Missing Riot OAuth environment variables")
 
+API_KEY = os.getenv("RIOT_API_KEY")
+if not CLIENT_ID or not CLIENT_SECRET:
+    raise RuntimeError("Missing Riot api key variable")
+
 #APP_BASE_URL = "http://localhost:8000" # backend
 APP_BASE_DOMAIN = "valocity.onrender.com"
 APP_BASE_URL = f"https://{APP_BASE_DOMAIN}" # backend
@@ -492,7 +496,7 @@ async def riot_matchlist(request: Request, puuid: str, db: Session = Depends(get
 
     access_token = db_user.access_token
 
-    riot_endpoint = f"https://europe.api.riotgames.com//val/match/v1/matchlists/by-puuid/{puuid}"
+    riot_endpoint = f"https://europe.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}?api_key={API_KEY}" # Online Api thing uses eu instead of europe
 
     resp = requests.get(
         riot_endpoint,

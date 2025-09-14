@@ -12,7 +12,6 @@ function PlayerProfile() {
     getUserData();
   }, []);
 
-
   const getUserData = async () => {
     try {
       const res = await fetch(`${BASE_URL}/riot/matchlist?puuid=${userinfo.puuid}`, { credentials: "include" });
@@ -42,8 +41,6 @@ function PlayerProfile() {
       console.log("finished process");
     }
   };
-
-
 
   return (
     <div className="bg-darkness flex flex-col items-center pt-16 p-6 space-y-16">
