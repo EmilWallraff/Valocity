@@ -20,9 +20,11 @@ function Layout() {
             { label: "Agents", image: `/images/valorant/roles/1B47567F-8F7B-444B-AAE3-B0C634622D10.png`, path: "/agents" },
           ] } label="Global Stats" />
 
+          {/*
           <NavigationDropdown items={ [
             { label: "Profile", image: `/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png`, path: "/playerprofile" },
           ] } label="Profile" />
+          */}
           
         </div>
         <div className="space-x-4">
