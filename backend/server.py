@@ -498,10 +498,14 @@ async def riot_matchlist(request: Request, puuid: str, db: Session = Depends(get
 
     riot_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}?api_key={API_KEY}" # Online Api thing uses eu instead of europe
 
+    print(f"using Riot endpoint: {riot_endpoint[:-10]}")
+
     resp = requests.get(
         riot_endpoint,
         headers={"Authorization": f"Bearer {access_token}"}
     )
+
+    print(f"riot response code: {resp.status_code}")
 
     if resp.status_code != 200:
         print("riot wrong response code, probably some error")
