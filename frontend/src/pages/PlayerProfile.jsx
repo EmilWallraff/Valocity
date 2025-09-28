@@ -74,7 +74,7 @@ function PlayerProfile() {
 
   const getUserData = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/riot/matchlist?puuid=${userinfo.puuid}`, { credentials: "include" });
+      const res = await fetch(`${BASE_URL}/riot/matches?puuid=${userinfo.puuid}&gamemode=${"competitive"}&count=${2}`, { credentials: "include" });
 
       console.log("puuid: " + userinfo.puuid);
 
