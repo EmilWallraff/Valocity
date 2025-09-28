@@ -7,8 +7,8 @@ import { armors } from "../data/hashcodes";
 import { maps } from "../data/hashcodes"; 
 
 const statKeyMap = {
-  "Kills/Round": "kills",
-  "Damage/Round": "damage",
+  "K/R": "kills",
+  "Dam/R": "damage",
   "Win%": "win",
   "HS%": "headshot",
   "Pick%": "pick",

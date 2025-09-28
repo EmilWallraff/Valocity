@@ -9,15 +9,15 @@ import { agentOptions } from "../data/imageSelectSets";
 
 const headers = [
   "Weapon",
-  "Damage/Round",
-  "Kills/Round",
+  "Dam/R",
+  "K/R",
   "Win%",
   "HS%"
 ];
 
 const headerTooltips = {
-  "Damage/Round": "Damage per round",
-  "Kills/Round": "Kills per round",
+  "Dam/R": "Damage per round",
+  "K/R": "Kills per round",
   "Win%": "Percentage of rounds won when starting with the weapon as main weapon",
   "HS%": "Headshots per hits on enemy agents"
 };
