@@ -588,7 +588,7 @@ async def riot_matches(puuid: str, gamemode: str, count: int):
     for match in player_matches:
         if match["queueId"] == gamemode.lower():
             relevant_match_ids.append(match["matchId"])
-            if relevant_match_ids >= count:
+            if len(relevant_match_ids) >= count:
                 break
     
     match_data = []
