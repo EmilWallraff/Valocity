@@ -496,7 +496,7 @@ async def riot_matchlist(request: Request, puuid: str, db: Session = Depends(get
 
     access_token = db_user.access_token
 
-    riot_endpoint = f"https://europe.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}?api_key={API_KEY}" # Online Api thing uses eu instead of europe
+    riot_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}?api_key={API_KEY}" # Online Api thing uses eu instead of europe
 
     resp = requests.get(
         riot_endpoint,
