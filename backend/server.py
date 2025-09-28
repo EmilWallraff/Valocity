@@ -614,11 +614,11 @@ async def riot_matches(puuid: str, gamemode: str, count: int):
             match_data.append({
                 "date": 0,
                 "gamemode": gamemode,
-                "map": map_names(game_info["matchInfo"]["mapId"]),
+                "map": map_names[game_info["matchInfo"]["mapId"]],
                 "result": "Win" if player_team_entry["won"] else "Loss" if opponent_team_entry["won"] else "Draw",
                 "team_rounds": player_team_entry["roundsWon"],
                 "opponent_rounds": opponent_team_entry["roundsWon"],
-                "agent": agent_names(player_entry["characterId"]),
+                "agent": agent_names[player_entry["characterId"]],
                 "stats": {
                     "rating": 0,
                     "kills": player_entry.get("kills"),
