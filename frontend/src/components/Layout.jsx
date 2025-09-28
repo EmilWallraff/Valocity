@@ -16,16 +16,12 @@ function Layout() {
             { label: "Win Probability", image: `/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png`, path: "/winprobability" },
           ] } label="Tools" />
           <NavigationDropdown items={ [
-            { label: "Weapons", image: `/images/valorant/weapons/9C82E19D-4575-0200-1A81-3EACF00CF872_killstream.png`, path: "/weapons" },
+            { label: "Weapons", image: `/images/valorant/weapons/E336C6B8-418D-9340-D77F-7A9E4CFE0702_killstream.png`, path: "/weapons" },
             { label: "Agents", image: `/images/valorant/roles/1B47567F-8F7B-444B-AAE3-B0C634622D10.png`, path: "/agents" },
           ] } label="Global Stats" />
-
-          {/*
           <NavigationDropdown items={ [
-            { label: "Profile", image: `/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png`, path: "/playerprofile" },
+            { label: "Profile", image: `/images/valorant/abilities/7F94D92C-4234-0A36-9646-3A87EB8B5C89_Grenade.png`, path: "/playerprofile" },
           ] } label="Profile" />
-          */}
-          
         </div>
         <div className="space-x-4">
           {loading ? (
