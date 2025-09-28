@@ -607,9 +607,9 @@ async def riot_matches(puuid: str, gamemode: str, count: int):
         else:
             game_info = match_resp.json()
 
-            player_entry = next((player for player in match_data["players"] if player.get("puuid") == puuid), None)
-            player_team_entry = next((team for team in match_data["teams"] if team.get("teamId") == player_entry["teamId"]), None)
-            opponent_team_entry = next((team for team in match_data["teams"] if team.get("teamId") != player_entry["teamId"]), None)
+            player_entry = next((player for player in match_resp["players"] if player.get("puuid") == puuid), None)
+            player_team_entry = next((team for team in match_resp["teams"] if team.get("teamId") == player_entry["teamId"]), None)
+            opponent_team_entry = next((team for team in match_resp["teams"] if team.get("teamId") != player_entry["teamId"]), None)
 
             match_data.append({
                 "date": 0,
