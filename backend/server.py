@@ -464,6 +464,8 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/riot/matchlist")
 async def riot_matchlist(request: Request, puuid: str, db: Session = Depends(get_db)):
+
+    '''
     # Verify session cookie
     session_token = request.cookies.get(COOKIE_NAME)
     if not session_token:
@@ -495,27 +497,22 @@ async def riot_matchlist(request: Request, puuid: str, db: Session = Depends(get
         db_user = refreshed
 
     access_token = db_user.access_token
+    '''
 
     # Online Api thing uses "eu", documentation uses "europe"
     # First one has api key here instead of in headers (alternative option):
     #riot_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}?api_key={API_KEY}"
     riot_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}"
 
-    #print(f"using Riot endpoint: {riot_endpoint[:-10]}")
-    print(f"using Riot endpoint: {riot_endpoint}")
+    print(f"Using Riot endpoint: {riot_endpoint}")
 
     headers = {
-        #"Authorization": f"Bearer {access_token}",
-        #"User-Agent": "MyApp/1.0 (https://mydomain.com)",
         "Accept-Language": "en-US,en;q=0.9",
         "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
-        #"Origin": "https://developer.riotgames.com",
         "X-Riot-Token": f"{API_KEY}"
     }
 
     resp = requests.get(riot_endpoint, headers=headers)
-
-    print(f"riot response code: {resp.status_code}")
 
     if resp.status_code != 200:
         print("riot wrong response code, probably some error")

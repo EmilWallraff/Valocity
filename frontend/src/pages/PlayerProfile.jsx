@@ -88,11 +88,9 @@ function PlayerProfile() {
       if (data == null){
         console.log("res data is null.");
       } else {
-        console.log("received responsw data not equalling null!");
+        console.log("received response data not equalling null!");
         console.log("res data: ", data);
-        console.log(JSON.stringify(data, null, 2));
-        console.log("res data puuid (dictionary): ", data["puuid"]);
-        console.log("res data puuid (component): ", data.puuid);
+        console.log("res data puuid: ", data.puuid);
       }
     }
     catch (err)
