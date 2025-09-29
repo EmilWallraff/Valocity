@@ -7,6 +7,7 @@ map_names = {
     "/Game/Maps/Ascent/Ascent": "Ascent",
     "/Game/Maps/Duality/Duality": "Bind",
     "/Game/Maps/Foxtrot/Foxtrot": "Breeze",
+    "/Game/Maps/Rook/Rook": "Corrode",
     "/Game/Maps/Canyon/Canyon": "Fracture",
     "/Game/Maps/Triad/Triad": "Haven",
     "/Game/Maps/Port/Port": "Icebox",
