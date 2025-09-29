@@ -622,8 +622,8 @@ async def riot_matches(puuid: str, gamemode: str, count: int):
                 "stats": {
                     "rating": 0,
                     "kills": player_entry.get("kills"),
-                    "deaths": player_entry["deaths"],
-                    "assists": player_entry["assists"],
+                    "deaths": player_entry.get("deaths"),
+                    "assists": player_entry.get("assists"),
                     "damage": 0,
                     "kast": 0,
                     "use": 0,
