@@ -83,14 +83,15 @@ function PlayerProfile() {
         return;
       }
 
-      const data = await res.json();
+      const responseData = await res.json();
 
-      if (data == null){
+      if (responseData == null){
         console.log("res data is null.");
       } else {
+        setData(responseData);
         console.log("received response data not equalling null!");
         console.log("res data: ", data);
-        console.log("res data puuid: ", data.puuid);
+        console.log("res data puuid: ", data[0].agent);
       }
     }
     catch (err)
@@ -123,7 +124,8 @@ function PlayerProfile() {
           </div>
         ) : (
           <div>
-            <GamesList data={data} headers={headers} headerTooltips={headerTooltips} />
+            {/* <GamesList data={data} headers={headers} headerTooltips={headerTooltips} /> */}
+            <GamesList data={data} />
           </div>
         )}
 
