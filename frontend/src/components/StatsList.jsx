@@ -98,7 +98,15 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
               if (index === 0) return null;
 
               return (
-                <div className="flex-1 text-center">{header.includes("%") ? (element.stats[statKeyMap[header]] * 100).toFixed(0) + "%" :  element.stats[statKeyMap[header]].toFixed(2)}</div>
+                <div className="flex-1 text-center">
+                  {header.includes("%")
+                    ? element.stats[statKeyMap[header]] != null
+                      ? (element.stats[statKeyMap[header]] * 100).toFixed(0) + "%"
+                      : "-"
+                    : element.stats[statKeyMap[header]] != null
+                      ? element.stats[statKeyMap[header]].toFixed(2)
+                      : "-"}
+                </div>
               );
             })}
           </div>
@@ -116,7 +124,15 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
                     if (index === 0) return null;
 
                     return (
-                      <div className="flex-1 text-center">{header.includes("%") ? (entry[statKeyMap[header]] * 100).toFixed(0) + "%" :  entry[statKeyMap[header]].toFixed(2)}</div>
+                      <div className="flex-1 text-center">
+                        {header.includes("%")
+                          ? entry[statKeyMap[header]] != null
+                            ? (entry[statKeyMap[header]] * 100).toFixed(0) + "%"
+                            : "-"
+                          : entry[statKeyMap[header]] != null
+                            ? entry[statKeyMap[header]].toFixed(2)
+                            : "-"}
+                      </div>
                     );
                   })}
                 </div>
