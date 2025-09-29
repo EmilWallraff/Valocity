@@ -12,7 +12,7 @@ const headers = [
   "Win%",
   "K/D",
   "K/R",
-  "Dam/R",
+  "Dmg/R",
 ];
 
 const headerTooltips = {
@@ -20,7 +20,7 @@ const headerTooltips = {
   "Win%": "Wins per non-drawn matches against a team without the agent",
   "K/D": "Kills per death",
   "K/R": "Kills per round",
-  "Dam/R": "Damage per round"
+  "Dmg/R": "Damage per round"
 };
 
 function Agents() {

@@ -9,14 +9,14 @@ import { agentOptions } from "../data/imageSelectSets";
 
 const headers = [
   "Weapon",
-  "Dam/R",
+  "Dmg/R",
   "K/R",
   "Win%",
   "HS%"
 ];
 
 const headerTooltips = {
-  "Dam/R": "Damage per round",
+  "Dmg/R": "Damage per round",
   "K/R": "Kills per round",
   "Win%": "Percentage of rounds won when starting with the weapon as main weapon",
   "HS%": "Headshots per hits on enemy agents"
@@ -81,7 +81,7 @@ function Weapons() {
             </div>
           ) : (
             <div>
-              <StatsList data={data} headers={headers} defaultHeader={"Damage/Round"} headerTooltips={headerTooltips} imageType={"weapons"} />
+              <StatsList data={data} headers={headers} defaultHeader={"Dmg/R"} headerTooltips={headerTooltips} imageType={"weapons"} />
             </div>
           )}
         </div>
