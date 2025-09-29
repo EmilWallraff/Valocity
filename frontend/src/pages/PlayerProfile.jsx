@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+
 import { useUser } from "../contexts/UserContext";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 
 import MultiSelect from "../components/MultiSelect";
 import GamesList from "../components/GamesList";
@@ -61,15 +63,13 @@ const data = [
 
 function PlayerProfile() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
-
   const { userinfo, fetchUserinfo } = useUser();
-
-  const [data, setData] = useState();
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     document.title = 'Profile - valocity';
 
-    getUserData();
+    updateMatchHistory();
   }, []);
 
   const getUserData = async () => {
@@ -104,6 +104,19 @@ function PlayerProfile() {
       console.log("finished process");
     }
   };
+
+  async function updateMatchHistory() {
+    try {
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/matches?puuid=${userinfo.puuid}&gamemode=${"competitive"}&count=${2}`, {
+        credentials: "include"
+      });
+
+      setData(responseData);
+      console.log("Match History: ", responseData);
+    } catch (error) {
+      console.error("Failed to fetch match history: ", error);
+    }
+  }
 
   return (
     <div className="bg-darkness items-center pt-16 p-6 space-y-16">
