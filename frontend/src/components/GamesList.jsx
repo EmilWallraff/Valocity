@@ -137,7 +137,7 @@ export default function GamesList({ data }) {
             {/* Stats */}
             {headers.map((header, index) => {
               return (
-                <div className="flex-1 text-center">{header.includes("%") ? (element.stats[statKeyMap[header]] * 100).toFixed(0) + "%" :  element.stats[statKeyMap[header]].toFixed(2)}</div>
+                <div className="flex-1 text-center">{header.includes("%") ? (element.stats[statKeyMap[header]] * 100).toFixed(0) + "%" :  element.stats[statKeyMap[header]]}</div>
               );
             })}
           </div>
@@ -155,7 +155,7 @@ export default function GamesList({ data }) {
                     if (index === 0) return null;
 
                     return (
-                      <div className="flex-1 text-center">{header.includes("%") ? (entry[statKeyMap[header]] * 100).toFixed(0) + "%" :  entry[statKeyMap[header]].toFixed(2)}</div>
+                      <div className="flex-1 text-center">{header.includes("%") ? (entry[statKeyMap[header]] * 100).toFixed(0) + "%" :  entry[statKeyMap[header]]}</div>
                     );
                   })}
                 </div>
