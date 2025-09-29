@@ -72,42 +72,10 @@ function PlayerProfile() {
     updateMatchHistory();
   }, []);
 
-  const getUserData = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/riot/matches?puuid=${userinfo.puuid}&gamemode=${"competitive"}&count=${2}`, { credentials: "include" });
-
-      console.log("puuid: " + userinfo.puuid);
-
-      if (!res.ok) {
-        console.log("res not ok.");
-        return;
-      }
-
-      const responseData = await res.json();
-
-      if (responseData == null){
-        console.log("res data is null.");
-      } else {
-        setData(responseData);
-        console.log("received response data not equalling null!");
-        console.log("res data: ", data);
-        console.log("res data puuid: ", data[0].agent);
-      }
-    }
-    catch (err)
-    {
-      console.log("error");
-      console.error("Error fetching userinfo:", err);
-    }
-    finally
-    {
-      console.log("finished process");
-    }
-  };
-
   async function updateMatchHistory() {
     try {
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/matches?puuid=${userinfo.puuid}&gamemode=${"competitive"}&count=${2}`, {
+      console.log("puuid: ", userinfo.puuid);
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/matches?puuid=${userinfo.puuid}&gamemode=${"Competitive"}&count=${2}`, {
         credentials: "include"
       });
 
@@ -141,13 +109,6 @@ function PlayerProfile() {
             <GamesList data={data} />
           </div>
         )}
-
-        {/*
-        <div>
-          <GamesList data={data} />
-        </div>
-        */}
-
       </div>
 
     </div>
