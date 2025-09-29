@@ -75,7 +75,7 @@ function PlayerProfile() {
   async function updateMatchHistory() {
     try {
       console.log("puuid: ", userinfo.puuid);
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/matches?puuid=${userinfo.puuid}&gamemode=${"Competitive"}&count=${2}`, {
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${userinfo.puuid}&gamemode=${"Competitive"}&count=${2}`, {
         credentials: "include"
       });
 

@@ -506,68 +506,9 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
 
 
 
-@app.get("/riot/matchlist")
-async def riot_matchlist(request: Request, puuid: str, db: Session = Depends(get_db)):
-
-    '''
-    # Verify session cookie
-    session_token = request.cookies.get(COOKIE_NAME)
-    if not session_token:
-        raise HTTPException(401, "Not logged in")
-    else:
-        print("session token found")
-
-    payload = verify_session_token(session_token)
-    if not payload:
-        raise HTTPException(401, "Invalid session")
-    else:
-        print("session token verified")
-
-    user_id = payload["sub"]
-    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
-    if not db_user:
-        raise HTTPException(404, "User not found")
-    else:
-        print("user found in database")
-
-    # Refresh if expired
-    if not db_user.expires_at or datetime.utcnow() >= db_user.expires_at:
-        refreshed = refresh_tokens(db, db_user)
-        if not refreshed:
-            print("tried and failed to refresh token")
-            raise HTTPException(401, "Failed to refresh token")
-        else:
-            print("token refreshed")
-        db_user = refreshed
-
-    access_token = db_user.access_token
-    '''
-
-    # Online Api thing uses "eu", documentation uses "europe"
-    # First one has api key here instead of in headers (alternative option):
-    #riot_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}?api_key={API_KEY}"
-    riot_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}"
-
-    print(f"Using Riot endpoint: {riot_endpoint}")
-
-    headers = {
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-Riot-Token": f"{API_KEY}"
-    }
-
-    resp = requests.get(riot_endpoint, headers=headers)
-
-    if resp.status_code != 200:
-        print("riot wrong response code, probably some error")
-        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
-
-    return resp.json()
-
-
-
-@app.get("/riot/matches")
+@app.get("/riot/player_matches")
 async def riot_matches(puuid: str, gamemode: str, count: int):
+    # Online Api thing uses "eu", documentation uses "europe"
     riot_player_matches_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}"
 
     headers = {
@@ -621,9 +562,9 @@ async def riot_matches(puuid: str, gamemode: str, count: int):
                 "agent": agent_names[player_entry["characterId"]],
                 "stats": {
                     "rating": 0,
-                    "kills": player_entry.get("kills"),
-                    "deaths": player_entry.get("deaths"),
-                    "assists": player_entry.get("assists"),
+                    "kills": player_entry["stats"]["kills"],
+                    "deaths": player_entry["stats"]["deaths"],
+                    "assists": player_entry["stats"]["assists"],
                     "damage": 0,
                     "kast": 0,
                     "use": 0,
