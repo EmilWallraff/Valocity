@@ -37,13 +37,25 @@ const headerTooltips = {
   "HS%": "Headshots per hits on enemy agents",
 };
 
+const statFormatters = {
+  "Rating": (val) => val.toFixed(2),
+  "Kills": (val) => val.toFixed(0),
+  "Deaths": (val) => val.toFixed(0),
+  "Assists": (val) => val.toFixed(0),
+  "Dmg/R": (val) => val.toFixed(0),
+  "KAST%": (val) => (val * 100).toFixed(0) + "%",
+  "USE%": (val) => (val * 100).toFixed(0) + "%",
+  "HS%": (val) => (val * 100).toFixed(0) + "%",
+};
+
+
 export default function GamesList({ data, puuid }) {
   const [expanded, setExpanded] = useState({});
   const [sortKey, setSortKey] = useState("damage");
   const [sortOrder, setSortOrder] = useState("desc");
 
-  const toggleExpand = (id) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  const toggleExpand = (date) => {
+    setExpanded((prev) => ({ ...prev, [date]: !prev[date] }));
   };
 
   const handleSort = (label) => {
@@ -86,21 +98,21 @@ export default function GamesList({ data, puuid }) {
       </div>
 
       {sortedData.map((element, index) => (
-        <div key={element.id}>
+        <div key={element.date}>
           <div className={`flex items-center py-2 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}>
             {/* Chevron */}
-            {Array.isArray(element.subentries) && element.subentries.length > 0 ? (
+            {element.allPlayersStats && typeof element.allPlayersStats === "object" && Object.keys(element.allPlayersStats).length > 0 ? (
               <div
-                onClick={() => toggleExpand(element.id)}
+                onClick={() => toggleExpand(element.date)}
                 className={`w-8 cursor-pointer flex justify-center text-${element.allPlayersStats[puuid].result == "Win" ? "brand" : element.allPlayersStats[puuid].result == "Loss" ? "accent" : "white"}`}
               >
-                {expanded[element.id] ? <ChevronDown /> : <ChevronRight />}
+                {expanded[element.date] ? <ChevronDown /> : <ChevronRight />}
               </div>
             ) : (
               <div
                 className={`w-8 cursor-pointer flex justify-center text-${element.allPlayersStats[puuid].result == "Win" ? "brand" : element.allPlayersStats[puuid].result == "Loss" ? "accent" : "white"}`}
               >
-                {expanded[element.id] ? <ChevronDown /> : <ChevronRight />}
+                {expanded[element.date] ? <ChevronDown /> : <ChevronRight />}
               </div>
             )}
 
@@ -135,31 +147,31 @@ export default function GamesList({ data, puuid }) {
             </div>
 
             {/* Stats */}
-            {headers.map((header, index) => {
+            {headers.map((header) => {
               return (
-                <div className="flex-1 text-center">{header.includes("%") ? (element.stats[statKeyMap[header]] * 100).toFixed(0) + "%" :  element.stats[statKeyMap[header]]}</div>
+                <div className="flex-1 text-center">{statFormatters[header] ? statFormatters[header](element.allPlayersStats[puuid][statKeyMap[header]]) : element.allPlayersStats[puuid][statKeyMap[header]]}</div>
               );
             })}
           </div>
 
-          {expanded[element.id] && (
+          {expanded[element.date] && (
             <div>
-              {element.subentries.map((entry, i) => (
+
+              {Object.entries(element.allPlayersStats).map(([key, entry], i) => (
                 <div
-                  key={i}
-                  className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}
+                  key={key}
+                  className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${i % 2 === 0 ? "element-dark" : "element"}`}
                 >
                   <div className="w-8" />
                   <div className="basis-2/6">{entry.name}</div>
-                  {headers.map((header, index) => {
-                    if (index === 0) return null;
-
+                  {headers.map((header) => {
                     return (
-                      <div className="flex-1 text-center">{header.includes("%") ? (entry[statKeyMap[header]] * 100).toFixed(0) + "%" :  entry[statKeyMap[header]]}</div>
+                      <div key={header} className="flex-1 text-center">{statFormatters[header] ? statFormatters[header](entry[statKeyMap[header]]) : entry[statKeyMap[header]]}</div>
                     );
                   })}
                 </div>
               ))}
+
             </div>
           )}
         </div>
