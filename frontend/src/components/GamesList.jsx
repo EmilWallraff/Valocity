@@ -51,7 +51,7 @@ const statFormatters = {
 
 export default function GamesList({ data, puuid }) {
   const [expanded, setExpanded] = useState({});
-  const [sortKey, setSortKey] = useState("damage");
+  const [sortKey, setSortKey] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
 
   const toggleExpand = (date) => {
@@ -71,8 +71,8 @@ export default function GamesList({ data, puuid }) {
   };
 
   const sortedData = [...data].sort((a, b) => {
-    const aVal = a.stats[sortKey];
-    const bVal = b.stats[sortKey];
+    const aVal = a[sortKey];
+    const bVal = b[sortKey];
     return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
   });
 
