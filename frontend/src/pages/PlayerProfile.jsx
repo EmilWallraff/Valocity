@@ -106,7 +106,7 @@ function PlayerProfile() {
         ) : (
           <div>
             {/* <GamesList data={data} headers={headers} headerTooltips={headerTooltips} /> */}
-            <GamesList data={data} />
+            <GamesList data={data} puuid={userinfo.puuid} />
           </div>
         )}
       </div>

@@ -37,7 +37,7 @@ const headerTooltips = {
   "HS%": "Headshots per hits on enemy agents",
 };
 
-export default function GamesList({ data }) {
+export default function GamesList({ data, puuid }) {
   const [expanded, setExpanded] = useState({});
   const [sortKey, setSortKey] = useState("damage");
   const [sortOrder, setSortOrder] = useState("desc");
@@ -92,13 +92,13 @@ export default function GamesList({ data }) {
             {Array.isArray(element.subentries) && element.subentries.length > 0 ? (
               <div
                 onClick={() => toggleExpand(element.id)}
-                className={`w-8 cursor-pointer flex justify-center text-${element.result == "Win" ? "brand" : element.result == "Loss" ? "accent" : "white"}`}
+                className={`w-8 cursor-pointer flex justify-center text-${element.allPlayersStats[puuid].result == "Win" ? "brand" : element.allPlayersStats[puuid].result == "Loss" ? "accent" : "white"}`}
               >
                 {expanded[element.id] ? <ChevronDown /> : <ChevronRight />}
               </div>
             ) : (
               <div
-                className={`w-8 cursor-pointer flex justify-center text-${element.result == "Win" ? "brand" : element.result == "Loss" ? "accent" : "white"}`}
+                className={`w-8 cursor-pointer flex justify-center text-${element.allPlayersStats[puuid].result == "Win" ? "brand" : element.allPlayersStats[puuid].result == "Loss" ? "accent" : "white"}`}
               >
                 {expanded[element.id] ? <ChevronDown /> : <ChevronRight />}
               </div>
@@ -113,8 +113,8 @@ export default function GamesList({ data }) {
                   className="w-16 h-16 rounded-md object-cover"
                 />
                 <img
-                  src={`/images/valorant/agents/${agents[element.agent]}.png`}
-                  alt={element.agent}
+                  src={`/images/valorant/agents/${agents[element.allPlayersStats[puuid].agent]}.png`}
+                  alt={element.allPlayersStats[puuid].agent}
                   className="w-16 h-16 rounded-md object-contain"
                 />
               </div>
@@ -122,12 +122,12 @@ export default function GamesList({ data }) {
               {/* Score and Gamemode */}
               <div className="flex flex-col items-center justify-center text-center w-32">
                 <div className="flex gap-2 text-lg">
-                  <span className={`text-brand ${element.result == "Win" ? "font-bold" : ""}`} >
-                    {element.team_rounds}
+                  <span className={`text-brand ${element.allPlayersStats[puuid].result == "Win" ? "font-bold" : ""}`} >
+                    {element.allPlayersStats[puuid].roundsWon}
                   </span>
                   <span className="text-white">:</span>
-                  <span className={`text-accent ${element.result == "Loss" ? "font-bold" : ""}`} >
-                    {element.opponent_rounds}
+                  <span className={`text-accent ${element.allPlayersStats[puuid].result== "Loss" ? "font-bold" : ""}`} >
+                    {element.allPlayersStats[puuid].roundsLost}
                   </span>
                 </div>
                 <h2 className="text-white">{element.gamemode}</h2>

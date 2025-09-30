@@ -71,8 +71,8 @@ def format_match(game_json):
     for player in game_json["players"]:
         stats_dict[player["puuid"]] = {
             "result": results[player["teamId"]],
-            "rounds_won": won_rounds[player["teamId"]],
-            "rounds_lost": lost_rounds[player["teamId"]],
+            "roundsWon": won_rounds[player["teamId"]],
+            "roundsLost": lost_rounds[player["teamId"]],
             "team": player["teamId"],
             "rank": player["competitiveTier"],
             "agent": agent_names[player["characterId"]],
@@ -114,7 +114,7 @@ def format_match(game_json):
             #if isKastRound:
             #    stats_dict[player_round_stats["puuid"]]["temp_kastRounds"] += 1
 
-    for player_stats in stats_dict:
+    for player_stats in stats_dict.values():
         player_stats["headshot"] = player_stats["temp_headshots"] / (player_stats["temp_headshots"] + player_stats["temp_bodyshots"] + player_stats["temp_legshots"])
         player_stats["damage"] = player_stats["temp_damage"] / player_stats["rounds"]
         player_stats["rating"] = player_stats["kills"] / player_stats["deaths"]
@@ -134,7 +134,7 @@ def format_match(game_json):
         "date": time_string_from_milliseconds(game_json["matchInfo"]["gameStartMillis"]),
         "gamemode": game_json["matchInfo"]["queueId"].capitalize(),
         "map": map_names[game_json["matchInfo"]["mapId"]],
-        "all_stats": stats_dict
+        "allPlayersStats": stats_dict
     }
 
 
