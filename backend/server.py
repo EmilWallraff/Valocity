@@ -502,6 +502,6 @@ async def riot_matches(puuid: str, gamemode: str, count: int):
             print("riot wrong response code, probably some error")
             raise HTTPException(match_resp.status_code, f"Riot API error: {match_resp.text}")
         else:
-            match_data.append(match_processing.format_match(match_resp.json(), puuid, gamemode))
+            match_data.append(match_processing.format_match(match_resp.json()))
 
     return match_data

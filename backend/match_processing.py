@@ -50,29 +50,91 @@ agent_names = {
 
 
 
-def format_match(game_json, puuid, gamemode):
-    player_entry = next((player for player in game_json["players"] if player.get("puuid") == puuid), None)
-    player_team_entry = next((team for team in game_json["teams"] if team.get("teamId") == player_entry["teamId"]), None)
-    opponent_team_entry = next((team for team in game_json["teams"] if team.get("teamId") != player_entry["teamId"]), None)
+def format_match(game_json):
+    red_team_entry = next((team for team in game_json["teams"] if team.get("teamId").lower() == "red"), None)
+    blue_team_entry = next((team for team in game_json["teams"] if team.get("teamId").lower() == "blue"), None)
+    results = {
+        "Red": "Win" if red_team_entry["won"] else "Loss" if blue_team_entry["won"] else "Draw",
+        "Blue": "Win" if blue_team_entry["won"] else "Loss" if red_team_entry["won"] else "Draw"
+    }
+    won_rounds = {
+        "Red": red_team_entry["roundsWon"],
+        "Blue": blue_team_entry["roundsWon"]
+    }
+    lost_rounds = {
+        "Red": blue_team_entry["roundsWon"],
+        "Blue": red_team_entry["roundsWon"]
+    }
+
+    stats_dict = {}
+
+    for player in game_json["players"]:
+        stats_dict[player["puuid"]] = {
+            "result": results[player["teamId"]],
+            "rounds_won": won_rounds[player["teamId"]],
+            "rounds_lost": lost_rounds[player["teamId"]],
+            "team": player["teamId"],
+            "rank": player["competitiveTier"],
+            "agent": agent_names[player["characterId"]],
+            "rounds": player["stats"]["roundsPlayed"],
+            "kills": player["stats"]["kills"],
+            "deaths": player["stats"]["deaths"],
+            "assists": player["stats"]["assists"],
+            "temp_damage": 0,
+            "temp_kastRounds": 0,
+            "temp_headshots": 0,
+            "temp_bodyshots": 0,
+            "temp_legshots": 0,
+            "temp_usagePoints": 0,
+        }
+
+    # We need:
+    # whether there's a KAST or not
+    # however tf Rating is calculated
+    # usage points
+
+    for round_stats in (round["playerStats"] for round in game_json["roundResults"]):
+        for player_round_stats in round_stats:
+
+            #isKastRound = False
+
+            for damage_instance in player_round_stats["damage"]:
+
+
+
+                stats_dict[player_round_stats["puuid"]]["temp_damage"] += damage_instance["damage"]
+                stats_dict[player_round_stats["puuid"]]["temp_headshots"] += damage_instance["headshots"]
+                stats_dict[player_round_stats["puuid"]]["temp_bodyshots"] += damage_instance["bodyshots"]
+                stats_dict[player_round_stats["puuid"]]["temp_legshots"] += damage_instance["legshots"]
+                #if damage_instance["damage"] > 0:
+                #    isKastRound = True
+
+
+
+            #if isKastRound:
+            #    stats_dict[player_round_stats["puuid"]]["temp_kastRounds"] += 1
+
+    for player_stats in stats_dict:
+        player_stats["headshot"] = player_stats["temp_headshots"] / (player_stats["temp_headshots"] + player_stats["temp_bodyshots"] + player_stats["temp_legshots"])
+        player_stats["damage"] = player_stats["temp_damage"] / player_stats["rounds"]
+        player_stats["rating"] = player_stats["kills"] / player_stats["deaths"]
+        player_stats["kast"] = player_stats["temp_kastRounds"] / player_stats["rounds"]
+        player_stats["use"] = 0
+
+        del player_stats["temp_damage"]
+        del player_stats["temp_kastRounds"]
+        del player_stats["temp_headshots"]
+        del player_stats["temp_bodyshots"]
+        del player_stats["temp_legshots"]
+        del player_stats["temp_usagePoints"]
+
 
     return {
+        "matchId": game_json["matchInfo"]["matchId"],
         "date": time_string_from_milliseconds(game_json["matchInfo"]["gameStartMillis"]),
-        "gamemode": gamemode,
+        "gamemode": game_json["matchInfo"]["queueId"].capitalize(),
         "map": map_names[game_json["matchInfo"]["mapId"]],
-        "result": "Win" if player_team_entry["won"] else "Loss" if opponent_team_entry["won"] else "Draw",
-        "team_rounds": player_team_entry["roundsWon"],
-        "opponent_rounds": opponent_team_entry["roundsWon"],
-        "agent": agent_names[player_entry["characterId"]],
-        "stats": {
-            "rating": (player_entry["stats"]["kills"] / player_entry["stats"]["deaths"]),
-            "kills": player_entry["stats"]["kills"],
-            "deaths": player_entry["stats"]["deaths"],
-            "assists": player_entry["stats"]["assists"],
-            "damage": 0,
-            "kast": 0,
-            "use": 0,
-            "headshot": 0,
-        },
+        "all_stats": stats_dict
     }
 
 
