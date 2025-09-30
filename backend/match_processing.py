@@ -48,6 +48,8 @@ agent_names = {
     "95b78ed7-4637-86d9-7e41-71ba8c293152": "Harbor"
 }
 
+TRADE_DURATION = 2500
+
 
 
 def format_match(game_json):
@@ -88,38 +90,69 @@ def format_match(game_json):
             "temp_usagePoints": 0,
         }
 
-    # We need:
-    # whether there's a KAST or not
-    # however tf Rating is calculated
-    # usage points
-
     for round_stats in (round["playerStats"] for round in game_json["roundResults"]):
+
+        playersKast = {key: False for key in stats_dict.keys()}
+
+        kills = []
+
         for player_round_stats in round_stats:
-
-            #isKastRound = False
-
             for damage_instance in player_round_stats["damage"]:
+                if stats_dict[player_round_stats["puuid"]]["team"] != stats_dict[damage_instance["receiver"]]["team"]:
+                    stats_dict[player_round_stats["puuid"]]["temp_damage"] += damage_instance["damage"]
+                    stats_dict[player_round_stats["puuid"]]["temp_headshots"] += damage_instance["headshots"]
+                    stats_dict[player_round_stats["puuid"]]["temp_bodyshots"] += damage_instance["bodyshots"]
+                    stats_dict[player_round_stats["puuid"]]["temp_legshots"] += damage_instance["legshots"]
+
+            for kill_instance in player_round_stats["kills"]:
+                kill_entry = {
+                    "killer": kill_instance["killer"],
+                    "victim": kill_instance["victim"],
+                    "time": kill_instance["timeSinceRoundStartMillis"],
+                    "assistants": kill_instance["assistants"],
+                    "playersAliveBefore": {
+                        "Red": 0,
+                        "Blue": 0
+                    }
+                }
+                kill_entry["playersAliveBefore"][stats_dict[kill_instance["victim"]]["team"]] += 1
+                for survivor in kill_instance["playerLocations"]:
+                    kill_entry["playersAliveBefore"][stats_dict[survivor["puuid"]]["team"]] += 1
+                kills.append(kill_entry)
+
+
+        for kill_entry in kills:
+            if stats_dict[kill_entry["killer"]]["team"] != stats_dict[kill_entry["victim"]]["team"]:
+                playersKast[kill_entry["killer"]] = True
+
+            for assistant in kill_entry["assistants"]:
+                playersKast[assistant] = True
+
+            if any((k.get("victim") == kill_entry["killer"] or k.get("victim") in kill_entry["assistants"]) for k in kills if kill_entry["time"] < k.get("time") <= kill_entry["time"] + TRADE_DURATION):
+                playersKast[kill_entry["victim"]] = True
+
+
+            stats_dict[kill_entry["killer"]]["temp_usagePoints"] += min(kill_entry["playersAliveBefore"]["Red"], kill_entry["playersAliveBefore"]["Blue"])
+            stats_dict[kill_entry["victim"]]["temp_usagePoints"] += min(kill_entry["playersAliveBefore"]["Red"], kill_entry["playersAliveBefore"]["Blue"])
 
 
 
-                stats_dict[player_round_stats["puuid"]]["temp_damage"] += damage_instance["damage"]
-                stats_dict[player_round_stats["puuid"]]["temp_headshots"] += damage_instance["headshots"]
-                stats_dict[player_round_stats["puuid"]]["temp_bodyshots"] += damage_instance["bodyshots"]
-                stats_dict[player_round_stats["puuid"]]["temp_legshots"] += damage_instance["legshots"]
-                #if damage_instance["damage"] > 0:
-                #    isKastRound = True
+            
+        for player in playersKast:
+            if playersKast[player] or not any(k.get("victim") == player for k in kills):
+                stats_dict[player]["temp_kastRounds"] += 1
 
-
-
-            #if isKastRound:
-            #    stats_dict[player_round_stats["puuid"]]["temp_kastRounds"] += 1
+    team_total_usage_points = {
+        "Red": sum([p["temp_usagePoints"] for p in stats_dict.values() if p["team"] == "Red"]),
+        "Blue": sum([p["temp_usagePoints"] for p in stats_dict.values() if p["team"] == "Blue"]),
+    }
 
     for player_stats in stats_dict.values():
         player_stats["headshot"] = player_stats["temp_headshots"] / (player_stats["temp_headshots"] + player_stats["temp_bodyshots"] + player_stats["temp_legshots"])
         player_stats["damage"] = player_stats["temp_damage"] / player_stats["rounds"]
         player_stats["rating"] = player_stats["kills"] / player_stats["deaths"]
         player_stats["kast"] = player_stats["temp_kastRounds"] / player_stats["rounds"]
-        player_stats["use"] = 0
+        player_stats["use"] = player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]
 
         del player_stats["temp_damage"]
         del player_stats["temp_kastRounds"]
