@@ -29,7 +29,7 @@ function Layout() {
           ) : userinfo ? (
             <Link to="/login" className="text-brand hover:text-brand-light font-bold transition">
               {userinfo.gameName ?? "Unknown"}
-              {userinfo.tagLine ? "#" : ""}
+              {userinfo.tagLine ? " #" : ""}
               {userinfo.tagLine ?? ""}
             </Link>
           ) : (

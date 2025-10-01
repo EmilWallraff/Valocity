@@ -48,6 +48,37 @@ agent_names = {
     "95b78ed7-4637-86d9-7e41-71ba8c293152": "Harbor"
 }
 
+rank_names = {
+    0: "Unranked",
+    1: "Unranked",
+    2: "Unranked",
+    3: "Iron I",
+    4: "Iron II",
+    5: "Iron III",
+    6: "Bronze I",
+    7: "Bronze II",
+    8: "Bronze III",
+    9: "Silver I",
+    10: "Silver II",
+    11: "Silver III",
+    12: "Gold I",
+    13: "Gold II",
+    14: "Gold III",
+    15: "Platinum I",
+    16: "Platinum II",
+    17: "Platinum III",
+    18: "Diamond I",
+    19: "Diamond II",
+    20: "Diamond III",
+    21: "Ascendant I",
+    22: "Ascendant II",
+    23: "Ascendant III",
+    24: "Immortal I",
+    25: "Immortal II",
+    26: "Immortal III",
+    27: "Radiant",
+}
+
 TRADE_DURATION = 2500
 
 
@@ -76,7 +107,8 @@ def format_match(game_json):
             "roundsWon": won_rounds[player["teamId"]],
             "roundsLost": lost_rounds[player["teamId"]],
             "team": player["teamId"],
-            "rank": player["competitiveTier"],
+            "name": f"{player["gameName"]} #{player["tagLine"]}",
+            "rank": rank_names[player["competitiveTier"]],
             "agent": agent_names[player["characterId"]],
             "rounds": player["stats"]["roundsPlayed"],
             "kills": player["stats"]["kills"],

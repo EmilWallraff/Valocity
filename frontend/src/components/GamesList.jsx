@@ -153,7 +153,13 @@ export default function GamesList({ data, puuid }) {
                     className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${i % 2 === 0 ? "element-dark" : "element"}`}
                   >
                     <div className="w-8" />
-                    <div className="basis-2/6">{entry.name}</div>
+                    <div className="basis-2/6">
+                      <div className="flex flex-shrink-0 items-center gap-2 px-2">
+                        <img src={`/images/valorant/agents/${agents[entry.agent]}.png`} alt={entry.agent} className="w-10 h-10 rounded-md object-contain" />
+                        <img src={`/images/valorant/ranks/${entry.rank.replace(" ", "_")}.png`} alt={entry.rank} className="w-8 h-8 rounded-md object-contain" />
+                        {entry.name}
+                      </div>
+                    </div>
                     {headers.map((header) => {
                       return (
                         <div key={header} className="flex-1 text-center">

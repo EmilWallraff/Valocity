@@ -34,7 +34,7 @@ function Login() {
           {!userinfo ? (
             <h2 className="text-2xl text-white text-center max-w-3xl">You are currently not logged in.</h2>
           ) : (
-            <h2 className="text-2xl text-white text-center max-w-3xl">You are currently logged in as "{userinfo.gameName ?? "Unknown"}{userinfo.tagLine ? "#" : ""}{userinfo.tagLine ?? ""}".</h2>
+            <h2 className="text-2xl text-white text-center max-w-3xl">You are currently logged in as "{userinfo.gameName ?? "Unknown"}{userinfo.tagLine ? " #" : ""}{userinfo.tagLine ?? ""}".</h2>
           )}
         </div>
 
