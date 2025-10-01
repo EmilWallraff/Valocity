@@ -51,29 +51,15 @@ const statFormatters = {
 
 export default function GamesList({ data, puuid }) {
   const [expanded, setExpanded] = useState({});
-  const [sortKey, setSortKey] = useState("date");
-  const [sortOrder, setSortOrder] = useState("desc");
 
   const toggleExpand = (date) => {
     setExpanded((prev) => ({ ...prev, [date]: !prev[date] }));
   };
 
-  const handleSort = (label) => {
-    const key = statKeyMap[label];
-    if (!key) return;
-
-    if (sortKey === key) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortOrder("desc");
-    }
-  };
-
   const sortedData = [...data].sort((a, b) => {
-    const aVal = a[sortKey];
-    const bVal = b[sortKey];
-    return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+    const aDate = new Date(a.date);
+    const bDate = new Date(b.date);
+    return bDate - aDate;
   });
 
   return (
@@ -84,8 +70,7 @@ export default function GamesList({ data, puuid }) {
         {headers.map((header) => (
           <div
             key={header}
-            onClick={() => handleSort(header)}
-            className={`group relative flex-1 text-${sortKey === statKeyMap[header] ? sortOrder === "asc" ? "accent" : "brand" : "white"} text-center cursor-pointer`}
+            className="group relative flex-1 text-white text-center"
           >
             {header}
             {headerTooltips[header] && (
