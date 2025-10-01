@@ -52,115 +52,125 @@ const statFormatters = {
 export default function GamesList({ data, puuid }) {
   const [expanded, setExpanded] = useState({});
 
-  const toggleExpand = (date) => {
-    setExpanded((prev) => ({ ...prev, [date]: !prev[date] }));
+  const toggleExpand = (key) => {
+    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const sortedData = [...data].sort((a, b) => {
-    const aDate = new Date(a.date);
-    const bDate = new Date(b.date);
-    return bDate - aDate;
-  });
+  const getDay = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = date.getUTCDate();
+    const month = date.toLocaleString("en-GB", { month: "long" });
+    return `${day}. ${month}`;
+  };
+
+  const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (
     <div className="p-4 w-full max-w-5xl mx-auto">
-      <div className="flex font-bold border border-element-lighter py-2 text-left bg-element">
-        <div className="w-6" />
-        <div className="flex-2 flex items-center gap-2 basis-2/6"></div>
-        {headers.map((header) => (
-          <div
-            key={header}
-            className="group relative flex-1 text-white text-center"
-          >
-            {header}
-            {headerTooltips[header] && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-2 py-1 font-normal text-white bg-element-dark rounded border border-element-lighter shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                {headerTooltips[header]}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      {sortedData.map((element, index) => {
+        const currentDay = getDay(element.date);
+        const previousDay = index > 0 ? getDay(sortedData[index - 1].date) : null;
 
-      {sortedData.map((element, index) => (
-        <div key={element.date}>
-          <div className={`flex items-center py-2 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}>
-            {/* Chevron */}
-            {element.allPlayersStats && typeof element.allPlayersStats === "object" && Object.keys(element.allPlayersStats).length > 0 ? (
-              <div
-                onClick={() => toggleExpand(element.date)}
-                className={`w-8 cursor-pointer flex justify-center text-${element.allPlayersStats[puuid].result == "Win" ? "brand" : element.allPlayersStats[puuid].result == "Loss" ? "accent" : "white"}`}
-              >
-                {expanded[element.date] ? <ChevronDown /> : <ChevronRight />}
-              </div>
-            ) : (
-              <div
-                className={`w-8 cursor-pointer flex justify-center text-${element.allPlayersStats[puuid].result == "Win" ? "brand" : element.allPlayersStats[puuid].result == "Loss" ? "accent" : "white"}`}
-              >
-                {expanded[element.date] ? <ChevronDown /> : <ChevronRight />}
-              </div>
-            )}
+        // Show header if first row OR new day starts
+        const showHeader = index === 0 || currentDay !== previousDay;
 
-            <div className="flex items-center gap-4 h-16 basis-2/6">
-              {/* Images */}
-              <div className="flex items-center justify-center gap-2 flex-shrink-0">
-                <img
-                  src={`/images/valorant/maps/${maps[element.map]}_listview.png`}
-                  alt={element.map}
-                  className="w-16 h-16 rounded-md object-cover"
-                />
-                <img
-                  src={`/images/valorant/agents/${agents[element.allPlayersStats[puuid].agent]}.png`}
-                  alt={element.allPlayersStats[puuid].agent}
-                  className="w-16 h-16 rounded-md object-contain"
-                />
-              </div>
+        // Unique key per game row (use element.id if available)
+        const rowKey = element.matchId || `${element.date}-${index}`;
 
-              {/* Score and Gamemode */}
-              <div className="flex flex-col items-center justify-center text-center w-32">
-                <div className="flex gap-2 text-lg">
-                  <span className={`text-brand ${element.allPlayersStats[puuid].result == "Win" ? "font-bold" : ""}`} >
-                    {element.allPlayersStats[puuid].roundsWon}
-                  </span>
-                  <span className="text-white">:</span>
-                  <span className={`text-accent ${element.allPlayersStats[puuid].result== "Loss" ? "font-bold" : ""}`} >
-                    {element.allPlayersStats[puuid].roundsLost}
-                  </span>
+        return (
+          <div key={rowKey}>
+            {showHeader && (
+              <div className="flex font-bold border border-element-lighter py-2 text-left bg-element-dark">
+                <div className="w-6" />
+                <div className="flex-2 flex items-center gap-2 basis-2/6">
+                  {currentDay}
                 </div>
-                <h2 className="text-white">{element.gamemode}</h2>
+                {headers.map((header) => (
+                  <div key={header} className="group relative flex-1 text-white text-center" >
+                    {header}
+                    {headerTooltips[header] && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-2 py-1 font-normal text-white bg-element-dark rounded border border-element-lighter shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                        {headerTooltips[header]}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
+            )}
 
-            {/* Stats */}
-            {headers.map((header) => {
-              return (
-                <div className="flex-1 text-center">{statFormatters[header] ? statFormatters[header](element.allPlayersStats[puuid][statKeyMap[header]]) : element.allPlayersStats[puuid][statKeyMap[header]]}</div>
-              );
-            })}
-          </div>
+            {/* Game row */}
+            <div className={`flex items-center py-2 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`} >
 
-          {expanded[element.date] && (
-            <div>
-
-              {Object.entries(element.allPlayersStats).map(([key, entry], i) => (
+              {/* Chevron */}
+              {element.allPlayersStats &&
+              typeof element.allPlayersStats === "object" &&
+              Object.keys(element.allPlayersStats).length > 0 ? (
                 <div
-                  key={key}
-                  className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${i % 2 === 0 ? "element-dark" : "element"}`}
+                  onClick={() => toggleExpand(rowKey)}
+                  className={`w-8 cursor-pointer flex justify-center text-${element.allPlayersStats[puuid].result === "Win" ? "brand" : element.allPlayersStats[puuid].result === "Loss" ? "accent" : "white"}`}
                 >
-                  <div className="w-8" />
-                  <div className="basis-2/6">{entry.name}</div>
-                  {headers.map((header) => {
-                    return (
-                      <div key={header} className="flex-1 text-center">{statFormatters[header] ? statFormatters[header](entry[statKeyMap[header]]) : entry[statKeyMap[header]]}</div>
-                    );
-                  })}
+                  {expanded[rowKey] ? <ChevronDown /> : <ChevronRight />}
+                </div>
+              ) : (
+                <div className="w-8" />
+              )}
+
+              {/* Game info */}
+              <div className="flex items-center gap-4 h-16 basis-2/6">
+                <div className="flex items-center justify-center gap-2 flex-shrink-0">
+                  <img src={`/images/valorant/maps/${maps[element.map]}_listview.png`} alt={element.map} className="w-16 h-16 rounded-md object-cover" />
+                  <img src={`/images/valorant/agents/${agents[element.allPlayersStats[puuid].agent]}.png`} alt={element.allPlayersStats[puuid].agent} className="w-16 h-16 rounded-md object-contain" />
+                </div>
+
+                <div className="flex flex-col items-center justify-center text-center w-32">
+                  <div className="flex gap-2 text-lg">
+                    <span className={`text-brand ${element.allPlayersStats[puuid].result === "Win" ? "font-bold" : ""}`} >
+                      {element.allPlayersStats[puuid].roundsWon}
+                    </span>
+                    <span className="text-white">:</span>
+                    <span className={`text-accent ${element.allPlayersStats[puuid].result === "Loss" ? "font-bold" : ""}`} >
+                      {element.allPlayersStats[puuid].roundsLost}
+                    </span>
+                  </div>
+                  <h2 className="text-white">{element.gamemode}</h2>
+                </div>
+              </div>
+
+              {/* Base Player Stats */}
+              {headers.map((header) => (
+                <div key={header} className="flex-1 text-center">
+                  {statFormatters[header] ? statFormatters[header](element.allPlayersStats[puuid][statKeyMap[header]]) : element.allPlayersStats[puuid][statKeyMap[header]]}
                 </div>
               ))}
-
             </div>
-          )}
-        </div>
-      ))}
+
+            {/* Expanded Stat Rows */}
+            {expanded[rowKey] && (
+              <div>
+                {Object.entries(element.allPlayersStats).map(([key, entry], i) => (
+                  <div
+                    key={key}
+                    className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${i % 2 === 0 ? "element-dark" : "element"}`}
+                  >
+                    <div className="w-8" />
+                    <div className="basis-2/6">{entry.name}</div>
+                    {headers.map((header) => {
+                      return (
+                        <div key={header} className="flex-1 text-center">
+                          {statFormatters[header] ? statFormatters[header](entry[statKeyMap[header]]) : entry[statKeyMap[header]]}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            )}
+
+          </div>
+        );
+
+      })}
     </div>
   );
+
 }
