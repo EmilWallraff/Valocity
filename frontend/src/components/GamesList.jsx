@@ -66,7 +66,7 @@ export default function GamesList({ data, puuid }) {
   const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (
-    <div className="p-4 w-full max-w-5xl mx-auto">
+    <div className="p-4 w-full max-w-6xl mx-auto">
       {sortedData.map((element, index) => {
         const currentDay = getDay(element.date);
         const previousDay = index > 0 ? getDay(sortedData[index - 1].date) : null;
@@ -120,6 +120,7 @@ export default function GamesList({ data, puuid }) {
                 <div className="flex items-center justify-center gap-2 flex-shrink-0">
                   <img src={`/images/valorant/maps/${maps[element.map]}_listview.png`} alt={element.map} className="w-16 h-16 rounded-md object-cover" />
                   <img src={`/images/valorant/agents/${agents[element.allPlayersStats[puuid].agent]}.png`} alt={element.allPlayersStats[puuid].agent} className="w-16 h-16 rounded-md object-contain" />
+                  <img src={`/images/valorant/ranks/${element.allPlayersStats[puuid].rank.replace(" ", "_")}.png`} alt={element.allPlayersStats[puuid].rank} className="w-14 h-14 object-contain" />
                 </div>
 
                 <div className="flex flex-col items-center justify-center text-center w-32">
@@ -147,31 +148,42 @@ export default function GamesList({ data, puuid }) {
             {/* Expanded Stat Rows */}
             {expanded[rowKey] && (
               <div>
-                {Object.entries(element.allPlayersStats).sort(([keyA, a], [keyB, b]) => {
-                    if (a.team !== b.team) {return a.team === "Red" ? -1 : 1;}
-                    return b.rating - a.rating;
-                }).map(([key, entry], i) => (
-                  <div
-                    key={key}
-                    className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${i % 2 === 0 ? "element-dark" : "element"}`}
-                  >
-                    <div className="w-8" />
-                    <div className="basis-2/6">
-                      <div className="flex flex-shrink-0 items-center gap-2 px-2">
-                        <img src={`/images/valorant/agents/${agents[entry.agent]}.png`} alt={entry.agent} className="w-10 h-10 rounded-md object-contain" />
-                        <img src={`/images/valorant/ranks/${entry.rank.replace(" ", "_")}.png`} alt={entry.rank} className="w-8 h-8 rounded-md object-contain" />
-                        {entry.name}
+                {["Red", "Blue"].map((team) => {
+                  // Filter and sort each team separately
+                  const teamEntries = Object.entries(element.allPlayersStats).filter(([_, entry]) => entry.team === team).sort(([_, a], [__, b]) => b.rating - a.rating);
+
+                  if (teamEntries.length === 0) return null;
+
+                  return (
+                    <div key={team}>
+                      {/* Team header row */}
+                      <div className="flex items-center font-bold border-t border-l border-r border-element-lighter bg-element py-1">
+                        <div className="w-8" />
+                        <div className="basis-2/6 px-2"></div>
+                        {headers.map((header) => (
+                          <div key={header} className="flex-1 text-center">{header}</div>
+                        ))}
                       </div>
-                    </div>
-                    {headers.map((header) => {
-                      return (
-                        <div key={header} className="flex-1 text-center">
-                          {statFormatters[header] ? statFormatters[header](entry[statKeyMap[header]]) : entry[statKeyMap[header]]}
+
+                      {/* Team player rows */}
+                      {teamEntries.map(([key, entry], i) => (
+                        <div key={key} className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${i % 2 === 0 ? "element-dark" : "element"}`} >
+                          <div className="w-8" />
+                          <div className="basis-2/6">
+                            <div className="flex flex-shrink-0 items-center gap-2 px-2">
+                              <img src={`/images/valorant/agents/${agents[entry.agent]}.png`} alt={entry.agent} className="w-12 h-12 rounded-md object-contain" />
+                              <img src={`/images/valorant/ranks/${entry.rank.replace(" ", "_")}.png`} alt={entry.rank} className="w-10 h-10 rounded-md object-contain" />
+                              {entry.name}
+                            </div>
+                          </div>
+                          {headers.map((header) => (
+                            <div key={header} className="flex-1 text-center"> {statFormatters[header] ? statFormatters[header](entry[statKeyMap[header]]) : entry[statKeyMap[header]]} </div>
+                          ))}
                         </div>
-                      );
-                    })}
-                  </div>
-                ))}
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
