@@ -147,7 +147,10 @@ export default function GamesList({ data, puuid }) {
             {/* Expanded Stat Rows */}
             {expanded[rowKey] && (
               <div>
-                {Object.entries(element.allPlayersStats).map(([key, entry], i) => (
+                {Object.entries(element.allPlayersStats).sort(([keyA, a], [keyB, b]) => {
+                    if (a.team !== b.team) {return a.team === "Red" ? -1 : 1;}
+                    return b.rating - a.rating;
+                }).map(([key, entry], i) => (
                   <div
                     key={key}
                     className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${i % 2 === 0 ? "element-dark" : "element"}`}

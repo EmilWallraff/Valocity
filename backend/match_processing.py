@@ -107,7 +107,7 @@ def format_match(game_json):
             "roundsWon": won_rounds[player["teamId"]],
             "roundsLost": lost_rounds[player["teamId"]],
             "team": player["teamId"],
-            "name": f"{player["gameName"]} #{player["tagLine"]}",
+            "name": f"{player['gameName']} #{player['tagLine']}",
             "rank": rank_names[player["competitiveTier"]],
             "agent": agent_names[player["characterId"]],
             "rounds": player["stats"]["roundsPlayed"],
