@@ -81,7 +81,7 @@ export default function GamesList({ data, puuid }) {
           <div key={rowKey}>
             {showHeader && (
               <div className="flex font-bold border border-element-lighter py-2 text-left bg-element-dark">
-                <div className="w-6" />
+                <div className="w-8" />
                 <div className="flex-2 flex items-center gap-2 basis-2/6">
                   {currentDay}
                 </div>
