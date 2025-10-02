@@ -10,6 +10,7 @@ export default {
     'text-brand',
     'text-accent',
     'text-element-lighter',
+    'text-offwhite',
     'bg-element',
     'bg-element-light',
     'bg-element-dark',
@@ -41,7 +42,10 @@ export default {
           dark: '#111827',
           light: '#374151',
           lighter: '#4B5563',
-      },
+        },
+        offwhite: {
+          DEFAULT: '#aeaeaeff',
+        }
       },
     },
   },

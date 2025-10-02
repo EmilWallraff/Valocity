@@ -27,7 +27,7 @@ const headers = [
 ];
 
 const headerTooltips = {
-  "Rating": "Overall rating",
+  "Rating": "Overall rating (with 1.0 being an average performance)",
   "Kills": "Total kills",
   "Deaths": "Total deaths",
   "Assists": "Total assists",
@@ -80,13 +80,13 @@ export default function GamesList({ data, puuid }) {
         return (
           <div key={rowKey}>
             {showHeader && (
-              <div className="flex font-bold border border-element-lighter py-2 text-left bg-element-dark">
+              <div className="flex border border-element-lighter py-2 text-left text-white bg-element-dark">
                 <div className="w-8" />
                 <div className="flex-2 flex items-center gap-2 basis-2/6">
                   {currentDay}
                 </div>
                 {headers.map((header) => (
-                  <div key={header} className="group relative flex-1 text-white text-center" >
+                  <div key={header} className="group relative flex-1 text-offwhite text-center" >
                     {header}
                     {headerTooltips[header] && (
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-2 py-1 font-normal text-white bg-element-dark rounded border border-element-lighter shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
@@ -139,7 +139,7 @@ export default function GamesList({ data, puuid }) {
 
               {/* Base Player Stats */}
               {headers.map((header) => (
-                <div key={header} className="flex-1 text-center">
+                <div key={header} className="flex-1 text-center font-bold">
                   {statFormatters[header] ? statFormatters[header](element.allPlayersStats[puuid][statKeyMap[header]]) : element.allPlayersStats[puuid][statKeyMap[header]]}
                 </div>
               ))}
@@ -157,11 +157,18 @@ export default function GamesList({ data, puuid }) {
                   return (
                     <div key={team}>
                       {/* Team header row */}
-                      <div className="flex items-center font-bold border-t border-l border-r border-element-lighter bg-element py-1">
+                      <div className="flex items-center text-white border-t border-l border-r border-element-lighter bg-element py-1">
                         <div className="w-8" />
                         <div className="basis-2/6 px-2"></div>
                         {headers.map((header) => (
-                          <div key={header} className="flex-1 text-center">{header}</div>
+                          <div key={header} className="group relative flex-1 text-offwhite text-center" >
+                            {header}
+                            {headerTooltips[header] && (
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-2 py-1 font-normal text-white bg-element-dark rounded border border-element-lighter shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                {headerTooltips[header]}
+                              </div>
+                            )}
+                          </div>
                         ))}
                       </div>
 
@@ -177,7 +184,9 @@ export default function GamesList({ data, puuid }) {
                             </div>
                           </div>
                           {headers.map((header) => (
-                            <div key={header} className="flex-1 text-center"> {statFormatters[header] ? statFormatters[header](entry[statKeyMap[header]]) : entry[statKeyMap[header]]} </div>
+                            <div key={header} className="flex-1 text-center">
+                              {statFormatters[header] ? statFormatters[header](entry[statKeyMap[header]]) : entry[statKeyMap[header]]}
+                            </div>
                           ))}
                         </div>
                       ))}
