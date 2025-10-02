@@ -152,11 +152,14 @@ export default function GamesList({ data, puuid }) {
                     const teamEntries = Object.entries(element.allPlayersStats).filter(([_, entry]) => entry.team === team).sort(([_, a], [__, b]) => b.rating - a.rating);
 
                     if (teamEntries.length === 0) return null;
+                    
+                    const gradientColor = element.allPlayersStats[puuid].result === "Win" ? "from-brand/45" : element.allPlayersStats[puuid].result === "Loss" ? "from-accent/45" : "from-white/45";
 
                     return (
                       <div key={team}>
                         {/* Team header row */}
-                        <div className={`flex items-center text-white border-t border-l border-r border-element-lighter py-1 ${rowIndex++ % 2 === 0 ? "bg-element" : "bg-element-dark"}`} >
+                        <div className={`relative flex items-center text-white border-b border-l border-r border-element-lighter py-1 ${rowIndex++ % 2 === 0 ? "bg-element" : "bg-element-dark"}`} >
+                          <div className={`absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r ${gradientColor} to-transparent z-10`} />
                           <div className="w-8" />
                           <div className="basis-2/6 px-2"></div>
                           {headers.map((header) => (
@@ -173,7 +176,8 @@ export default function GamesList({ data, puuid }) {
 
                         {/* Team player rows */}
                         {teamEntries.map(([key, entry]) => (
-                          <div key={key} className={`flex items-center py-1 border-b border-l border-r border-element-lighter ${ rowIndex++ % 2 === 0 ? "bg-element" : "bg-element-dark" }`} >
+                          <div key={key} className={`relative flex items-center py-1 border-b border-l border-r border-element-lighter ${ rowIndex++ % 2 === 0 ? "bg-element" : "bg-element-dark" }`} >
+                            <div className={`absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r ${gradientColor} to-transparent z-10`} />
                             <div className="w-8" />
                             <div className="basis-2/6">
                               <div className="flex flex-shrink-0 items-center gap-2 px-2">

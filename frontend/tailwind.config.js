@@ -14,6 +14,9 @@ export default {
     'bg-element',
     'bg-element-light',
     'bg-element-dark',
+    "from-brand/45",
+    "from-accent/45",
+    "from-white/45",
   ],
   theme: {
     extend: {
