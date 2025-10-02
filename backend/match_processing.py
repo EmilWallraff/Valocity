@@ -79,10 +79,19 @@ rank_names = {
     27: "Radiant",
 }
 
-TRADE_DURATION = 2500
+TRADE_DURATION = 3000
+DAMAGE_PER_KILL_ESTIMATION = 140.0
+KPR_MODIFIER = 0.898060946867
+APR_MODIFIER = 0.227872913948
+DPR_MODIFIER = -0.433940698092
+ADRA_MODIFIER = 0.00252436539
+SR_MODIFIER = 0.433940698092
+KAST_MODIFIER = 0.312874869548
+GENERAL_MODIFIER = 0.17492523147187433
 
 
 
+# This uses a surprisingly accurate but still technically very crude approximation of VLR player rating
 def format_match(game_json):
     red_team_entry = next((team for team in game_json["teams"] if team.get("teamId").lower() == "red"), None)
     blue_team_entry = next((team for team in game_json["teams"] if team.get("teamId").lower() == "blue"), None)
@@ -123,9 +132,7 @@ def format_match(game_json):
         }
 
     for round_stats in (round["playerStats"] for round in game_json["roundResults"]):
-
         playersKast = {key: False for key in stats_dict.keys()}
-
         kills = []
 
         for player_round_stats in round_stats:
@@ -168,11 +175,11 @@ def format_match(game_json):
             stats_dict[kill_entry["victim"]]["temp_usagePoints"] += min(kill_entry["playersAliveBefore"]["Red"], kill_entry["playersAliveBefore"]["Blue"])
 
 
-
-            
         for player in playersKast:
             if playersKast[player] or not any(k.get("victim") == player for k in kills):
                 stats_dict[player]["temp_kastRounds"] += 1
+
+
 
     team_total_usage_points = {
         "Red": sum([p["temp_usagePoints"] for p in stats_dict.values() if p["team"] == "Red"]),
@@ -180,11 +187,17 @@ def format_match(game_json):
     }
 
     for player_stats in stats_dict.values():
+        kpr = player_stats["kills"] / player_stats["rounds"]
+        apr = player_stats["assists"] / player_stats["rounds"]
+        dpr = player_stats["deaths"] / player_stats["rounds"]
+        adra = (player_stats["temp_damage"] - (player_stats["kills"] * DAMAGE_PER_KILL_ESTIMATION)) / player_stats["rounds"]
+        sr = (player_stats["rounds"] - player_stats["deaths"]) / player_stats["rounds"]
+
         player_stats["headshot"] = player_stats["temp_headshots"] / (player_stats["temp_headshots"] + player_stats["temp_bodyshots"] + player_stats["temp_legshots"])
         player_stats["damage"] = player_stats["temp_damage"] / player_stats["rounds"]
-        player_stats["rating"] = player_stats["kills"] / player_stats["deaths"]
         player_stats["kast"] = player_stats["temp_kastRounds"] / player_stats["rounds"]
         player_stats["use"] = player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]
+        player_stats["rating"] = (kpr * KPR_MODIFIER) + (apr * APR_MODIFIER) + (dpr * DPR_MODIFIER) + (adra * ADRA_MODIFIER) + (sr * SR_MODIFIER) + (player_stats["kast"] * KAST_MODIFIER) + GENERAL_MODIFIER
 
         del player_stats["temp_damage"]
         del player_stats["temp_kastRounds"]
@@ -193,7 +206,6 @@ def format_match(game_json):
         del player_stats["temp_legshots"]
         del player_stats["temp_usagePoints"]
 
-
     return {
         "matchId": game_json["matchInfo"]["matchId"],
         "date": time_string_from_milliseconds(game_json["matchInfo"]["gameStartMillis"]),
@@ -201,6 +213,8 @@ def format_match(game_json):
         "map": map_names[game_json["matchInfo"]["mapId"]],
         "allPlayersStats": stats_dict
     }
+
+
 
 
 
