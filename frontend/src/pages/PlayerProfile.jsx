@@ -15,7 +15,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 16,
    'team': 'Blue',
-   'rank': 11,
+   'name': 'GLUE Wheatley #old',
+   'rank': 'Silver III',
    'agent': 'Skye',
    'rounds': 30,
    'kills': 15,
@@ -30,7 +31,8 @@ const testData = [
    'roundsWon': 16,
    'roundsLost': 14,
    'team': 'Red',
-   'rank': 12,
+   'name': '冰冷哥别狗叫 #4923',
+   'rank': 'Gold I',
    'agent': 'Jett',
    'rounds': 30,
    'kills': 28,
@@ -45,7 +47,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 16,
    'team': 'Blue',
-   'rank': 11,
+   'name': 'GLUE Whywolf #uhu',
+   'rank': 'Silver III',
    'agent': 'Neon',
    'rounds': 30,
    'kills': 16,
@@ -60,7 +63,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 16,
    'team': 'Blue',
-   'rank': 8,
+   'name': 'GLUE Killlllian #FEET',
+   'rank': 'Bronze III',
    'agent': 'Omen',
    'rounds': 30,
    'kills': 17,
@@ -75,7 +79,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 16,
    'team': 'Blue',
-   'rank': 10,
+   'name': 'Shakoo #9883',
+   'rank': 'Silver II',
    'agent': 'Breach',
    'rounds': 30,
    'kills': 18,
@@ -90,7 +95,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 16,
    'team': 'Blue',
-   'rank': 16,
+   'name': 'GLUE Matze2732 #Super',
+   'rank': 'Platinum II',
    'agent': 'Gekko',
    'rounds': 30,
    'kills': 34,
@@ -105,7 +111,8 @@ const testData = [
    'roundsWon': 16,
    'roundsLost': 14,
    'team': 'Red',
-   'rank': 12,
+   'name': '前妻姐别想我 #初恋网友',
+   'rank': 'Gold I',
    'agent': 'Yoru',
    'rounds': 30,
    'kills': 32,
@@ -120,7 +127,8 @@ const testData = [
    'roundsWon': 16,
    'roundsLost': 14,
    'team': 'Red',
-   'rank': 9,
+   'name': '大象别摔鼻 #333',
+   'rank': 'Silver I',
    'agent': 'Clove',
    'rounds': 30,
    'kills': 18,
@@ -135,7 +143,8 @@ const testData = [
    'roundsWon': 16,
    'roundsLost': 14,
    'team': 'Red',
-   'rank': 12,
+   'name': '纯爱哥别深情 #9791',
+   'rank': 'Gold I',
    'agent': 'Cypher',
    'rounds': 30,
    'kills': 16,
@@ -150,7 +159,8 @@ const testData = [
    'roundsWon': 16,
    'roundsLost': 14,
    'team': 'Red',
-   'rank': 10,
+   'name': 'LACKOFMOON #1828',
+   'rank': 'Silver II',
    'agent': 'Fade',
    'rounds': 30,
    'kills': 16,
@@ -169,7 +179,8 @@ const testData = [
    'roundsWon': 12,
    'roundsLost': 14,
    'team': 'Blue',
-   'rank': 12,
+   'name': 'ShacMuSe #EUW',
+   'rank': 'Gold I',
    'agent': 'KAY/O',
    'rounds': 26,
    'kills': 15,
@@ -184,7 +195,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 12,
    'team': 'Red',
-   'rank': 6,
+   'name': 'JMarina #4137',
+   'rank': 'Bronze I',
    'agent': 'Skye',
    'rounds': 26,
    'kills': 14,
@@ -199,7 +211,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 12,
    'team': 'Red',
-   'rank': 11,
+   'name': 'Karma Only #3768',
+   'rank': 'Silver III',
    'agent': 'Clove',
    'rounds': 26,
    'kills': 19,
@@ -214,7 +227,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 12,
    'team': 'Red',
-   'rank': 9,
+   'name': 'Wiew #1018',
+   'rank': 'Silver I',
    'agent': 'Jett',
    'rounds': 26,
    'kills': 37,
@@ -229,7 +243,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 12,
    'team': 'Red',
-   'rank': 13,
+   'name': 'D E A D #200',
+   'rank': 'Gold II',
    'agent': 'Reyna',
    'rounds': 26,
    'kills': 22,
@@ -244,7 +259,8 @@ const testData = [
    'roundsWon': 12,
    'roundsLost': 14,
    'team': 'Blue',
-   'rank': 11,
+   'name': 'GLUE Wheatley #old',
+   'rank': 'Silver III',
    'agent': 'Omen',
    'rounds': 26,
    'kills': 18,
@@ -259,7 +275,8 @@ const testData = [
    'roundsWon': 12,
    'roundsLost': 14,
    'team': 'Blue',
-   'rank': 11,
+   'name': 'LAHYR #13120',
+   'rank': 'Silver III',
    'agent': 'Sage',
    'rounds': 26,
    'kills': 16,
@@ -274,7 +291,8 @@ const testData = [
    'roundsWon': 12,
    'roundsLost': 14,
    'team': 'Blue',
-   'rank': 8,
+   'name': 'mike ehrmantraut #1584',
+   'rank': 'Bronze III',
    'agent': 'Neon',
    'rounds': 26,
    'kills': 24,
@@ -289,7 +307,8 @@ const testData = [
    'roundsWon': 14,
    'roundsLost': 12,
    'team': 'Red',
-   'rank': 9,
+   'name': 'Zitrone080 #7686',
+   'rank': 'Silver I',
    'agent': 'Sova',
    'rounds': 26,
    'kills': 12,
@@ -304,7 +323,8 @@ const testData = [
    'roundsWon': 12,
    'roundsLost': 14,
    'team': 'Blue',
-   'rank': 11,
+   'name': 'GLUE Whywolf #uhu',
+   'rank': 'Silver III',
    'agent': 'Chamber',
    'rounds': 26,
    'kills': 27,
@@ -323,7 +343,8 @@ const testPuuid = "Hugzi1oPLm4FcdyKgz7Vq1Un4LKT0TiBk0SM1CYgnPCEE-MuE2HsDUipfVrve
 function PlayerProfile() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const { userinfo, fetchUserinfo } = useUser();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     document.title = 'Profile - valocity';
@@ -333,15 +354,18 @@ function PlayerProfile() {
 
   async function updateMatchHistory() {
     try {
+      setLoading(true);
       console.log("puuid: ", userinfo.puuid);
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${userinfo.puuid}&gamemode=${"Competitive"}&count=${5}`, {
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${userinfo.puuid}&gamemode=${"Competitive"}&count=${5}&offset=${data.length}`, {
         credentials: "include"
       });
 
-      setData(responseData);
+      setData(prev => [...prev, ...responseData]);
       console.log("Match History: ", responseData);
     } catch (error) {
       console.error("Failed to fetch match history: ", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -356,16 +380,28 @@ function PlayerProfile() {
         </div>
       </div>
 
-      <div className="">
-
-        {!data ? (
-          <div className="flex flex-col items-center space-y-8">
-            <h2 className="text-4xl font-bold text-accent mb-4">Loading Data...</h2>
-          </div>
+      <div>
+        {data.length === 0 ? (
+          loading ? (
+            <div className="flex flex-col items-center space-y-8">
+              <h2 className="text-4xl font-bold text-accent mb-4">Loading...</h2>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center space-y-8">
+              <h2 className="text-4xl font-bold text-accent mb-4">No Data Found. Try Logging In.</h2>
+            </div>
+          )
         ) : (
-          <div>
-            {/* <GamesList data={data} headers={headers} headerTooltips={headerTooltips} /> */}
+          <div className="flex flex-col items-center space-y-8">
             <GamesList data={data} puuid={userinfo.puuid} />
+
+            <button
+              onClick={updateMatchHistory}
+              disabled={loading}
+              className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
+            >
+              {loading ? "Loading..." : "Load More"}
+            </button>
           </div>
         )}
       </div>

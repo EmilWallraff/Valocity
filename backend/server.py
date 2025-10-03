@@ -464,7 +464,7 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/riot/player_matches")
-async def riot_matches(puuid: str, gamemode: str, count: int):
+async def riot_matches(puuid: str, gamemode: str, count: int, offset: int):
     # Online Api thing uses "eu", documentation uses "europe"
     riot_player_matches_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}"
 
@@ -482,12 +482,16 @@ async def riot_matches(puuid: str, gamemode: str, count: int):
     
     player_matches = resp.json()["history"]
     relevant_match_ids = []
+    offset_counter = 0
 
     for match in player_matches:
         if match["queueId"] == gamemode.lower():
-            relevant_match_ids.append(match["matchId"])
-            if len(relevant_match_ids) >= count:
-                break
+            if offset_counter < offset:
+                offset_counter += 1
+            else:
+                relevant_match_ids.append(match["matchId"])
+                if len(relevant_match_ids) >= count:
+                    break
 
     print(f"Number of relevant matches: {len(relevant_match_ids)}")
     
