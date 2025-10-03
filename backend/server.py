@@ -15,6 +15,7 @@ from jose import jwt
 import time
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from database import UserToken, get_db
 
@@ -487,21 +488,30 @@ async def riot_matches(puuid: str, gamemode: str, count: int):
             relevant_match_ids.append(match["matchId"])
             if len(relevant_match_ids) >= count:
                 break
-    
-    match_data = []
 
     print(f"Number of relevant matches: {len(relevant_match_ids)}")
+    
+    match_history = []
 
-    for match in relevant_match_ids:
-        riot_match_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matches/{match}"
-        print(f"Requesting match with: {riot_match_endpoint}")
+    with ThreadPoolExecutor(max_workers=count) as executor:
+        future_to_match = {executor.submit(fetch_match, mid, headers): mid for mid in relevant_match_ids}
+        for future in as_completed(future_to_match):
+            try:
+                match_history.append(match_processing.format_match(future.result()))
+            except Exception as e:
+                print(f"Error fetching match {future_to_match[future]}: {e}")
 
-        match_resp = requests.get(riot_match_endpoint, headers=headers)
+    return match_history
 
-        if match_resp.status_code != 200:
-            print("riot wrong response code, probably some error")
-            raise HTTPException(match_resp.status_code, f"Riot API error: {match_resp.text}")
-        else:
-            match_data.append(match_processing.format_match(match_resp.json()))
 
-    return match_data
+
+def fetch_match(match_id, headers):
+    riot_match_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matches/{match_id}"
+    print(f"Requesting match with: {riot_match_endpoint}")
+
+    match_resp = requests.get(riot_match_endpoint, headers=headers)
+
+    if match_resp.status_code != 200:
+        print("riot wrong response code, probably some error")
+        raise HTTPException(match_resp.status_code, f"Riot API error: {match_resp.text}")
+    return match_resp.json()

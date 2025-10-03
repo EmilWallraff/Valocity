@@ -93,29 +93,26 @@ GENERAL_MODIFIER = 0.17492523147187433
 
 # This uses a surprisingly accurate but still technically very crude approximation of VLR player rating
 def format_match(game_json):
-    red_team_entry = next((team for team in game_json["teams"] if team.get("teamId").lower() == "red"), None)
-    blue_team_entry = next((team for team in game_json["teams"] if team.get("teamId").lower() == "blue"), None)
+    teams = {t["teamId"].capitalize(): t for t in game_json["teams"]}
+    red_team_entry, blue_team_entry = teams["Red"], teams["Blue"]
+
     results = {
         "Red": "Win" if red_team_entry["won"] else "Loss" if blue_team_entry["won"] else "Draw",
-        "Blue": "Win" if blue_team_entry["won"] else "Loss" if red_team_entry["won"] else "Draw"
+        "Blue": "Win" if blue_team_entry["won"] else "Loss" if red_team_entry["won"] else "Draw",
     }
-    won_rounds = {
-        "Red": red_team_entry["roundsWon"],
-        "Blue": blue_team_entry["roundsWon"]
-    }
-    lost_rounds = {
-        "Red": blue_team_entry["roundsWon"],
-        "Blue": red_team_entry["roundsWon"]
-    }
+
+    won_rounds = {"Red": red_team_entry["roundsWon"], "Blue": blue_team_entry["roundsWon"]}
+    lost_rounds = {"Red": blue_team_entry["roundsWon"], "Blue": red_team_entry["roundsWon"]}
 
     stats_dict = {}
 
     for player in game_json["players"]:
+        team = player["teamId"]
         stats_dict[player["puuid"]] = {
-            "result": results[player["teamId"]],
-            "roundsWon": won_rounds[player["teamId"]],
-            "roundsLost": lost_rounds[player["teamId"]],
-            "team": player["teamId"],
+            "result": results[team],
+            "roundsWon": won_rounds[team],
+            "roundsLost": lost_rounds[team],
+            "team": team,
             "name": f"{player['gameName']} #{player['tagLine']}",
             "rank": rank_names[player["competitiveTier"]],
             "agent": agent_names[player["characterId"]],
@@ -123,12 +120,8 @@ def format_match(game_json):
             "kills": player["stats"]["kills"],
             "deaths": player["stats"]["deaths"],
             "assists": player["stats"]["assists"],
-            "temp_damage": 0,
-            "temp_kastRounds": 0,
-            "temp_headshots": 0,
-            "temp_bodyshots": 0,
-            "temp_legshots": 0,
-            "temp_usagePoints": 0,
+            **{k: 0 for k in ("temp_damage","temp_kastRounds","temp_headshots",
+                               "temp_bodyshots","temp_legshots","temp_usagePoints")}
         }
 
     for round_stats in (round["playerStats"] for round in game_json["roundResults"]):
@@ -136,12 +129,13 @@ def format_match(game_json):
         kills = []
 
         for player_round_stats in round_stats:
+            player_stats_dict_entry = stats_dict[player_round_stats["puuid"]]
             for damage_instance in player_round_stats["damage"]:
-                if stats_dict[player_round_stats["puuid"]]["team"] != stats_dict[damage_instance["receiver"]]["team"]:
-                    stats_dict[player_round_stats["puuid"]]["temp_damage"] += damage_instance["damage"]
-                    stats_dict[player_round_stats["puuid"]]["temp_headshots"] += damage_instance["headshots"]
-                    stats_dict[player_round_stats["puuid"]]["temp_bodyshots"] += damage_instance["bodyshots"]
-                    stats_dict[player_round_stats["puuid"]]["temp_legshots"] += damage_instance["legshots"]
+                if player_stats_dict_entry["team"] != stats_dict[damage_instance["receiver"]]["team"]:
+                    player_stats_dict_entry["temp_damage"] += damage_instance["damage"]
+                    player_stats_dict_entry["temp_headshots"] += damage_instance["headshots"]
+                    player_stats_dict_entry["temp_bodyshots"] += damage_instance["bodyshots"]
+                    player_stats_dict_entry["temp_legshots"] += damage_instance["legshots"]
 
             for kill_instance in player_round_stats["kills"]:
                 kill_entry = {
@@ -149,10 +143,7 @@ def format_match(game_json):
                     "victim": kill_instance["victim"],
                     "time": kill_instance["timeSinceRoundStartMillis"],
                     "assistants": kill_instance["assistants"],
-                    "playersAliveBefore": {
-                        "Red": 0,
-                        "Blue": 0
-                    }
+                    "playersAliveBefore": {"Red": 0, "Blue": 0},
                 }
                 kill_entry["playersAliveBefore"][stats_dict[kill_instance["victim"]]["team"]] += 1
                 for survivor in kill_instance["playerLocations"]:
@@ -199,12 +190,8 @@ def format_match(game_json):
         player_stats["use"] = player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]
         player_stats["rating"] = (kpr * KPR_MODIFIER) + (apr * APR_MODIFIER) + (dpr * DPR_MODIFIER) + (adra * ADRA_MODIFIER) + (sr * SR_MODIFIER) + (player_stats["kast"] * KAST_MODIFIER) + GENERAL_MODIFIER
 
-        del player_stats["temp_damage"]
-        del player_stats["temp_kastRounds"]
-        del player_stats["temp_headshots"]
-        del player_stats["temp_bodyshots"]
-        del player_stats["temp_legshots"]
-        del player_stats["temp_usagePoints"]
+        for key in ("temp_damage", "temp_kastRounds", "temp_headshots", "temp_bodyshots", "temp_legshots", "temp_usagePoints"):
+            player_stats.pop(key, None)
 
     return {
         "matchId": game_json["matchInfo"]["matchId"],
