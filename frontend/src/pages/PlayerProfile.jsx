@@ -371,24 +371,23 @@ function PlayerProfile() {
 
   return (
     <div className="bg-darkness items-center pt-16 p-6 space-y-16">
-
-      <div className="bg-darkness flex flex-col items-center pt-16 p-6 space-y-16">
-        <div className="flex flex-col items-center space-y-8">
-          <h2 className="text-4xl font-bold text-white mb-4">Player Profiles are still work in progress.</h2>
-
-          <h2 className="text-2xl text-white text-center max-w-3xl"></h2>
-        </div>
+      <div className="flex flex-col items-center space-y-8">
+        <h2 className="text-4xl font-bold text-white mb-4">
+          {userinfo
+            ? `${userinfo.gameName ?? "Unknown"}${userinfo.tagLine ? " #" + userinfo.tagLine : ""}`
+            : "Log in to see your Profile."}
+        </h2>
       </div>
 
       <div>
         {data.length === 0 ? (
           loading ? (
             <div className="flex flex-col items-center space-y-8">
-              <h2 className="text-4xl font-bold text-accent mb-4">Loading...</h2>
+              <h2 className="text-4xl font-bold text-accent mb-4">Loading Matches...</h2>
             </div>
           ) : (
             <div className="flex flex-col items-center space-y-8">
-              <h2 className="text-4xl font-bold text-accent mb-4">No Data Found. Try Logging In.</h2>
+              <h2 className="text-4xl font-bold text-accent mb-4">No Matches found. Try logging in.</h2>
             </div>
           )
         ) : (

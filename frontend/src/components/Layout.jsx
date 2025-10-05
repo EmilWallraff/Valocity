@@ -7,9 +7,9 @@ function Layout() {
   const { userinfo, loading } = useUser();
 
   return (
-    <div className="flex flex-col min-h-screen bg-darkness text-white">
+    <div className="flex flex-col h-screen bg-darkness text-white">
       {/* Navigation bar */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between p-4 bg-black shadow-md">
+      <nav className="flex-none sticky top-0 z-50 flex items-center justify-between p-4 bg-black shadow-md">
         <div className="flex items-center space-x-6">
           <Link to="/" className="text-2xl font-raj font-bold text-brand hover:text-brand-light">valocity</Link>
           <NavigationDropdown items={ [
@@ -40,25 +40,29 @@ function Layout() {
         </div>
       </nav>
 
-      {/* Page content */}
-      <main className="flex-1">
-        <Outlet />
-      </main>
+      {/* Scrollable content (main + footer) */}
+      <div className="flex-1 overflow-y-auto flex flex-col">
+        {/* Page content */}
+        <main className="flex-grow pb-4">
+          <Outlet />
+        </main>
+      
 
-      {/* Footer */}
-      <footer className="bg-black text-sm text-center text-white py-3">
-        <div className="flex justify-center space-x-6">
-          <Link to="/impressum" className="text-brand hover:text-brand-light transition">
-            Impressum
-          </Link>
-          <Link to="/datenschutz" className="text-brand hover:text-brand-light transition">
-            Datenschutzerklärung
-          </Link>
-          <Link to="/rights" className="text-brand hover:text-brand-light transition">
-            Terms of Service and Privacy
-          </Link>
-        </div>
-      </footer>
+        {/* Footer */}
+        <footer className="bg-black text-sm text-center text-white py-3">
+          <div className="flex justify-center space-x-6">
+            <Link to="/impressum" className="text-brand hover:text-brand-light transition">
+              Impressum
+            </Link>
+            <Link to="/datenschutz" className="text-brand hover:text-brand-light transition">
+              Datenschutzerklärung
+            </Link>
+            <Link to="/rights" className="text-brand hover:text-brand-light transition">
+              Terms of Service and Privacy
+            </Link>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }

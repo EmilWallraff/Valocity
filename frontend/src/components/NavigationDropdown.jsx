@@ -79,19 +79,19 @@ export default function NavigationDropdown({ items = [], label = "Options", fill
       {open && (
         <div className="absolute left-1/2 -translate-x-1/2 translate-y-3 mt-2 w-64 bg-black border border-black rounded-xl shadow-lg z-50 max-h-80 overflow-auto">
           <ul className="divide-y divide-gray-700">
-            {items.map((weapon, index) => (
-              <li key={weapon.label}>
+            {items.map((item, index) => (
+              <li key={item.label}>
                 <Link
-                  to={weapon.path}
+                  to={item.path}
                   className={`flex items-center gap-3 p-3 cursor-pointer transition ${highlightedIndex === index ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
                   onClick={() => setOpen(false)}
                 >
                   <img
-                    src={weapon.image}
-                    alt={weapon.label}
+                    src={item.image}
+                    alt={item.label}
                     className="w-8 h-8 rounded-md object-contain"
                   />
-                  <span>{weapon.label}</span>
+                  <span>{item.label}</span>
                 </Link>
               </li>
             ))}
