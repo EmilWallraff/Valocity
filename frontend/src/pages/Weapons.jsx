@@ -6,6 +6,7 @@ import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { weaponOptions } from "../data/imageSelectSets";
 import { mapOptions } from "../data/imageSelectSets";
 import { agentOptions } from "../data/imageSelectSets";
+import { rankOptions } from "../data/imageSelectSets";
 
 const headers = [
   "Weapon",
@@ -34,12 +35,15 @@ function Weapons() {
   const [filteredAgents, setFiltereAgents] = useState(() => 
     agentOptions.map(agentOption => agentOption.label)
   );
+  const [filteredRanks, setFilteredRanks] = useState(() => 
+    rankOptions.map(rankOption => rankOption.label)
+  );
 
     useEffect(() => {
       document.title = 'Weapons - valocity';
 
       updateWeaponValues()
-    }, [filteredWeapons, filteredMaps, filteredAgents]);
+    }, [filteredWeapons, filteredMaps, filteredAgents, filteredRanks]);
 
     async function updateWeaponValues() {
       try {
@@ -51,7 +55,8 @@ function Weapons() {
           body: JSON.stringify({
             weapons: filteredWeapons,
             maps: filteredMaps,
-            agents: filteredAgents
+            agents: filteredAgents,
+            ranks: filteredRanks
           }),
         });
 
@@ -71,6 +76,7 @@ function Weapons() {
             <MultiSelect items={weaponOptions} label="Filter Weapons" sizeClass="w-44 h-20" onChange={(selected) => (setFilteredWeapons(selected))} />
             <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredMaps(selected))} />
             <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => (setFiltereAgents(selected))} />
+            <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredRanks(selected))} />
           </div>
         </div>
 

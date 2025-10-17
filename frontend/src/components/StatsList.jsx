@@ -4,20 +4,11 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { agents } from "../data/hashcodes";
 import { weapons } from "../data/hashcodes";
 import { armors } from "../data/hashcodes";
-import { maps } from "../data/hashcodes"; 
-
-const statKeyMap = {
-  "K/R": "kills",
-  "Dmg/R": "damage",
-  "Win%": "win",
-  "HS%": "headshot",
-  "Pick%": "pick",
-  "K/D": "kd"
-};
+import { maps } from "../data/hashcodes";
 
 export default function StatsList({ data, headers = [], defaultHeader, headerTooltips = {}, imageType }) {
   const [expanded, setExpanded] = useState({});
-  const [sortKey, setSortKey] = useState(statKeyMap[defaultHeader] || "damage");
+  const [sortKey, setSortKey] = useState(defaultHeader || "Dmg/R");
   const [sortOrder, setSortOrder] = useState("desc");
 
   const toggleExpand = (id) => {
@@ -25,7 +16,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
   };
 
   const handleSort = (label) => {
-    const key = statKeyMap[label];
+    const key = label;
     if (!key) return;
 
     if (sortKey === key) {
@@ -51,7 +42,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
           <div
             key={header}
             onClick={() => handleSort(header)}
-            className={`group relative flex-1 text-${sortKey === statKeyMap[header] ? sortOrder === "asc" ? "accent" : "brand" : "white"} text-center cursor-pointer`}
+            className={`group relative flex-1 text-${sortKey === header ? sortOrder === "asc" ? "accent" : "brand" : "white"} text-center cursor-pointer`}
           >
             {header}
             {headerTooltips[header] && (
@@ -100,11 +91,11 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
               return (
                 <div className="flex-1 text-center">
                   {header.includes("%")
-                    ? element.stats[statKeyMap[header]] != null
-                      ? (element.stats[statKeyMap[header]] * 100).toFixed(0) + "%"
+                    ? element.stats[header] != null
+                      ? (element.stats[header] * 100).toFixed(0) + "%"
                       : "-"
-                    : element.stats[statKeyMap[header]] != null
-                      ? element.stats[statKeyMap[header]].toFixed(2)
+                    : element.stats[header] != null
+                      ? element.stats[header].toFixed(2)
                       : "-"}
                 </div>
               );
@@ -126,11 +117,11 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
                     return (
                       <div className="flex-1 text-center">
                         {header.includes("%")
-                          ? entry[statKeyMap[header]] != null
-                            ? (entry[statKeyMap[header]] * 100).toFixed(0) + "%"
+                          ? entry[header] != null
+                            ? (entry[header] * 100).toFixed(0) + "%"
                             : "-"
-                          : entry[statKeyMap[header]] != null
-                            ? entry[statKeyMap[header]].toFixed(2)
+                          : entry[header] != null
+                            ? entry[header].toFixed(2)
                             : "-"}
                       </div>
                     );

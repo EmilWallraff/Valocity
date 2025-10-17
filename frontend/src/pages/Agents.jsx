@@ -5,22 +5,27 @@ import StatsList from "../components/StatsList";
 import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { mapOptions } from "../data/imageSelectSets";
 import { agentOptions } from "../data/imageSelectSets";
+import { rankOptions } from "../data/imageSelectSets";
 
 const headers = [
   "Agent",
   "Pick%",
   "Win%",
-  "K/D",
+  "Rating",
   "K/R",
-  "Dmg/R",
+  "A/R",
+  "KAST%",
+  "USE%",
 ];
 
 const headerTooltips = {
   "Pick%": "Percentage of teams where one player picked the agent",
   "Win%": "Wins per non-drawn matches against a team without the agent",
-  "K/D": "Kills per death",
+  "Rating": "Average overall rating (with 1.0 being an average performance)",
   "K/R": "Kills per round",
-  "Dmg/R": "Damage per round"
+  "A/R": "Assists per round",
+  "KAST%": "Average percentage of rounds with kill, assist, survival or trade",
+  "USE%": "Average percentage of contribution to team's engagements (weighted)"
 };
 
 function Agents() {
@@ -32,12 +37,15 @@ function Agents() {
   const [filteredMaps, setFilteredMaps] = useState(() => 
     mapOptions.map(mapOption => mapOption.label)
   );
-
+  const [filteredRanks, setFilteredRanks] = useState(() => 
+    rankOptions.map(rankOption => rankOption.label)
+  );
+  
     useEffect(() => {
       document.title = 'Agents - valocity';
 
       updateAgentValues();
-    }, [filteredAgents, filteredMaps]);
+    }, [filteredAgents, filteredMaps, filteredRanks]);
 
     async function updateAgentValues() {
       try {
@@ -48,7 +56,8 @@ function Agents() {
           },
           body: JSON.stringify({
             agents: filteredAgents,
-            maps: filteredMaps
+            maps: filteredMaps,
+            ranks: filteredRanks
           }),
         });
 
@@ -67,6 +76,7 @@ function Agents() {
           <div className="flex flex-row gap-4">
             <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => (setFiltereAgents(selected))} />
             <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredMaps(selected))} />
+            <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredRanks(selected))} />
           </div>
         </div>
 

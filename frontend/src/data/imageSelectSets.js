@@ -27,3 +27,9 @@ export const mapOptions = Object.entries(maps).map(([label, hashcode]) => ({
     hashcode,
     image: `/images/valorant/maps/${hashcode}_listview.png`,
 }));
+
+export const rankOptions = Object.entries(ranks).map(([label, hashcode]) => ({
+    label,
+    hashcode,
+    image: `/images/valorant/ranks/${hashcode}.png`,
+}));

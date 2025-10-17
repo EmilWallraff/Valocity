@@ -72,3 +72,15 @@ export const maps = {
     "Sunset": "92584FBE-486A-B1B2-9FAA-39B0F486B498",
     "Corrode": "1C18AB1F-420D-0D8B-71D0-77AD3C439115",
 }
+
+export const ranks = {
+    "Iron": "Iron II",
+    "Bronze": "Bronze II",
+    "Silver": "Silver II",
+    "Gold": "Gold II",
+    "Platinum": "Platinum II",
+    "Diamond": "Diamond II",
+    "Ascendant": "Ascendant II",
+    "Immortal": "Immortal II",
+    "Radiant": "Radiant",
+}
