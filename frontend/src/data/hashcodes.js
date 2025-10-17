@@ -74,13 +74,13 @@ export const maps = {
 }
 
 export const ranks = {
-    "Iron": "Iron II",
-    "Bronze": "Bronze II",
-    "Silver": "Silver II",
-    "Gold": "Gold II",
-    "Platinum": "Platinum II",
-    "Diamond": "Diamond II",
-    "Ascendant": "Ascendant II",
-    "Immortal": "Immortal II",
     "Radiant": "Radiant",
+    "Immortal": "Immortal_II",
+    "Ascendant": "Ascendant_II",
+    "Diamond": "Diamond_II",
+    "Platinum": "Platinum_II",
+    "Gold": "Gold_II",
+    "Silver": "Silver_II",
+    "Bronze": "Bronze_II",
+    "Iron": "Iron_II"
 }
