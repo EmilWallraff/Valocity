@@ -5,6 +5,7 @@ import { agents } from "../data/hashcodes";
 import { weapons } from "../data/hashcodes";
 import { armors } from "../data/hashcodes";
 import { maps } from "../data/hashcodes";
+import { ranks } from '../data/hashcodes';
 
 export default function StatsList({ data, headers = [], defaultHeader, headerTooltips = {}, imageType }) {
   const [expanded, setExpanded] = useState({});
@@ -28,6 +29,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
   };
 
   const sortedData = [...data].sort((a, b) => {
+    console.log("Weapon Data subentries: ", data[0].subentries);
     const aVal = a.stats[sortKey];
     const bVal = b.stats[sortKey];
     return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
@@ -76,6 +78,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
                       weapons: 'weapons/' + weapons[element.name] + '_killstream',
                       armors: 'armors/' + armors[element.name],
                       maps: 'maps/' + maps[element.name] + '_listview',
+                      ranks: 'ranks/' + ranks[element.name],
                     }[imageType]
                   }.png`}
                   alt={element.name}
