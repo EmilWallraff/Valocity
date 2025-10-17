@@ -29,7 +29,6 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
   };
 
   const sortedData = [...data].sort((a, b) => {
-    console.log("Weapon Data subentries: ", data[0].subentries.length);
     const aVal = a.stats[sortKey];
     const bVal = b.stats[sortKey];
     return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
@@ -59,7 +58,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
       {sortedData.map((element, index) => (
         <div key={element.id}>
           <div className={`flex items-center py-2 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}>
-            {Array.isArray(element.subentries) && element.subentries.length > 0 ? (
+            {element.subentries && Object.keys(element.subentries).length > 0 ? (
               <div
                 onClick={() => toggleExpand(element.id)}
                 className="w-8 cursor-pointer flex justify-center"
@@ -107,25 +106,26 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
 
           {expanded[element.id] && (
             <div>
-              {element.subentries.map((entry, i) => (
+              {Object.entries(element.subentries).map(([name, entry], i) => (
                 <div
-                  key={i}
+                  key={name}
                   className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}
                 >
                   <div className="w-8" />
-                  <div className="basis-2/6">{entry.name}</div>
+                  <div className="basis-2/6">{name}</div>
                   {headers.map((header, index) => {
                     if (index === 0) return null;
 
+                    const value = entry[header];
                     return (
-                      <div className="flex-1 text-center">
+                      <div key={header} className="flex-1 text-center">
                         {header.includes("%")
-                          ? entry[header] != null
-                            ? (entry[header] * 100).toFixed(0) + "%"
+                          ? value != null
+                            ? (value * 100).toFixed(0) + "%"
                             : "-"
-                          : entry[header] != null
-                            ? entry[header].toFixed(2)
-                            : "-"}
+                          : value != null
+                          ? value.toFixed(2)
+                          : "-"}
                       </div>
                     );
                   })}
@@ -133,6 +133,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
               ))}
             </div>
           )}
+
         </div>
       ))}
     </div>
