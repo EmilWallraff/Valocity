@@ -2,6 +2,7 @@ import { agents } from './hashcodes.js';
 import { weapons } from './hashcodes.js';
 import { armors } from './hashcodes.js';
 import { maps } from './hashcodes.js';
+import { ranks } from './hashcodes.js';
 
 
 export const agentOptions = Object.entries(agents).map(([label, hashcode]) => ({
