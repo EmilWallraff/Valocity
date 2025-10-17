@@ -74,9 +74,9 @@ function Agents() {
           <h2 className="text-4xl font-bold text-white mb-4">Stats for each Agent</h2>
 
           <div className="flex flex-row gap-4">
-            <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => (setFiltereAgents(selected))} />
-            <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredMaps(selected))} />
-            <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredRanks(selected))} />
+            <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => { setFiltereAgents(selected); updateAgentValues(); }} />
+            <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredMaps(selected); updateAgentValues(); }} />
+            <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredRanks(selected); updateAgentValues(); }} />
           </div>
         </div>
 

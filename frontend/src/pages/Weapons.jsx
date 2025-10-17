@@ -73,10 +73,10 @@ function Weapons() {
           <h2 className="text-4xl font-bold text-white mb-4">Stats when Starting the Round with each Weapon</h2>
 
           <div className="flex flex-row gap-4">
-            <MultiSelect items={weaponOptions} label="Filter Weapons" sizeClass="w-44 h-20" onChange={(selected) => (setFilteredWeapons(selected))} />
-            <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredMaps(selected))} />
-            <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => (setFiltereAgents(selected))} />
-            <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => (setFilteredRanks(selected))} />
+            <MultiSelect items={weaponOptions} label="Filter Weapons" sizeClass="w-44 h-20" onChange={(selected) => { setFilteredWeapons(selected); updateWeaponValues(); }} />
+            <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredMaps(selected); updateWeaponValues(); }} />
+            <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => { setFiltereAgents(selected); updateWeaponValues(); }} />
+            <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredRanks(selected); updateWeaponValues(); }} />
           </div>
         </div>
 
