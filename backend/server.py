@@ -198,7 +198,7 @@ class WeaponsRequest(BaseModel):
 
 @app.post("/weapons")
 def calculate(request: WeaponsRequest):
-    folder = Path("data/weapon_stats")
+    folder = Path("data")
     files = folder.glob("weapon_stats*")
 
     def parse_version(filename):
@@ -223,7 +223,7 @@ class AgentsRequest(BaseModel):
 
 @app.post("/agents")
 def calculate(request: AgentsRequest):
-    folder = Path("data/agent_stats")
+    folder = Path("data")
     files = folder.glob("agent_stats_*")
 
     def parse_version(filename):
