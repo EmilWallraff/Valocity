@@ -70,8 +70,11 @@ weapon_names = {
 shield_names = {
     "": "No Armor",
     "NONE": "No Armor",
+    "4DEC83D5-4902-9AB3-BED6-A7A390761157": "Light Armor",
     "LIGHT_SHIELD": "Light Armor",
+    "B1B9086D-41BD-A516-5D29-E3B34A6F1644": "Regen Shield",
     "REGEN_SHIELD": "Regen Shield",
+    "822BCAB2-40A2-324E-C137-E09195AD7692": "Heavy Armor",
     "HEAVY_SHIELD": "Heavy Armor",
 }
 

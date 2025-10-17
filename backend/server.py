@@ -16,13 +16,13 @@ import time
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 from database import UserToken, get_db
 
 import round_prediction
 import match_processing
-import weapon_processing
-import agent_processing
+
 
 
 load_dotenv()
@@ -194,34 +194,50 @@ class WeaponsRequest(BaseModel):
     weapons: List[str]
     maps: List[str]
     agents: List[str]
+    ranks: List[str]
 
 @app.post("/weapons")
 def calculate(request: WeaponsRequest):
-    filename_test = "logs25-1"
-    path = "data/" + filename_test + ".json"
-    print("server weapons function called!")
+    folder = Path("data/weapon_stats")
+    files = folder.glob("weapon_stats*")
 
-    #return weapon_processing.get_weapon_stats(path, request.weapons, request.maps, request.agents)
-    
-    with open("data/weapons_placeholder_data.json", "r") as f:
-        return json.load(f)
+    def parse_version(filename):
+        version_str = filename.stem.split("_")[-1]
+        return tuple(map(int, version_str.split(".")))
+
+    latest_file = max(files, key=parse_version)
+
+    print(f"latest file: {latest_file}")
+
+    with open(f"data/{latest_file}.json", "r") as file:
+        weapon_stats = json.load(file)
+
+    return match_processing.format_weapon_stats_for_display(weapon_stats, request.weapons, request.agents, request.maps, request.ranks)
 
 
 
 class AgentsRequest(BaseModel):
     agents: List[str]
     maps: List[str]
+    ranks: List[str]
 
 @app.post("/agents")
 def calculate(request: AgentsRequest):
-    filename_test = "logs25-1"
-    path = "data/" + filename_test + ".json"
-    print("server agents function called!")
+    folder = Path("data/agent_stats")
+    files = folder.glob("agent_stats_*")
 
-    #return agent_processing.get_agent_stats(path, request.agents, request.maps)
+    def parse_version(filename):
+        version_str = filename.stem.split("_")[-1]
+        return tuple(map(int, version_str.split(".")))
 
-    with open("data/agents_placeholder_data.json", "r") as f:
-        return json.load(f)
+    latest_file = max(files, key=parse_version)
+
+    print(f"latest file: {latest_file}")
+
+    with open(f"data/{latest_file}.json", "r") as file:
+        agent_stats = json.load(file)
+
+    return match_processing.format_agent_stats_for_display(agent_stats, request.agents, request.maps, request.ranks)
 
 
 
