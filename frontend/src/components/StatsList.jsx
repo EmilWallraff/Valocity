@@ -29,7 +29,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
   };
 
   const sortedData = [...data].sort((a, b) => {
-    console.log("Weapon Data subentries: ", data[0].subentries);
+    console.log("Weapon Data subentries: ", data[0].subentries.length);
     const aVal = a.stats[sortKey];
     const bVal = b.stats[sortKey];
     return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
