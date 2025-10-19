@@ -133,7 +133,7 @@ def format_match(game_json):
     }
 
 
-
+# TO DO: Filter 'Unranked' out of Rank calculations
 # This uses a surprisingly accurate but still technically very crude approximation of VLR player rating
 def calculate_agent_and_weapon_stats(matches):
     agent_stats = []
@@ -308,6 +308,7 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
         for word in filtered_ranks
         for suffix in RANK_LEVELS
     ]
+    filtered_ranks_extended.append("Unranked")
     
     con = duckdb.connect()
 
@@ -348,7 +349,7 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
     for i, row in enumerate(df.itertuples(index=False)):
         decisive = row.unmirrored_wins + row.unmirrored_losses
         win_rate = (row.unmirrored_wins / decisive) if decisive > 0 else 0
-        pick_rate = float((row.matches / total_matches * 2)) if total_matches > 0 else 0
+        pick_rate = float((row.matches / (total_matches * 2))) if total_matches > 0 else 0
 
         processed_stats.append({
             "id": i,
@@ -374,6 +375,7 @@ def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents,
         for word in filtered_ranks
         for suffix in RANK_LEVELS
     ]
+    filtered_ranks_extended.append("Unranked")
 
     con = duckdb.connect()
 
