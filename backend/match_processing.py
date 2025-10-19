@@ -142,7 +142,7 @@ def calculate_agent_and_weapon_stats(matches):
     for match in matches:
         if match["teams"] == None:
             if match["matchInfo"] != None and match["matchInfo"]["matchId"] != None:
-                print(f"found skewed match (id: {match["matchInfo"]["matchId"]})!")
+                print(f"found skewed match (id: {match['matchInfo']['matchId']})!")
             else:
                 print(f"found skewed match (id unavailable)!")
             continue
