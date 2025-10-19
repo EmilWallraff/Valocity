@@ -207,10 +207,9 @@ def calculate(request: WeaponsRequest):
 
     latest_file = max(files, key=parse_version)
 
-    with open(latest_file, "r") as file:
-        weapon_stats = json.load(file)
+    print(f"latest file agent stats: {latest_file}")
 
-    return match_processing.format_weapon_stats_for_display(weapon_stats, request.weapons, request.agents, request.maps, request.ranks)
+    return match_processing.format_weapon_stats_for_display(latest_file, request.weapons, request.agents, request.maps, request.ranks)
 
 
 
@@ -230,10 +229,9 @@ def calculate(request: AgentsRequest):
 
     latest_file = max(files, key=parse_version)
 
-    with open(latest_file, "r") as file:
-        agent_stats = json.load(file)
+    print(f"latest file agent stats: {latest_file}")
 
-    return match_processing.format_agent_stats_for_display(agent_stats, request.agents, request.maps, request.ranks)
+    return match_processing.format_agent_stats_for_display(latest_file, request.agents, request.maps, request.ranks)
 
 
 

@@ -1,11 +1,14 @@
 import pandas as pd
 import numpy as np
+import duckdb
 import time
 from datetime import datetime, timedelta, timezone
 
 import valorant_constants as vc
 
 
+
+RANK_LEVELS = ["", " I", " II", " III"]
 
 TRADE_DURATION = 3000
 DAMAGE_PER_KILL_ESTIMATION = 140.0
@@ -137,6 +140,13 @@ def calculate_agent_and_weapon_stats(matches):
     weapon_stats = []
         
     for match in matches:
+        if match["teams"] == None:
+            if match["matchInfo"] != None and match["matchInfo"]["matchId"] != None:
+                print(f"found skewed match (id: {match["matchInfo"]["matchId"]})!")
+            else:
+                print(f"found skewed match (id unavailable)!")
+            continue
+
         teams = {t["teamId"].capitalize(): t for t in match["teams"]}
         red_team_entry, blue_team_entry = teams["Red"], teams["Blue"]
 
@@ -292,126 +302,169 @@ def calculate_agent_and_weapon_stats(matches):
 
 
 
-def format_agent_stats_for_display(agent_stats, filtered_agents, filtered_maps, filtered_ranks):
-    number_matches_considered = 0
-    processed_stats = {
-        agent: {
+def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, filtered_ranks):
+    filtered_ranks_extended = [
+        f"{word}{suffix}"
+        for word in filtered_ranks
+        for suffix in RANK_LEVELS
+    ]
+    
+    con = duckdb.connect()
+
+    con.execute(f"""
+    CREATE OR REPLACE VIEW filtered_agents AS
+    SELECT *
+    FROM '{filepath}'
+    WHERE Map IN {tuple(filtered_maps)}
+      AND Rank IN {tuple(filtered_ranks_extended)}
+      AND Agent IN {tuple(filtered_agents)};
+    """)
+
+    total_matches_df = con.execute("""
+    SELECT COUNT(DISTINCT MatchID) AS total_matches
+    FROM filtered_agents;
+    """).fetchdf()
+    total_matches = total_matches_df.iloc[0]["total_matches"] or 1
+
+    df = con.execute("""
+    SELECT
+        Agent,
+        AVG(Rating) AS avg_rating,
+        AVG("K/R") AS avg_kr,
+        AVG("A/R") AS avg_ar,
+        AVG("KAST%") AS avg_kast,
+        AVG("USE%") AS avg_use,
+        COUNT(*) AS matches,
+        SUM(CASE WHEN NOT Mirror AND Result = 'Win' THEN 1 ELSE 0 END) AS unmirrored_wins,
+        SUM(CASE WHEN NOT Mirror AND Result = 'Loss' THEN 1 ELSE 0 END) AS unmirrored_losses,
+    FROM filtered_agents
+    GROUP BY Agent;
+    """).fetchdf()
+
+    con.close()
+
+    processed_stats = []
+
+    for i, row in enumerate(df.itertuples(index=False)):
+        decisive = row.unmirrored_wins + row.unmirrored_losses
+        win_rate = (row.unmirrored_wins / decisive) if decisive > 0 else 0
+        pick_rate = float((row.matches / total_matches * 2)) if total_matches > 0 else 0
+
+        processed_stats.append({
             "id": i,
-            "name": agent,
-            "stats": {"Rating": 0, "K/R": 0, "A/R": 0, "KAST%": 0, "USE%": 0, "matches": 0, "unmirrored_wins": 0, "unmirrored_losses": 0}
+            "name": row.Agent,
+            "stats": {
+                "Rating": row.avg_rating,
+                "K/R": row.avg_kr,
+                "A/R": row.avg_ar,
+                "KAST%": row.avg_kast,
+                "USE%": row.avg_use,
+                "Win%": win_rate,
+                "Pick%": pick_rate,
+            }
+        })
+
+    return processed_stats
+
+
+
+def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents, filtered_maps, filtered_ranks):
+    filtered_ranks_extended = [
+        f"{word}{suffix}"
+        for word in filtered_ranks
+        for suffix in RANK_LEVELS
+    ]
+
+    con = duckdb.connect()
+
+    con.execute(f"""
+    CREATE OR REPLACE VIEW filtered_rounds AS
+    SELECT *,
+        CASE 
+            WHEN PistolRound THEN 'Pistol Round'
+            WHEN OpponentAverageLoadout < {ECO_HALFBUY_THRESHOLD} THEN 'vs Eco (<{ECO_HALFBUY_THRESHOLD}$)'
+            WHEN OpponentAverageLoadout < {HALFBUY_FULLBUY_THRESHOLD} THEN 'vs Halfbuy ({ECO_HALFBUY_THRESHOLD}$-{HALFBUY_FULLBUY_THRESHOLD}$)'
+            ELSE 'vs Fullbuy (>{HALFBUY_FULLBUY_THRESHOLD}$)'
+        END AS RoundType
+    FROM '{filepath}'
+    WHERE Map IN {tuple(filtered_maps)}
+      AND Agent IN {tuple(filtered_agents)}
+      AND Weapon IN {tuple(filtered_weapons)}
+      AND Rank IN {tuple(filtered_ranks_extended)};
+    """)
+
+    sub_df = con.execute("""
+    SELECT 
+        Weapon,
+        RoundType,
+        SUM(Damage) AS total_damage,
+        SUM(Kills) AS total_kills,
+        SUM(CASE WHEN Win THEN 1 ELSE 0 END) AS total_wins,
+        SUM(Headshots) AS total_headshots,
+        SUM(Bodyshots) AS total_bodyshots,
+        SUM(Legshots) AS total_legshots,
+        COUNT(*) AS rounds
+    FROM filtered_rounds
+    GROUP BY Weapon, RoundType;
+    """).fetchdf()
+
+    main_df = con.execute("""
+    SELECT 
+        Weapon,
+        SUM(Damage) AS total_damage,
+        SUM(Kills) AS total_kills,
+        SUM(CASE WHEN Win THEN 1 ELSE 0 END) AS total_wins,
+        SUM(Headshots) AS total_headshots,
+        SUM(Bodyshots) AS total_bodyshots,
+        SUM(Legshots) AS total_legshots,
+        COUNT(*) AS rounds
+    FROM filtered_rounds
+    GROUP BY Weapon;
+    """).fetchdf()
+
+    con.close()
+
+    processed_stats = {}
+
+    for i, row in enumerate(main_df.itertuples(index=False)):
+        weapon = row.Weapon
+        total_shots = row.total_headshots + row.total_bodyshots + row.total_legshots
+
+        stats = {
+            "Dmg/R": row.total_damage / row.rounds if row.rounds else 0,
+            "K/R": row.total_kills / row.rounds if row.rounds else 0,
+            "Win%": row.total_wins / row.rounds if row.rounds else 0,
+            "HS%": (row.total_headshots / total_shots) if total_shots > 0 else 0,
         }
-        for i, agent in enumerate(filtered_agents)
-    }
 
-    for match in agent_stats:
-        if match["Map"] not in filtered_maps:
-            continue
-
-        if not any(rank.lower() in match["Rank"].lower() for rank in filtered_ranks):
-            continue
-
-        number_matches_considered += 1
-        for player in match["Players"]:
-            if player["Agent"] not in filtered_agents:
-                continue
-            agent_stat_totals = processed_stats[player["Agent"]]["stats"]
-            agent_stat_totals["Rating"] += player["Rating"]
-            agent_stat_totals["K/R"] += player["K/R"]
-            agent_stat_totals["A/R"] += player["A/R"]
-            agent_stat_totals["KAST%"] += player["KAST%"]
-            agent_stat_totals["USE%"] += player["USE%"]
-            agent_stat_totals["matches"] += 1
-            agent_stat_totals["unmirrored_wins"] += 1 if (not player["Mirror"] and player["Result"] == "Win") else 0
-            agent_stat_totals["unmirrored_losses"] += 1 if (not player["Mirror"] and player["Result"] == "Loss") else 0
-
-    for entry in processed_stats.values():
-        if entry["stats"]["matches"] > 0:
-            entry["stats"]["Rating"] /= entry["stats"]["matches"]
-            entry["stats"]["K/R"] /= entry["stats"]["matches"]
-            entry["stats"]["A/R"] /= entry["stats"]["matches"]
-            entry["stats"]["KAST%"] /= entry["stats"]["matches"]
-            entry["stats"]["USE%"] /= entry["stats"]["matches"]
-
-        number_decisive_matches = entry["stats"]["unmirrored_wins"] + entry["stats"]["unmirrored_losses"]
-        entry["stats"]["Win%"] = (entry["stats"]["unmirrored_wins"] / number_decisive_matches) if (number_decisive_matches > 0) else 0
-        entry["stats"]["Pick%"] = (entry["stats"]["matches"] / (number_matches_considered * 2)) if (number_matches_considered > 0) else 0
-
-        for key in ("matches", "unmirrored_wins", "unmirrored_losses"):
-            entry["stats"].pop(key, None)
-
-    return list(processed_stats.values())
-
-
-
-def format_weapon_stats_for_display(weapon_stats, filtered_weapons, filtered_agents, filtered_maps, filtered_ranks):
-    processed_stats = {
-        weapon: {
+        processed_stats[weapon] = {
             "id": i,
             "name": weapon,
-            "stats": {"Dmg/R": 0, "K/R": 0, "Win%": 0, "headshots": 0, "bodyshots": 0, "legshots": 0, "rounds": 0},
-            "subentries": {
-                "Pistol Round": {"Dmg/R": 0, "K/R": 0, "Win%": 0, "headshots": 0, "bodyshots": 0, "legshots": 0, "rounds": 0},
-                f"vs Eco (<{ECO_HALFBUY_THRESHOLD}$)": {"Dmg/R": 0, "K/R": 0, "Win%": 0, "headshots": 0, "bodyshots": 0, "legshots": 0, "rounds": 0},
-                f"vs Halfbuy ({ECO_HALFBUY_THRESHOLD}$-{HALFBUY_FULLBUY_THRESHOLD}$)": {"Dmg/R": 0, "K/R": 0, "Win%": 0, "headshots": 0, "bodyshots": 0, "legshots": 0, "rounds": 0},
-                f"vs Fullbuy (>{HALFBUY_FULLBUY_THRESHOLD}$)": {"Dmg/R": 0, "K/R": 0, "Win%": 0, "headshots": 0, "bodyshots": 0, "legshots": 0, "rounds": 0}
-            }
+            "stats": stats,
+            "subentries": {}
         }
-        for i, weapon in enumerate(filtered_weapons)
-    }
 
-    for match in weapon_stats:
-        if match["Map"] not in filtered_maps:
+    for row in sub_df.itertuples(index=False):
+        weapon = row.Weapon
+        if weapon not in processed_stats:
             continue
 
-        if not any(rank.lower() in match["Rank"].lower() for rank in filtered_ranks):
-            continue
+        total_shots = row.total_headshots + row.total_bodyshots + row.total_legshots
+        sub_stats = {
+            "Dmg/R": row.total_damage / row.rounds if row.rounds else 0,
+            "K/R": row.total_kills / row.rounds if row.rounds else 0,
+            "Win%": row.total_wins / row.rounds if row.rounds else 0,
+            "HS%": (row.total_headshots / total_shots) if total_shots > 0 else 0,
+        }
 
-        for player_round in match["Player_Rounds"]:
-            if player_round["Agent"] not in filtered_agents:
-                continue
-            if player_round["Weapon"] not in filtered_weapons:
-                continue
-            weapon_stat_totals = processed_stats[player_round["Weapon"]]["stats"]
-            weapon_stat_totals["Dmg/R"] += player_round["Damage"]
-            weapon_stat_totals["K/R"] += player_round["Kills"]
-            weapon_stat_totals["Win%"] += 1 if (player_round["Win"]) else 0
-            weapon_stat_totals["headshots"] += player_round["Headshots"]
-            weapon_stat_totals["bodyshots"] += player_round["Bodyshots"]
-            weapon_stat_totals["legshots"] += player_round["Legshots"]
-            weapon_stat_totals["rounds"] += 1
-            round_type = get_round_type(player_round["PistolRound"], player_round["OpponentAverageLoadout"])
-            weapon_stat_subentry_totals = processed_stats[player_round["Weapon"]]["subentries"][round_type]
-            weapon_stat_subentry_totals["Dmg/R"] += player_round["Damage"]
-            weapon_stat_subentry_totals["K/R"] += player_round["Kills"]
-            weapon_stat_subentry_totals["Win%"] += 1 if (player_round["Win"]) else 0
-            weapon_stat_subentry_totals["headshots"] += player_round["Headshots"]
-            weapon_stat_subentry_totals["bodyshots"] += player_round["Bodyshots"]
-            weapon_stat_subentry_totals["legshots"] += player_round["Legshots"]
-            weapon_stat_subentry_totals["rounds"] += 1
+        processed_stats[weapon]["subentries"][row.RoundType] = sub_stats
 
-    for entry in processed_stats.values():
-        if entry["subentries"]["Pistol Round"]["rounds"] <= 0:
-            entry["subentries"].pop("Pistol Round", None)
-
-        if entry["stats"]["rounds"] > 0:
-            entry["stats"]["Dmg/R"] /= entry["stats"]["rounds"]
-            entry["stats"]["K/R"] /= entry["stats"]["rounds"]
-            entry["stats"]["Win%"] /= entry["stats"]["rounds"]
-        number_total_shots = entry["stats"]["headshots"] + entry["stats"]["bodyshots"] + entry["stats"]["legshots"]
-        entry["stats"]["HS%"] = (entry["stats"]["headshots"] / number_total_shots) if (number_total_shots > 0) else 0
-
-        for subentry in entry["subentries"].values():
-            if subentry["rounds"] > 0:
-                subentry["Dmg/R"] /= subentry["rounds"]
-                subentry["K/R"] /= subentry["rounds"]
-                subentry["Win%"] /= subentry["rounds"]
-            number_total_shots = subentry["headshots"] + subentry["bodyshots"] + subentry["legshots"]
-            subentry["HS%"] = (subentry["headshots"] / number_total_shots) if (number_total_shots > 0) else 0
-
-        for key in ("rounds", "headshots", "bodyshots", "legshots"):
-            entry["stats"].pop(key, None)
-            for subentry in entry["subentries"].values():
-                subentry.pop(key, None)
+    for weapon_data in processed_stats.values():
+        if (
+            "Pistol Round" in weapon_data["subentries"]
+            and weapon_data["subentries"]["Pistol Round"]["Dmg/R"] == 0
+        ):
+            weapon_data["subentries"].pop("Pistol Round", None)
 
     return list(processed_stats.values())
 

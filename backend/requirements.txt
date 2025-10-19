@@ -17,3 +17,5 @@ python-jose[cryptography]
 itsdangerous
 sqlalchemy
 aiosqlite
+duckdb
+pyarrow
