@@ -8,12 +8,18 @@ import valorant_constants as vc
 
 
 
-RANK_LEVELS = ["", " I", " II", " III"]
-
 TRADE_DURATION = 3000
 DAMAGE_PER_KILL_ESTIMATION = 140.0
 ECO_HALFBUY_THRESHOLD = 1200
 HALFBUY_FULLBUY_THRESHOLD = 3500
+
+ROUND_ORDER = [
+    "Pistol Round",
+    f"vs Eco (<{ECO_HALFBUY_THRESHOLD}$)",
+    f"vs Halfbuy ({ECO_HALFBUY_THRESHOLD}$-{HALFBUY_FULLBUY_THRESHOLD}$)",
+    f"vs Fullbuy (>{HALFBUY_FULLBUY_THRESHOLD}$)",
+]
+RANK_LEVELS = ["", " I", " II", " III"]
 
 KPR_MODIFIER = 0.898060946867
 APR_MODIFIER = 0.227872913948
@@ -133,7 +139,7 @@ def format_match(game_json):
     }
 
 
-# TO DO: Filter 'Unranked' out of Rank calculations
+
 # This uses a surprisingly accurate but still technically very crude approximation of VLR player rating
 def calculate_agent_and_weapon_stats(matches):
     agent_stats = []
@@ -172,7 +178,8 @@ def calculate_agent_and_weapon_stats(matches):
         player_rank_values = []
 
         for player in match["players"]:
-            player_rank_values.append(player["competitiveTier"])
+            if vc.rank_names[player["competitiveTier"]] != "Unranked":
+                player_rank_values.append(player["competitiveTier"])
             stats_dict[player["puuid"]] = {
                 "Agent": vc.agent_names[player["characterId"]],
                 "Result": results[player["teamId"]],
@@ -185,6 +192,9 @@ def calculate_agent_and_weapon_stats(matches):
                 "team": player["teamId"],
                 **{k: 0 for k in ("temp_damage","temp_kastRounds","temp_usagePoints")}
             }
+
+        if len(player_rank_values) <= 0:
+            continue
 
         for match_round in match["roundResults"]:
             round_stats = match_round["playerStats"]
@@ -308,7 +318,6 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
         for word in filtered_ranks
         for suffix in RANK_LEVELS
     ]
-    filtered_ranks_extended.append("Unranked")
     
     con = duckdb.connect()
 
@@ -375,7 +384,6 @@ def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents,
         for word in filtered_ranks
         for suffix in RANK_LEVELS
     ]
-    filtered_ranks_extended.append("Unranked")
 
     con = duckdb.connect()
 
@@ -443,7 +451,7 @@ def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents,
             "id": i,
             "name": weapon,
             "stats": stats,
-            "subentries": {}
+            "subentries": { round_type: {"Dmg/R": 0, "K/R": 0, "Win%": 0, "HS%": 0} for round_type in ROUND_ORDER }
         }
 
     for row in sub_df.itertuples(index=False):
