@@ -448,6 +448,7 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
 async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
     riot_endpoint = f"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}"
+    print(f"player by Riot id: riot endpoint: {riot_endpoint}")
 
     headers = {
         "Accept-Language": "en-US,en;q=0.9",
@@ -456,16 +457,14 @@ async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     }
 
     resp = requests.get(riot_endpoint, headers=headers)
-
-    if (resp.status_code != 200) and (resp.status_code != 404):
-        print("riot wrong response code, probably some error")
-        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
     
     if resp.status_code == 404:
         print("user not found by Riot")
         data = {"status": "nonexistent"}
         return json.dumps(data, indent=4)
-    else:
+    elif resp.status_code == 200:
+        print(f"player by Riot id: User found by Riot: {resp.json()}")
+        print(f"player by Riot id: User found by Riot: puuid: {resp.json()["puuid"]}")
         db_user = db.query(UserToken).filter(UserToken.user_id == resp.json()["puuid"]).first()
         if not db_user:
             print("user not found in database")
@@ -476,6 +475,9 @@ async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
             data = json.loads(resp.json())
             data["status"] = "public"
             return json.dumps(data, indent=4)
+    else:
+        print("riot wrong response code, probably some error")
+        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
 
 
 
