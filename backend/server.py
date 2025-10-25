@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from urllib.parse import quote
 
 from database import UserToken, get_db
 
@@ -206,9 +207,6 @@ def calculate(request: WeaponsRequest):
         return tuple(map(int, version_str.split(".")))
 
     latest_file = max(files, key=parse_version)
-
-    print(f"latest file agent stats: {latest_file}")
-
     return match_processing.format_weapon_stats_for_display(latest_file, request.weapons, request.agents, request.maps, request.ranks)
 
 
@@ -228,9 +226,6 @@ def calculate(request: AgentsRequest):
         return tuple(map(int, version_str.split(".")))
 
     latest_file = max(files, key=parse_version)
-
-    print(f"latest file agent stats: {latest_file}")
-
     return match_processing.format_agent_stats_for_display(latest_file, request.agents, request.maps, request.ranks)
 
 
@@ -370,30 +365,6 @@ def verify_session_token(token: str):
     except Exception:
         return None
 
-'''
-def refresh_access_token(user_id: str, db: Session):
-    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
-    if not db_user:
-        raise Exception("User not found")
-
-    auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
-
-    resp = requests.post(
-        TOKEN_URL,
-        headers={"Authorization": f"Basic {auth_header}"},
-        data={"grant_type": "refresh_token", "refresh_token": db_user.refresh_token},
-    )
-
-    if resp.status_code == 200:
-        new_tokens = resp.json()
-        db_user.access_token = new_tokens["access_token"]
-        db_user.refresh_token = new_tokens.get("refresh_token", db_user.refresh_token)
-        db.commit()
-        return new_tokens["access_token"]
-
-    raise Exception("Failed to refresh token")
-'''
-
 def refresh_tokens(db, user: UserToken):
     if not user.refresh_token:
         return None
@@ -470,6 +441,41 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
 
     return resp.json()
+
+
+
+@app.get("/riot/player_by_riot_id")
+async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
+    # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
+    riot_endpoint = f"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}"
+
+    headers = {
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+        "X-Riot-Token": f"{API_KEY}"
+    }
+
+    resp = requests.get(riot_endpoint, headers=headers)
+
+    if (resp.status_code != 200) and (resp.status_code != 404):
+        print("riot wrong response code, probably some error")
+        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
+    
+    if resp.status_code == 404:
+        print("user not found by Riot")
+        data = {"status": "nonexistent"}
+        return json.dumps(data, indent=4)
+    else:
+        db_user = db.query(UserToken).filter(UserToken.user_id == resp.json()["puuid"]).first()
+        if not db_user:
+            print("user not found in database")
+            data = {"status": "private"}
+            return json.dumps(data, indent=4)
+        else:
+            print("user found in database")
+            data = json.loads(resp.json())
+            data["status"] = "public"
+            return json.dumps(data, indent=4)
 
 
 

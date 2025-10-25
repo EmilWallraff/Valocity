@@ -20,7 +20,8 @@ function Layout() {
             { label: "Agents", image: `/images/valorant/roles/1B47567F-8F7B-444B-AAE3-B0C634622D10.png`, path: "/agents" },
           ] } label="Global Stats" />
           <NavigationDropdown items={ [
-            { label: "Profile", image: `/images/valorant/abilities/7F94D92C-4234-0A36-9646-3A87EB8B5C89_Grenade.png`, path: "/playerprofile" },
+            { label: "Search", image: `/images/valorant/abilities/DED3520F-4264-BFED-162D-B080E2ABCCF9_Ability2.png`, path: "/profilesearch" },
+            { label: "Your Profile", image: `/images/valorant/abilities/92EEEF5D-43B5-1D4A-8D03-B3927A09034B_Ultimate.png`, path: userinfo ? `/playerprofile/${userinfo.gameName}_${userinfo.tagLine}` : "/login", },
           ] } label="Profile" />
         </div>
         <div className="space-x-4">
