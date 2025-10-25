@@ -410,6 +410,7 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
         print("session token verified")
 
     user_id = payload["sub"]
+    print(f"riot me: user_id: {user_id}")
     db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
     if not db_user:
         raise HTTPException(404, "User not found")
@@ -447,7 +448,7 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
 @app.get("/riot/player_by_riot_id")
 async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
-    riot_endpoint = f"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}"
+    riot_endpoint = f"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(gameName)}/{quote(tagLine)}"
     print(f"player by Riot id: riot endpoint: {riot_endpoint}")
 
     headers = {
@@ -466,6 +467,7 @@ async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
         print(f"player by Riot id: User found by Riot: {resp.json()}")
         print(f"player by Riot id: User found by Riot: puuid: {resp.json()['puuid']}")
         db_user = db.query(UserToken).filter(UserToken.user_id == resp.json()["puuid"]).first()
+        print(f"player by Riot id: User found by Riot: db_user: {db_user}")
         if not db_user:
             print("user not found in database")
             data = {"status": "private"}
