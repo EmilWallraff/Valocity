@@ -34,7 +34,9 @@ function PlayerProfile() {
 
       const data = await res.json();
       setPlayerinfo(data || null);
-      updateMatchHistory();
+      if (data && data.status === "public") {
+        updateMatchHistory(data);
+      }
 
     } catch (error) {
       console.log("Error fetching user:", error);
@@ -43,11 +45,11 @@ function PlayerProfile() {
     }
   };
 
-  async function updateMatchHistory() {
+  async function updateMatchHistory(playerInfo) {
     try {
       setLoadingMatches(true);
-      console.log("puuid: ", playerinfo.puuid);
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerinfo.puuid}&gamemode=${"Competitive"}&count=${5}&offset=${data.length}`, { credentials: "include" });
+      console.log("puuid: ", playerInfo.puuid);
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&gamemode=${"Competitive"}&count=${5}&offset=${data.length}`, { credentials: "include" });
 
       setData(prev => [...prev, ...responseData]);
       console.log("Match History: ", responseData);
