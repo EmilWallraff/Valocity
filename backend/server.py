@@ -464,7 +464,7 @@ async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
         return json.dumps(data, indent=4)
     elif resp.status_code == 200:
         print(f"player by Riot id: User found by Riot: {resp.json()}")
-        print(f"player by Riot id: User found by Riot: puuid: {resp.json()["puuid"]}")
+        print(f"player by Riot id: User found by Riot: puuid: {resp.json()['puuid']}")
         db_user = db.query(UserToken).filter(UserToken.user_id == resp.json()["puuid"]).first()
         if not db_user:
             print("user not found in database")
