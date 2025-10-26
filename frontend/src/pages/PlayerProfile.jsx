@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 import { fetchWithRetry } from "../utils/fetchWithRetry";
 
@@ -20,7 +20,6 @@ function PlayerProfile() {
     document.title = 'Profile - valocity';
 
     fetchPlayer();
-    //updateMatchHistory();
   }, []);
 
   const fetchPlayer = async () => {
@@ -28,15 +27,12 @@ function PlayerProfile() {
       const res = await fetch(`${BASE_URL}/riot/player_by_riot_id?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`, { credentials: "include" });
 
       if (!res.ok) {
-        console.log("res not ok")
         setLoading(false);
         return;
       }
 
-      console.log("res ok")
       const data = await res.json();
       setPlayerinfo(data || null);
-      console.log(data)
       if (data && data.status === "public") {
         updateMatchHistory(data);
       }
@@ -50,24 +46,15 @@ function PlayerProfile() {
   async function updateMatchHistory(playerInfo) {
     try {
       setLoadingMatches(true);
-      console.log("puuid: ", playerInfo.puuid);
       const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&gamemode=${"Competitive"}&count=${5}&offset=${data.length}`, { credentials: "include" });
 
       setData(prev => [...prev, ...responseData]);
-      console.log("Match History: ", responseData);
     } catch (error) {
       console.error("Failed to fetch match history: ", error);
     } finally {
       setLoadingMatches(false);
     }
   }
-
-  console.log("RENDER:", {
-    loading,
-    loadingMatches,
-    playerinfo,
-    playerinfo_type: typeof playerinfo,
-  });
 
   return (
     <div className="bg-darkness items-center pt-16 p-6 space-y-16">
