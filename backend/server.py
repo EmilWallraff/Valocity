@@ -461,7 +461,7 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/riot/player_by_riot_id")
-async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
+async def riot_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
     riot_endpoint = f"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(gameName)}/{quote(tagLine)}"
     print(f"player by Riot id: riot endpoint: {riot_endpoint}")
@@ -489,7 +489,7 @@ async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
             return json.dumps(data, indent=4)
         else:
             print("user found in database")
-            data = json.loads(resp.json())
+            data = resp.json()
             data["status"] = "public"
             return json.dumps(data, indent=4)
     else:
