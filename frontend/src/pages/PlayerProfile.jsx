@@ -40,7 +40,6 @@ function PlayerProfile() {
       if (data && data.status === "public") {
         updateMatchHistory(data);
       }
-
       setLoading(false);
     } catch (error) {
       console.log("Error fetching user:", error);
@@ -69,7 +68,7 @@ function PlayerProfile() {
         <div className="flex flex-col items-center space-y-8">
           <h2 className="text-4xl font-bold text-white mb-4">Loading Profile...</h2>
         </div>
-      ) : playerinfo && playerinfo.status === "public" ? (
+      ) : playerinfo ? (
         <>
           <div className="flex flex-col items-center space-y-8">
             <h2 className="text-4xl font-bold text-white mb-4">
