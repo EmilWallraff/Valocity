@@ -296,7 +296,7 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
 
         resp = requests.get(
             riot_endpoint,
-            headers={"Authorization": f"Bearer {tokens["access_token"]}"}
+            headers={"Authorization": f"Bearer {tokens['access_token']}"}
         )
 
         if resp.status_code != 200:
@@ -459,7 +459,7 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
     return resp.json()
 
 
-# TODO: We probably have to change the database to include puuid which we have to add by calling the (main, not the rso) api during oauth callback
+
 @app.get("/riot/player_by_riot_id")
 async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
