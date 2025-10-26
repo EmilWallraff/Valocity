@@ -477,7 +477,7 @@ async def riot_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depe
     if resp.status_code == 404:
         print("user not found by Riot")
         data = {"status": "nonexistent"}
-        return json.dumps(data, indent=4)
+        return data
     elif resp.status_code == 200:
         print(f"player by Riot id: User found by Riot: {resp.json()}")
         print(f"player by Riot id: User found by Riot: puuid: {resp.json()['puuid']}")
@@ -486,12 +486,12 @@ async def riot_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depe
         if not db_user:
             print("user not found in database")
             data = {"status": "private"}
-            return json.dumps(data, indent=4)
+            return data
         else:
             print("user found in database")
             data = resp.json()
             data["status"] = "public"
-            return json.dumps(data, indent=4)
+            return data
     else:
         print("riot wrong response code, probably some error")
         raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
