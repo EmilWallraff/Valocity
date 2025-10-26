@@ -19,8 +19,13 @@ function PlayerProfile() {
   useEffect(() => {
     document.title = 'Profile - valocity';
 
+    setPlayerinfo(null);
+    setData([]);
+    setLoading(true);
+    setLoadingMatches(false);
+
     fetchPlayer();
-  }, []);
+  }, [gameName, tagLine]);
 
   const fetchPlayer = async () => {
     try {
