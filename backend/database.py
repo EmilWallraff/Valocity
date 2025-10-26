@@ -14,6 +14,7 @@ class UserToken(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, unique=True, index=True)
+    puuid = Column(String, unique=True, index=True)
     access_token = Column(Text)
     refresh_token = Column(Text)
     id_token = Column(Text)

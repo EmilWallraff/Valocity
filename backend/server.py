@@ -289,9 +289,23 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
         db_user.id_token = tokens["id_token"]
         db_user.scope = tokens.get("scope", "")
         db_user.expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+
     else:
+        # Riot account endpoint (choose region closest to your server)
+        riot_endpoint = "https://europe.api.riotgames.com/riot/account/v1/accounts/me"
+
+        resp = requests.get(
+            riot_endpoint,
+            headers={"Authorization": f"Bearer {tokens["access_token"]}"}
+        )
+
+        if resp.status_code != 200:
+            print("riot wrong response code, probably some error")
+            raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
+
         db_user = UserToken(
             user_id=user_id,
+            puuid=resp.json()["puuid"],
             access_token=tokens["access_token"],
             refresh_token=tokens["refresh_token"],
             id_token=tokens["id_token"],
@@ -299,6 +313,7 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
             expires_at=datetime.utcnow() + timedelta(seconds=expires_in)
         )
         db.add(db_user)
+
     db.commit()
 
     # Create your own session cookie
@@ -315,6 +330,7 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
 
     return response
 
+# This might or might not be outdated and unused...
 @app.get("/me")
 async def me(request: Request, db: Session = Depends(get_db)):
     session_token = request.cookies.get(COOKIE_NAME)
@@ -410,7 +426,6 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
         print("session token verified")
 
     user_id = payload["sub"]
-    print(f"riot me: user_id: {user_id}")
     db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
     if not db_user:
         raise HTTPException(404, "User not found")
@@ -444,7 +459,7 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
     return resp.json()
 
 
-
+# TODO: We probably have to change the database to include puuid which we have to add by calling the (main, not the rso) api during oauth callback
 @app.get("/riot/player_by_riot_id")
 async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
@@ -466,7 +481,7 @@ async def riot_me(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     elif resp.status_code == 200:
         print(f"player by Riot id: User found by Riot: {resp.json()}")
         print(f"player by Riot id: User found by Riot: puuid: {resp.json()['puuid']}")
-        db_user = db.query(UserToken).filter(UserToken.user_id == resp.json()["puuid"]).first()
+        db_user = db.query(UserToken).filter(UserToken.puuid == resp.json()["puuid"]).first()
         print(f"player by Riot id: User found by Riot: db_user: {db_user}")
         if not db_user:
             print("user not found in database")
