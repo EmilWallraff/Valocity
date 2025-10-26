@@ -21,7 +21,7 @@ function Layout() {
           ] } label="Global Stats" />
           <NavigationDropdown items={ [
             { label: "Search", image: `/images/valorant/abilities/DED3520F-4264-BFED-162D-B080E2ABCCF9_Ability2.png`, path: "/profilesearch" },
-            { label: "Your Profile", image: `/images/valorant/abilities/92EEEF5D-43B5-1D4A-8D03-B3927A09034B_Ultimate.png`, path: userinfo ? `/playerprofile/${userinfo.gameName}_${userinfo.tagLine}` : "/login", },
+            { label: "Your Profile", image: `/images/valorant/abilities/92EEEF5D-43B5-1D4A-8D03-B3927A09034B_Ultimate.png`, path: userinfo ? `/playerprofile/${userinfo.gameName}_${userinfo.tagLine}` : "/login" },
           ] } label="Profile" />
         </div>
         <div className="space-x-4">
