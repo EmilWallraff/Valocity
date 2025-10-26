@@ -28,12 +28,15 @@ function PlayerProfile() {
       const res = await fetch(`${BASE_URL}/riot/player_by_riot_id?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`, { credentials: "include" });
 
       if (!res.ok) {
+        console.log("res not ok")
         setLoading(false);
         return;
       }
 
+      console.log("res ok")
       const data = await res.json();
       setPlayerinfo(data || null);
+      console.log(data)
       if (data && data.status === "public") {
         updateMatchHistory(data);
       }
