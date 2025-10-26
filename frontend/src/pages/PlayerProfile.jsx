@@ -62,13 +62,20 @@ function PlayerProfile() {
     }
   }
 
+  console.log("RENDER:", {
+    loading,
+    loadingMatches,
+    playerinfo,
+    playerinfo_type: typeof playerinfo,
+  });
+
   return (
     <div className="bg-darkness items-center pt-16 p-6 space-y-16">
       {loading ? (
         <div className="flex flex-col items-center space-y-8">
           <h2 className="text-4xl font-bold text-white mb-4">Loading Profile...</h2>
         </div>
-      ) : playerinfo ? (
+      ) : playerinfo && playerinfo.status === "public" ? (
         <>
           <div className="flex flex-col items-center space-y-8">
             <h2 className="text-4xl font-bold text-white mb-4">
