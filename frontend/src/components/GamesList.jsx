@@ -185,7 +185,7 @@ export default function GamesList({ data, puuid }) {
                                 <img src={`/images/valorant/agents/${agents[entry.agent]}.png`} alt={entry.agent} className="w-12 h-12 rounded-md object-contain" />
                                 <img src={`/images/valorant/ranks/${entry.rank.replace(" ", "_")}.png`} alt={entry.rank} className="w-10 h-10 rounded-md object-contain" />
                                 <Link
-                                  to={`/playerprofile/${entry.name.slice(0, entry.name.lastIndexOf("#"))}_${entry.name.slice(entry.name.lastIndexOf("#")) + 1}`}
+                                  to={`/playerprofile/${entry.name.slice(0, entry.name.lastIndexOf("#"))}_${entry.name.slice(entry.name.lastIndexOf("#") + 1)}`}
                                   className="text-white no-underline hover:no-underline focus:no-underline"
                                 >
                                   {entry.name}
