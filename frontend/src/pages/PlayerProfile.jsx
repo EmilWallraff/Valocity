@@ -41,9 +41,9 @@ function PlayerProfile() {
         updateMatchHistory(data);
       }
 
+      setLoading(false);
     } catch (error) {
       console.log("Error fetching user:", error);
-    } finally {
       setLoading(false);
     }
   };
