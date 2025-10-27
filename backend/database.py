@@ -13,7 +13,11 @@ engine = create_engine(
         "keepalives_idle": 30,
         "keepalives_interval": 10,
         "keepalives_count": 5,
-    }
+    },
+    pool_pre_ping=True,          # checks if connection is alive before using it
+    pool_recycle=300,            # reconnect after 5 minutes
+    pool_size=5,                 # small pool for free-tier apps
+    max_overflow=10
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
