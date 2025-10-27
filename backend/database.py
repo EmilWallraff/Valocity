@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine, Column, String, Integer, Text, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime, timedelta
+import os
 
-DATABASE_URL = "sqlite:///./riot_tokens.db"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
