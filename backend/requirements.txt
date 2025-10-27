@@ -19,3 +19,4 @@ sqlalchemy
 aiosqlite
 duckdb
 pyarrow
+psycopg[binary]
