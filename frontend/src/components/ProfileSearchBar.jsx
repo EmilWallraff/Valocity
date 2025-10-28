@@ -26,7 +26,11 @@ function ProfileSearchBar({ recents = [] }) {
 
   const handleSearch = () => {
     if (suggestions.length > 0) {
-      navigate(`/playerprofile/${suggestions[highlightedIndex]}`);
+      const lastHashIndex = suggestions[highlightedIndex].lastIndexOf("#");
+      let gameName, tagLine;
+      gameName = suggestions[highlightedIndex].slice(0, lastHashIndex);
+      tagLine = suggestions[highlightedIndex].slice(lastHashIndex + 1);
+      navigate(`/playerprofile/${gameName}_${tagLine}`);
     } else {
       const lastHashIndex = search.lastIndexOf("#");
       let gameName, tagLine;
