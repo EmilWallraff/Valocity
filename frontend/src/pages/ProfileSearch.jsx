@@ -34,7 +34,7 @@ function ProfileSearch() {
 
       <div>
         <div className="flex flex-col items-center space-y-8">
-          <ProfileSearchBar recents={recentProfiles} />   
+          <ProfileSearchBar recents={JSON.parse(localStorage.getItem(storageKey)).map((p) => `${p.gameName}#${p.tagLine}`)} />   
         </div>
       </div>
 
