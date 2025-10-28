@@ -41,35 +41,6 @@ function ProfileSearchBar({ recents = [] }) {
     setIsOpen(false);
   };
 
-  /*
-  const fetchPlayer = async (gameName, tagLine) => {
-    try
-    {
-      const res = await fetch(`${BASE_URL}/riot/player_by_riot_id?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`, { credentials: "include" });
-
-      if (!res.ok) {
-        setLoading(false);
-        return;
-      }
-
-      const data = await res.json();
-      if (data["status"] == "public") {
-        navigate(`/playerprofile/${data["gameName"]}_${data["tagLine"]}`);
-      } else {
-        console.log("Player status:", data["status"]);
-      }
-    }
-    catch (err)
-    {
-      console.error("Error fetching user:", err);
-    }
-    finally
-    {
-      setLoading(false);
-    }
-  };
-  */
-
   return (
     <div className="relative w-96" ref={dropdownRef}>
       {/* Search bar */}
@@ -104,7 +75,11 @@ function ProfileSearchBar({ recents = [] }) {
                 key={index}
                 className={`p-3 cursor-pointer ${index === highlightedIndex ? "bg-element-light text-brand" : "hover:bg-element-light"}`}
                 onClick={() => {
-                  navigate(`/playerprofile/${item}`);
+                  const lastHashIndex = item.lastIndexOf("#");
+                  let gameName, tagLine;
+                  gameName = item.slice(0, lastHashIndex);
+                  tagLine = item.slice(lastHashIndex + 1);
+                  navigate(`/playerprofile/${gameName}_${tagLine}`);
                   setSearch(item);
                   setIsOpen(false);
                 }}
