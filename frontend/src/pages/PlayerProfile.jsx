@@ -8,6 +8,7 @@ import GamesList from "../components/GamesList";
 
 function PlayerProfile() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
+  const storageKey = "recentProfiles";
   const [playerinfo, setPlayerinfo] = useState(null);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +41,18 @@ function PlayerProfile() {
       setPlayerinfo(data || null);
       if (data && data.status === "public") {
         updateMatchHistory(data);
+
+        const newEntry = {
+          gamename: data.gameName,
+          tagline: data.tagLine,
+          timestamp: Date.now(),
+        };
+        const stored = JSON.parse(localStorage.getItem(storageKey)) || [];
+        const filtered = stored.filter(
+          (p) => !(p.gamename === newEntry.gamename && p.tagline === newEntry.tagline)
+        );
+        const updated = [newEntry, ...filtered];
+        localStorage.setItem(storageKey, JSON.stringify(updated));
       }
       setLoading(false);
     } catch (error) {
