@@ -42,20 +42,16 @@ function PlayerProfile() {
       if (data && data.status === "public") {
         updateMatchHistory(data);
 
-        console.log(data)
         const newEntry = {
           gamename: data.gameName,
           tagline: data.tagLine,
           timestamp: Date.now(),
         };
-        console.log(newEntry)
         const stored = JSON.parse(localStorage.getItem(storageKey)) || [];
-        console.log(stored)
         const filtered = stored.filter(
           (p) => !(p.gamename === newEntry.gamename && p.tagline === newEntry.tagline)
         );
         const updated = [newEntry, ...filtered];
-        console.log(updated)
         localStorage.setItem(storageKey, JSON.stringify(updated));
       }
       setLoading(false);

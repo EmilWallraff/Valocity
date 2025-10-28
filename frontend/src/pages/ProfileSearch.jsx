@@ -8,21 +8,12 @@ import ProfileSearchBar from "../components/ProfileSearchBar";
 function ProfileSearch() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const storageKey = "recentProfiles";
-  const [recentProfiles, setRecentProfiles] = useState([]);
   const { userinfo, fetchUserinfo } = useUser();
   const [data, setData] = useState([]);
   const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     document.title = 'Search Profiles - valocity';
-
-    const stored = JSON.parse(localStorage.getItem(storageKey)) || [];
-    console.log(stored);
-    const profileStrings = stored.map(
-      (p) => `${p.gameName}${p.tagLine ? `#${p.tagLine}` : ""}`
-    );
-    console.log(profileStrings);
-    setRecentProfiles(profileStrings);
   }, []);
 
   return (
@@ -35,7 +26,7 @@ function ProfileSearch() {
 
       <div>
         <div className="flex flex-col items-center space-y-8">
-          <ProfileSearchBar recents={JSON.parse(localStorage.getItem(storageKey)).map((p) => `${p.gameName}#${p.tagLine}`)} />   
+          <ProfileSearchBar recents={JSON.parse(localStorage.getItem(storageKey)).map((p) => `${p.gamename}#${p.tagline}`)} />   
         </div>
       </div>
 
