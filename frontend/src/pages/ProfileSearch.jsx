@@ -17,6 +17,7 @@ function ProfileSearch() {
     document.title = 'Search Profiles - valocity';
 
     const stored = JSON.parse(localStorage.getItem(storageKey)) || [];
+    console.log(stored);
     const profileStrings = stored.map(
       (p) => `${p.gameName}${p.tagLine ? `#${p.tagLine}` : ""}`
     );

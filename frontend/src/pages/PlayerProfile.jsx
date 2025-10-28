@@ -50,6 +50,7 @@ function PlayerProfile() {
         };
         console.log(newEntry)
         const stored = JSON.parse(localStorage.getItem(storageKey)) || [];
+        console.log(stored)
         const filtered = stored.filter(
           (p) => !(p.gamename === newEntry.gamename && p.tagline === newEntry.tagline)
         );
