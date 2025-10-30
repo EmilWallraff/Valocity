@@ -82,5 +82,11 @@ export const ranks = {
     "Gold": "Gold_II",
     "Silver": "Silver_II",
     "Bronze": "Bronze_II",
-    "Iron": "Iron_II"
+    "Iron": "Iron_II",
+}
+
+export const gamemodes = {
+    "Premier": "Premier",
+    "Competitive": "Competitive",
+    "Unrated": "96BD3920-4F36-D026-2B28-C683EB0BCAC5",
 }

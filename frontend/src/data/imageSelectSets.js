@@ -3,6 +3,7 @@ import { weapons } from './hashcodes.js';
 import { armors } from './hashcodes.js';
 import { maps } from './hashcodes.js';
 import { ranks } from './hashcodes.js';
+import { gamemodes } from './hashcodes.js';
 
 
 export const agentOptions = Object.entries(agents).map(([label, hashcode]) => ({
@@ -33,4 +34,10 @@ export const rankOptions = Object.entries(ranks).map(([label, hashcode]) => ({
     label,
     hashcode,
     image: `/images/valorant/ranks/${hashcode}.png`,
+}));
+
+export const gamemodeOptions = Object.entries(gamemodes).map(([label, hashcode]) => ({
+    label,
+    hashcode,
+    image: `/images/valorant/gamemodes/${hashcode}.png`,
 }));

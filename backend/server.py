@@ -496,8 +496,8 @@ async def riot_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depe
 
 
 @app.get("/riot/player_matches")
-async def riot_matches(puuid: str, gamemode: str, count: int, offset: int):
-    # Online Api thing uses "eu", documentation uses "europe"
+async def riot_matches(puuid: str, gamemodes: list[str], count: int, offset: int):
+    # We have to try all regions here, I'm afraid...
     riot_player_matches_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}"
 
     headers = {
@@ -517,7 +517,7 @@ async def riot_matches(puuid: str, gamemode: str, count: int, offset: int):
     offset_counter = 0
 
     for match in player_matches:
-        if match["queueId"] == gamemode.lower():
+        if match["queueId"].lower() in [gamemode.lower() for gamemode in gamemodes]:
             if offset_counter < offset:
                 offset_counter += 1
             else:

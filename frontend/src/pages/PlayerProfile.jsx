@@ -5,14 +5,16 @@ import { fetchWithRetry } from "../utils/fetchWithRetry";
 
 import MultiSelect from "../components/MultiSelect";
 import GamesList from "../components/GamesList";
+import { gamemodeOptions } from "../data/imageSelectSets";
 
 function PlayerProfile() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const storageKey = "recentProfiles";
   const [playerinfo, setPlayerinfo] = useState(null);
-  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMatches, setLoadingMatches] = useState(false);
+  const [data, setData] = useState([]);
+  const [filteredGamemodes, setFilteredGamemodes] = useState(["Competitive"]);
 
   const { playername } = useParams();
   const [gameName, tagLine] = playername.split(/[-_]/);
@@ -21,9 +23,10 @@ function PlayerProfile() {
     document.title = 'Profile - valocity';
 
     setPlayerinfo(null);
-    setData([]);
     setLoading(true);
     setLoadingMatches(false);
+    setData([]);
+    setFilteredGamemodes(["Competitive"])
 
     fetchPlayer();
   }, [gameName, tagLine]);
@@ -64,7 +67,7 @@ function PlayerProfile() {
   async function updateMatchHistory(playerInfo) {
     try {
       setLoadingMatches(true);
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&gamemode=${"Competitive"}&count=${5}&offset=${data.length}`, { credentials: "include" });
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&gamemodes=${filteredGamemodes}&count=${5}&offset=${data.length}`, { credentials: "include" });
 
       setData(prev => [...prev, ...responseData]);
     } catch (error) {
@@ -88,6 +91,10 @@ function PlayerProfile() {
                 ? `${playerinfo.gameName ?? "Unknown"}${playerinfo.tagLine ? " #" + playerinfo.tagLine : ""}`
                 : "Unknown"}
             </h2>
+
+            <div className="flex flex-row gap-4">
+              <MultiSelect items={gamemodeOptions} label="Filter Gamemodes" sizeClass="w-60 h-20" defaultSelected={filteredGamemodes} onChange={(selected) => { setFilteredGamemodes(selected); updateMatchHistory(playerinfo); }} />
+            </div>
           </div>
 
           <div>

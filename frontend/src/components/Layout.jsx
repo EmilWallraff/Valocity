@@ -13,7 +13,7 @@ function Layout() {
         <div className="flex items-center space-x-6">
           <Link to="/" className="text-2xl font-raj font-bold text-brand hover:text-brand-light">valocity</Link>
           <NavigationDropdown items={ [
-            { label: "Win Probability", image: `/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png`, path: "/winprobability" },
+            { label: "Win Probability", image: `/images/valorant/gamemodes/96BD3920-4F36-D026-2B28-C683EB0BCAC5.png`, path: "/winprobability" },
           ] } label="Tools" />
           <NavigationDropdown items={ [
             { label: "Weapons", image: `/images/valorant/weapons/E336C6B8-418D-9340-D77F-7A9E4CFE0702_killstream.png`, path: "/weapons" },
