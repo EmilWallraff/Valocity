@@ -70,9 +70,9 @@ function PlayerProfile() {
       
       const params = new URLSearchParams();
       params.set("puuid", playerInfo.puuid);
+      filteredGamemodes.forEach(gamemode => params.append("gamemodes", gamemode));
       params.set("count", 5);
       params.set("offset", data.length);
-      filteredGamemodes.forEach(gamemode => params.append("gamemodes", gamemode));
       const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?${params.toString()}`, { credentials: "include" });
 
       setData(prev => [...prev, ...responseData]);
