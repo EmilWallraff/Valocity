@@ -43,7 +43,7 @@ function PlayerProfile() {
       const data = await res.json();
       setPlayerinfo(data || null);
       if (data && data.status === "public") {
-        updateMatchHistory(data, false);
+        updateMatchHistory(data, filteredGamemodes, false);
 
         const newEntry = {
           gamename: data.gameName,
@@ -64,12 +64,12 @@ function PlayerProfile() {
     }
   };
 
-  async function updateMatchHistory(playerInfo, expand) {
+  async function updateMatchHistory(playerInfo, gameModes, expand) {
     try {
       setLoadingMatches(true);
 
       const offset = expand ? data.length : 0;
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&count=${5}&offset=${offset}&gamemodes=${filteredGamemodes}`, { credentials: "include" });
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&count=${5}&offset=${offset}&gamemodes=${gameModes}`, { credentials: "include" });
 
       setData(prev => [...prev, ...responseData]);
     } catch (error) {
@@ -95,7 +95,7 @@ function PlayerProfile() {
             </h2>
 
             <div className="flex flex-row gap-4">
-              <MultiSelect items={gamemodeOptions} label="Filter Gamemodes" sizeClass="w-60 h-20" defaultSelected={filteredGamemodes} onChange={(selected) => { setFilteredGamemodes(selected); updateMatchHistory(playerinfo, false); }} />
+              <MultiSelect items={gamemodeOptions} label="Filter Gamemodes" sizeClass="w-60 h-20" defaultSelected={filteredGamemodes} onChange={(selected) => { console.log("called multiselect"); setFilteredGamemodes(selected); updateMatchHistory(playerinfo, selected, false); }} />
             </div>
           </div>
 
@@ -115,7 +115,7 @@ function PlayerProfile() {
                 <GamesList data={data} puuid={playerinfo.puuid} />
 
                 <button
-                  onClick={() => updateMatchHistory(playerinfo, true)}
+                  onClick={() => updateMatchHistory(playerinfo, filteredGamemodes, true)}
                   disabled={loadingMatches}
                   className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
                 >
