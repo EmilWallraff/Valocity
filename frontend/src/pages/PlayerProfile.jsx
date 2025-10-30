@@ -67,9 +67,13 @@ function PlayerProfile() {
   async function updateMatchHistory(playerInfo) {
     try {
       setLoadingMatches(true);
-      console.log(filteredGamemodes)
-      console.log(typeof(filteredGamemodes))
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&gamemodes=${filteredGamemodes}&count=${5}&offset=${data.length}`, { credentials: "include" });
+      
+      const params = new URLSearchParams();
+      params.set("puuid", playerInfo.puuid);
+      params.set("count", 5);
+      params.set("offset", data.length);
+      filteredGamemodes.forEach(gamemode => params.append("gamemodes", gamemode));
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?${params.toString()}`, { credentials: "include" });
 
       setData(prev => [...prev, ...responseData]);
     } catch (error) {
