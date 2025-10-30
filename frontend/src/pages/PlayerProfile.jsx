@@ -115,7 +115,7 @@ function PlayerProfile() {
                 <GamesList data={data} puuid={playerinfo.puuid} />
 
                 <button
-                  onClick={updateMatchHistory(playerinfo, true)}
+                  onClick={() => updateMatchHistory(playerinfo, true)}
                   disabled={loadingMatches}
                   className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
                 >
