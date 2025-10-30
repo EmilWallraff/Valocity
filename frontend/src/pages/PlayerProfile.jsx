@@ -43,7 +43,7 @@ function PlayerProfile() {
       const data = await res.json();
       setPlayerinfo(data || null);
       if (data && data.status === "public") {
-        updateMatchHistory(data);
+        updateMatchHistory(data, false);
 
         const newEntry = {
           gamename: data.gameName,
@@ -64,11 +64,14 @@ function PlayerProfile() {
     }
   };
 
-  async function updateMatchHistory(playerInfo) {
+  async function updateMatchHistory(playerInfo, expand) {
+    if (loadingMatches) return;
+
     try {
       setLoadingMatches(true);
-      
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&count=${5}&offset=${data.length}&gamemodes=${filteredGamemodes}`, { credentials: "include" });
+
+      const offset = expand ? data.length : 0;
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&count=${5}&offset=${offset}&gamemodes=${filteredGamemodes}`, { credentials: "include" });
 
       setData(prev => [...prev, ...responseData]);
     } catch (error) {
@@ -94,7 +97,7 @@ function PlayerProfile() {
             </h2>
 
             <div className="flex flex-row gap-4">
-              <MultiSelect items={gamemodeOptions} label="Filter Gamemodes" sizeClass="w-60 h-20" defaultSelected={filteredGamemodes} onChange={(selected) => { setFilteredGamemodes(selected); updateMatchHistory(playerinfo); }} />
+              <MultiSelect items={gamemodeOptions} label="Filter Gamemodes" sizeClass="w-60 h-20" defaultSelected={filteredGamemodes} onChange={(selected) => { setFilteredGamemodes(selected); updateMatchHistory(playerinfo, false); }} />
             </div>
           </div>
 
@@ -114,7 +117,7 @@ function PlayerProfile() {
                 <GamesList data={data} puuid={playerinfo.puuid} />
 
                 <button
-                  onClick={updateMatchHistory}
+                  onClick={updateMatchHistory(playerinfo, true)}
                   disabled={loadingMatches}
                   className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
                 >
