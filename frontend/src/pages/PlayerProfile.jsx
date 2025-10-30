@@ -43,7 +43,7 @@ function PlayerProfile() {
       const data = await res.json();
       setPlayerinfo(data || null);
       if (data && data.status === "public") {
-        updateMatchHistory(data, filteredGamemodes, false);
+        //updateMatchHistory(data, filteredGamemodes, false);
 
         const newEntry = {
           gamename: data.gameName,
