@@ -67,6 +67,8 @@ function PlayerProfile() {
   async function updateMatchHistory(playerInfo) {
     try {
       setLoadingMatches(true);
+      console.log(filteredGamemodes)
+      console.log(typeof(filteredGamemodes))
       const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerInfo.puuid}&gamemodes=${filteredGamemodes}&count=${5}&offset=${data.length}`, { credentials: "include" });
 
       setData(prev => [...prev, ...responseData]);
