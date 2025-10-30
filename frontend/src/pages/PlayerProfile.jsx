@@ -65,8 +65,6 @@ function PlayerProfile() {
   };
 
   async function updateMatchHistory(playerInfo, expand) {
-    if (loadingMatches) return;
-
     try {
       setLoadingMatches(true);
 
