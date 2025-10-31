@@ -47,6 +47,9 @@ def format_match(game_json):
     stats_dict = {}
 
     for player in game_json["players"]:
+        if player["isObserver"]:
+                continue
+
         team = player["teamId"]
         stats_dict[player["puuid"]] = {
             "result": results[team],
@@ -64,7 +67,8 @@ def format_match(game_json):
                                "temp_bodyshots","temp_legshots","temp_usagePoints")}
         }
 
-    for round_stats in (round["playerStats"] for round in game_json["roundResults"]):
+
+    for round_stats in (round["playerStats"] for round in game_json["roundResults"] if round["roundResult"].lower() != "surrendered"):
         playersKast = {key: False for key in stats_dict.keys()}
         kills = []
 
@@ -178,6 +182,9 @@ def calculate_agent_and_weapon_stats(matches):
         player_rank_values = []
 
         for player in match["players"]:
+            if player["isObserver"]:
+                continue
+
             if vc.rank_names[player["competitiveTier"]] != "Unranked":
                 player_rank_values.append(player["competitiveTier"])
             stats_dict[player["puuid"]] = {
@@ -193,10 +200,14 @@ def calculate_agent_and_weapon_stats(matches):
                 **{k: 0 for k in ("temp_damage","temp_kastRounds","temp_usagePoints")}
             }
 
+
         if len(player_rank_values) <= 0:
             continue
 
         for match_round in match["roundResults"]:
+            if match_round["roundResult"].lower() == "surrendered":
+                continue
+
             round_stats = match_round["playerStats"]
             playersKast = {key: False for key in stats_dict.keys()}
             kills = []
