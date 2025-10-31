@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { agents } from "../data/hashcodes";
-import { maps } from "../data/hashcodes"; 
+import { maps } from "../data/hashcodes";
+import { gamemodes } from "../data/hashcodes";
 
 const statKeyMap = {
   "Rating": "rating",
@@ -121,7 +122,10 @@ export default function GamesList({ data, puuid }) {
                   <div className="flex items-center justify-center gap-2 flex-shrink-0">
                     <img src={`/images/valorant/maps/${maps[element.map]}_listview.png`} alt={element.map} className="w-16 h-16 rounded-md object-cover" />
                     <img src={`/images/valorant/agents/${agents[element.allPlayersStats[puuid].agent]}.png`} alt={element.allPlayersStats[puuid].agent} className="w-16 h-16 rounded-md object-contain" />
-                    <img src={`/images/valorant/ranks/${element.allPlayersStats[puuid].rank.replace(" ", "_")}.png`} alt={element.allPlayersStats[puuid].rank} className="w-14 h-14 object-contain" />
+                    <img src={element.gamemode == "Competitive"
+                      ? `/images/valorant/ranks/${element.allPlayersStats[puuid].rank.replace(" ", "_")}.png`
+                      : `/images/valorant/gamemodes/${gamemodes[element.gamemode]}.png`
+                    } alt={element.allPlayersStats[puuid].rank} className="w-14 h-14 object-contain" />
                   </div>
 
                   <div className="flex flex-col items-center justify-center text-center w-32">
@@ -183,7 +187,9 @@ export default function GamesList({ data, puuid }) {
                             <div className="basis-2/6">
                               <div className="flex flex-shrink-0 items-center gap-2 px-2">
                                 <img src={`/images/valorant/agents/${agents[entry.agent]}.png`} alt={entry.agent} className="w-12 h-12 rounded-md object-contain" />
-                                <img src={`/images/valorant/ranks/${entry.rank.replace(" ", "_")}.png`} alt={entry.rank} className="w-10 h-10 rounded-md object-contain" />
+                                {element.gamemode == "Competitive" && (
+                                  <img src={`/images/valorant/ranks/${entry.rank.replace(" ", "_")}.png`} alt={entry.rank} className="w-10 h-10 rounded-md object-contain" />
+                                )}
                                 <Link
                                   to={`/playerprofile/${entry.name.slice(0, entry.name.lastIndexOf("#"))}_${entry.name.slice(entry.name.lastIndexOf("#") + 1)}`}
                                   className="text-white no-underline hover:no-underline focus:no-underline"
