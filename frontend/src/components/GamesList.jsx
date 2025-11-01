@@ -125,7 +125,7 @@ export default function GamesList({ data, puuid }) {
                     <img src={element.gamemode == "Competitive"
                       ? `/images/valorant/ranks/${element.allPlayersStats[puuid].rank.replace(" ", "_")}.png`
                       : `/images/valorant/gamemodes/${gamemodes[element.gamemode]}.png`
-                    } alt={element.allPlayersStats[puuid].rank} className="w-14 h-14 object-contain" />
+                    } alt={element.allPlayersStats[puuid].rank} className={`w-14 h-${element.gamemode == "Competitive" ? "14" : "12"} object-contain`} />
                   </div>
 
                   <div className="flex flex-col items-center justify-center text-center w-32">
