@@ -176,28 +176,28 @@ function PlayerProfile() {
             ) : subPage === "Agents" ? (
               <div>
                 <div className="flex flex-col items-center space-y-8">
-                  <h2 className="text-4xl font-bold text-accent mb-4">Loading Matches...</h2>
+                  <h2 className="text-4xl font-bold text-accent mb-4">Work in Progress</h2>
+                  <button
+                    onClick={() => updateStats(filteredGamemodes)}
+                    disabled={loadingStats}
+                    className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
+                  >
+                    {loadingStats ? "Testing..." : "Test"}
+                  </button>
                 </div>
-                <button
-                  onClick={() => updateStats(filteredGamemodes)}
-                  disabled={loadingStats}
-                  className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
-                >
-                  {loadingStats ? "Testing..." : "Test"}
-                </button>
               </div>
             ) : subPage === "Weapons" ? (
               <div>
                 <div className="flex flex-col items-center space-y-8">
-                  <h2 className="text-4xl font-bold text-accent mb-4">Loading Matches...</h2>
+                  <h2 className="text-4xl font-bold text-accent mb-4">Work in Progress</h2>
+                  <button
+                    onClick={() => updateStats(filteredGamemodes)}
+                    disabled={loadingStats}
+                    className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
+                  >
+                    {loadingStats ? "Testing..." : "Test"}
+                  </button>
                 </div>
-                <button
-                  onClick={() => updateStats(filteredGamemodes)}
-                  disabled={loadingStats}
-                  className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
-                >
-                  {loadingStats ? "Testing..." : "Test"}
-                </button>
               </div>
             ) : ( <></> )}
           </>
