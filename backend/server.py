@@ -591,7 +591,7 @@ def get_player_stats(request: StatsRequest):
 
     print(f"Number of relevant matches: {len(relevant_match_ids)}")
 
-    base_path = Path("/data/player_stats_temp")
+    base_path = Path("/tmp/player_stats_temp")
     subfolder_path = base_path / request.puuid
     json_file_path = subfolder_path / "processed_matches.json"
 
