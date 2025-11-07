@@ -99,14 +99,7 @@ function PlayerProfile() {
     try {
       setLoadingStats(true);
 
-      console.log(JSON.stringify({
-        puuid: playerinfo.puuid,
-        gamemodes: filteredGamemodes,
-        maps: mapOptions.map(mapOption => mapOption.label),
-        agents: agentOptions.map(agentOption => agentOption.label)
-      }));
-
-      const responseData = await fetchWithRetry(`${BASE_URL}/player_stats`, {
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_stats`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
