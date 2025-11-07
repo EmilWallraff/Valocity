@@ -12,7 +12,7 @@ function Home() {
   const pages = [
     {
       label: "Calculate the probability to win a round with certain agents, shields and weapons on a given map and side. Designed to help figuring out ideal buys in specific situations.",
-      image: "/images/valorant/gamemodes/5D0F264B-4EBE-CC63-C147-809E1374484B.png",
+      image: "/images/valorant/gamemodes/96BD3920-4F36-D026-2B28-C683EB0BCAC5.png",
       path: "/winprobability",
     },
     {

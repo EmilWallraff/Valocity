@@ -3,17 +3,26 @@ import { useParams, Link } from "react-router-dom";
 
 import { fetchWithRetry } from "../utils/fetchWithRetry";
 
+import SegmentedControl from "../components/SegmentedControl";
 import MultiSelect from "../components/MultiSelect";
 import GamesList from "../components/GamesList";
 import { gamemodeOptions } from "../data/imageSelectSets";
+import { mapOptions } from "../data/imageSelectSets";
+import { agentOptions } from "../data/imageSelectSets";
 
 function PlayerProfile() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const storageKey = "recentProfiles";
   const [playerinfo, setPlayerinfo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [subPage, setSubPage] = useState("Matches");
+
   const [loadingMatches, setLoadingMatches] = useState(false);
-  const [data, setData] = useState([]);
+  const [matches, setMatches] = useState([]);
+  const [loadingStats, setLoadingStats] = useState(false);
+  const [weaponStats, setWeaponStats] = useState(null);
+  const [agentStats, setAgentStats] = useState(null);
+
   const [filteredGamemodes, setFilteredGamemodes] = useState(["Competitive"]);
 
   const { playername } = useParams();
@@ -24,8 +33,14 @@ function PlayerProfile() {
 
     setPlayerinfo(null);
     setLoading(true);
+    setSubPage("Matches");
+
     setLoadingMatches(false);
-    setData([]);
+    setMatches([]);
+    setLoadingStats(false);
+    setWeaponStats(null);
+    setAgentStats(null);
+
     setFilteredGamemodes(["Competitive"])
 
     fetchPlayer();
@@ -40,12 +55,12 @@ function PlayerProfile() {
         return;
       }
 
-      const data = await res.json();
-      setPlayerinfo(data || null);
-      if (data && data.status === "public") {
+      const responseData = await res.json();
+      setPlayerinfo(responseData || null);
+      if (responseData && responseData.status === "public") {
         const newEntry = {
-          gamename: data.gameName,
-          tagline: data.tagLine,
+          gamename: responseData.gameName,
+          tagline: responseData.tagLine,
           timestamp: Date.now(),
         };
         const stored = JSON.parse(localStorage.getItem(storageKey)) || [];
@@ -66,17 +81,46 @@ function PlayerProfile() {
     try {
       setLoadingMatches(true);
 
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerinfo.puuid}&count=${5}&offset=${expand ? data.length : 0}&gamemodes=${gameModes}`, { credentials: "include" });
+      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerinfo.puuid}&count=${5}&offset=${expand ? matches.length : 0}&gamemodes=${gameModes}`, { credentials: "include" });
 
       if (expand) {
-        setData(prev => [...prev, ...responseData]);
+        setMatches(prev => [...prev, ...responseData]);
       } else {
-        setData(responseData);
+        setMatches(responseData);
       }
     } catch (error) {
       console.error("Failed to fetch match history: ", error);
     } finally {
       setLoadingMatches(false);
+    }
+  }
+
+  async function updateStats(gameModes) {
+    try {
+      setLoadingStats(true);
+
+      const responseData = await fetchWithRetry(`${BASE_URL}/player_stats`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          puuid: playerinfo.puuid,
+          gamemodes: filteredGamemodes,
+          maps: mapOptions.map(mapOption => mapOption.label),
+          agents: agentOptions.map(agentOption => agentOption.label)
+        }),
+      });
+
+      console.log("Stats request response: ", responseData);
+
+      //setWeaponStats(responseData);
+      //setAgentStats(responseData);
+
+    } catch (error) {
+      console.error("Failed to fetch player stats: ", error);
+    } finally {
+      setLoadingStats(false);
     }
   }
 
@@ -88,6 +132,7 @@ function PlayerProfile() {
         </div>
       ) : playerinfo && playerinfo.status === "public" ? (
         <>
+
           <div className="flex flex-col items-center space-y-8">
             <h2 className="text-4xl font-bold text-white mb-4">
               {playerinfo
@@ -98,33 +143,65 @@ function PlayerProfile() {
             <div className="flex flex-row gap-4">
               <MultiSelect items={gamemodeOptions} label="Filter Gamemodes" sizeClass="w-60 h-20" defaultSelected={filteredGamemodes} onChange={(selected) => { setFilteredGamemodes(selected); updateMatchHistory(selected, false); }} />
             </div>
+            <SegmentedControl items={["Matches", "Agents", "Weapons"]} defaultSelected={subPage} onChange={(selected) => { setSubPage(selected); }} />
           </div>
 
-          <div>
-            {data.length === 0 ? (
-              loadingMatches ? (
+          <>
+            {subPage === "Matches" ? (
+              <div>
+                {matches.length === 0 ? (
+                  loadingMatches ? (
+                    <div className="flex flex-col items-center space-y-8">
+                      <h2 className="text-4xl font-bold text-accent mb-4">Loading Matches...</h2>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center space-y-8">
+                      <h2 className="text-4xl font-bold text-accent mb-4">No Matches found.</h2>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex flex-col items-center space-y-8">
+                    <GamesList data={matches} puuid={playerinfo.puuid} />
+
+                    <button
+                      onClick={() => updateMatchHistory(filteredGamemodes, true)}
+                      disabled={loadingMatches}
+                      className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
+                    >
+                      {loadingMatches ? "Loading..." : "Load More"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : subPage === "Agents" ? (
+              <div>
                 <div className="flex flex-col items-center space-y-8">
                   <h2 className="text-4xl font-bold text-accent mb-4">Loading Matches...</h2>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center space-y-8">
-                  <h2 className="text-4xl font-bold text-accent mb-4">No Matches found.</h2>
-                </div>
-              )
-            ) : (
-              <div className="flex flex-col items-center space-y-8">
-                <GamesList data={data} puuid={playerinfo.puuid} />
-
                 <button
-                  onClick={() => updateMatchHistory(filteredGamemodes, true)}
-                  disabled={loadingMatches}
+                  onClick={() => updateStats(filteredGamemodes)}
+                  disabled={loadingStats}
                   className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
                 >
-                  {loadingMatches ? "Loading..." : "Load More"}
+                  {loadingStats ? "Testing..." : "Test"}
                 </button>
               </div>
-            )}
-          </div>
+            ) : subPage === "Weapons" ? (
+              <div>
+                <div className="flex flex-col items-center space-y-8">
+                  <h2 className="text-4xl font-bold text-accent mb-4">Loading Matches...</h2>
+                </div>
+                <button
+                  onClick={() => updateStats(filteredGamemodes)}
+                  disabled={loadingStats}
+                  className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
+                >
+                  {loadingStats ? "Testing..." : "Test"}
+                </button>
+              </div>
+            ) : ( <></> )}
+          </>
+
         </>
       ) : playerinfo && playerinfo.status === "private" ? (
         <>

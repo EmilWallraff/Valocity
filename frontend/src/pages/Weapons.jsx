@@ -39,60 +39,59 @@ function Weapons() {
     rankOptions.map(rankOption => rankOption.label)
   );
 
-    useEffect(() => {
-      document.title = 'Weapons - valocity';
+  useEffect(() => {
+    document.title = 'Weapons - valocity';
 
-      updateWeaponValues()
-    }, [filteredWeapons, filteredMaps, filteredAgents, filteredRanks]);
+    updateWeaponValues()
+  }, [filteredWeapons, filteredMaps, filteredAgents, filteredRanks]);
 
-    async function updateWeaponValues() {
-      try {
-        const responseData = await fetchWithRetry(`${BASE_URL}/weapons`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            weapons: filteredWeapons,
-            maps: filteredMaps,
-            agents: filteredAgents,
-            ranks: filteredRanks
-          }),
-        });
+  async function updateWeaponValues() {
+    try {
+      const responseData = await fetchWithRetry(`${BASE_URL}/weapons`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          weapons: filteredWeapons,
+          maps: filteredMaps,
+          agents: filteredAgents,
+          ranks: filteredRanks
+        }),
+      });
 
-        setData(responseData);
-        console.log("Weapon Data: ", responseData);
-      } catch (error) {
-        console.error("Failed to fetch weapon stats: ", error);
-      }
+      setData(responseData);
+    } catch (error) {
+      console.error("Failed to fetch weapon stats: ", error);
     }
+  }
 
-    return (
-      <div className="bg-darkness items-center pt-16 p-6 space-y-16">
-        <div className="flex flex-col items-center space-y-8">
-          <h2 className="text-4xl font-bold text-white mb-4">Stats when Starting the Round with each Weapon</h2>
+  return (
+    <div className="bg-darkness items-center pt-16 p-6 space-y-16">
+      <div className="flex flex-col items-center space-y-8">
+        <h2 className="text-4xl font-bold text-white mb-4">Stats when Starting the Round with each Weapon</h2>
 
-          <div className="flex flex-row gap-4">
-            <MultiSelect items={weaponOptions} label="Filter Weapons" sizeClass="w-44 h-20" onChange={(selected) => { setFilteredWeapons(selected); updateWeaponValues(); }} />
-            <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredMaps(selected); updateWeaponValues(); }} />
-            <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => { setFiltereAgents(selected); updateWeaponValues(); }} />
-            <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredRanks(selected); updateWeaponValues(); }} />
-          </div>
-        </div>
-
-        <div className="">
-          {!data ? (
-            <div className="flex flex-col items-center space-y-8">
-              <h2 className="text-4xl font-bold text-accent mb-4">Loading Data...</h2>
-            </div>
-          ) : (
-            <div>
-              <StatsList data={data} headers={headers} defaultHeader={"Dmg/R"} headerTooltips={headerTooltips} imageType={"weapons"} />
-            </div>
-          )}
+        <div className="flex flex-row gap-4">
+          <MultiSelect items={weaponOptions} label="Filter Weapons" sizeClass="w-44 h-20" onChange={(selected) => { setFilteredWeapons(selected); updateWeaponValues(); }} />
+          <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredMaps(selected); updateWeaponValues(); }} />
+          <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => { setFiltereAgents(selected); updateWeaponValues(); }} />
+          <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredRanks(selected); updateWeaponValues(); }} />
         </div>
       </div>
-    );
-  }
-  
-  export default Weapons;
+
+      <div className="">
+        {!data ? (
+          <div className="flex flex-col items-center space-y-8">
+            <h2 className="text-4xl font-bold text-accent mb-4">Loading Data...</h2>
+          </div>
+        ) : (
+          <div>
+            <StatsList data={data} headers={headers} defaultHeader={"Dmg/R"} headerTooltips={headerTooltips} imageType={"weapons"} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default Weapons;

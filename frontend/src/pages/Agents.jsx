@@ -41,58 +41,57 @@ function Agents() {
     rankOptions.map(rankOption => rankOption.label)
   );
   
-    useEffect(() => {
-      document.title = 'Agents - valocity';
+  useEffect(() => {
+    document.title = 'Agents - valocity';
 
-      updateAgentValues();
-    }, [filteredAgents, filteredMaps, filteredRanks]);
+    updateAgentValues();
+  }, [filteredAgents, filteredMaps, filteredRanks]);
 
-    async function updateAgentValues() {
-      try {
-        const responseData = await fetchWithRetry(`${BASE_URL}/agents`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            agents: filteredAgents,
-            maps: filteredMaps,
-            ranks: filteredRanks
-          }),
-        });
+  async function updateAgentValues() {
+    try {
+      const responseData = await fetchWithRetry(`${BASE_URL}/agents`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          agents: filteredAgents,
+          maps: filteredMaps,
+          ranks: filteredRanks
+        }),
+      });
 
-        setData(responseData);
-        console.log("Agent Data: ", responseData);
-      } catch (error) {
-        console.error("Failed to fetch agent stats: ", error);
-      }
+      setData(responseData);
+    } catch (error) {
+      console.error("Failed to fetch agent stats: ", error);
     }
+  }
 
-    return (
-      <div className="bg-darkness items-center pt-16 p-6 space-y-16">
-        <div className="flex flex-col items-center space-y-8">
-          <h2 className="text-4xl font-bold text-white mb-4">Stats for each Agent</h2>
+  return (
+    <div className="bg-darkness items-center pt-16 p-6 space-y-16">
+      <div className="flex flex-col items-center space-y-8">
+        <h2 className="text-4xl font-bold text-white mb-4">Stats for each Agent</h2>
 
-          <div className="flex flex-row gap-4">
-            <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => { setFiltereAgents(selected); updateAgentValues(); }} />
-            <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredMaps(selected); updateAgentValues(); }} />
-            <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredRanks(selected); updateAgentValues(); }} />
-          </div>
-        </div>
-
-        <div className="">
-          {!data ? (
-            <div className="flex flex-col items-center space-y-8">
-              <h2 className="text-4xl font-bold text-accent mb-4">Loading Data...</h2>
-            </div>
-          ) : (
-            <div>
-              <StatsList data={data} headers={headers} defaultHeader={"Win%"} headerTooltips={headerTooltips} imageType={"agents"} />
-            </div>
-          )}
+        <div className="flex flex-row gap-4">
+          <MultiSelect items={agentOptions} label="Filter Agents" sizeClass="w-44 h-20" onChange={(selected) => { setFiltereAgents(selected); updateAgentValues(); }} />
+          <MultiSelect items={mapOptions} label="Filter Maps" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredMaps(selected); updateAgentValues(); }} />
+          <MultiSelect items={rankOptions} label="Filter Ranks" sizeClass="w-44 h-20" fillUp="true" onChange={(selected) => { setFilteredRanks(selected); updateAgentValues(); }} />
         </div>
       </div>
-    );
-  }
-  
-  export default Agents;
+
+      <div className="">
+        {!data ? (
+          <div className="flex flex-col items-center space-y-8">
+            <h2 className="text-4xl font-bold text-accent mb-4">Loading Data...</h2>
+          </div>
+        ) : (
+          <div>
+            <StatsList data={data} headers={headers} defaultHeader={"Win%"} headerTooltips={headerTooltips} imageType={"agents"} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default Agents;

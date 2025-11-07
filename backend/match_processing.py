@@ -157,6 +157,9 @@ def calculate_agent_and_weapon_stats(matches):
                 print(f"found skewed match (id unavailable)!")
             continue
 
+        if not match["matchInfo"]["isCompleted"]:
+            continue
+
         teams = {t["teamId"].capitalize(): t for t in match["teams"]}
         red_team_entry, blue_team_entry = teams["Red"], teams["Blue"]
 
@@ -296,13 +299,18 @@ def calculate_agent_and_weapon_stats(matches):
             sr = (player_stats["rounds"] - player_stats["deaths"]) / player_stats["rounds"]
 
             player_stats["KAST%"] = player_stats["temp_kastRounds"] / player_stats["rounds"]
-            player_stats["USE%"] = player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]
+            player_stats["USE%"] = (
+                player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]
+                if team_total_usage_points[player_stats["team"]] > 0
+                else (print(f"Warning: team_total_usage_points is 0 for team {player_stats['team']} in {match['matchInfo']['matchId']}") or 0.2)
+            )
             player_stats["Rating"] = (player_stats["K/R"] * KPR_MODIFIER) + (player_stats["A/R"] * APR_MODIFIER) + (dpr * DPR_MODIFIER) + (adra * ADRA_MODIFIER) + (sr * SR_MODIFIER) + (player_stats["KAST%"] * KAST_MODIFIER) + GENERAL_MODIFIER
 
             for key in ("rounds", "kills", "deaths", "team", "temp_damage", "temp_kastRounds", "temp_usagePoints"):
                 player_stats.pop(key, None)
 
         agent_stats.append({
+            "Gamemode": match["matchInfo"]["queueId"].lower().capitalize(),
             "Date": time_string_from_milliseconds(match["matchInfo"]["gameStartMillis"]),
             "Patch": patch_from_game_version(match["matchInfo"]["gameVersion"]) if match["matchInfo"]["gameVersion"] != None else "",
             "Map": vc.map_names[match["matchInfo"]["mapId"]],
@@ -312,6 +320,7 @@ def calculate_agent_and_weapon_stats(matches):
         })
 
         weapon_stats.append({
+            "Gamemode": match["matchInfo"]["queueId"].lower().capitalize(),
             "Date": time_string_from_milliseconds(match["matchInfo"]["gameStartMillis"]),
             "Patch": patch_from_game_version(match["matchInfo"]["gameVersion"]) if match["matchInfo"]["gameVersion"] != None else "",
             "Map": vc.map_names[match["matchInfo"]["mapId"]],
@@ -323,7 +332,184 @@ def calculate_agent_and_weapon_stats(matches):
 
 
 
-def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, filtered_ranks):
+# This uses a surprisingly accurate but still technically very crude approximation of VLR player rating
+def calculate_player_agent_and_weapon_stats(match, puuid):
+    if match["teams"] == None:
+        if match["matchInfo"] != None and match["matchInfo"]["matchId"] != None:
+            print(f"found skewed match (id: {match['matchInfo']['matchId']})!")
+        else:
+            print(f"found skewed match (id unavailable)!")
+        return {}, {}
+
+    teams = {t["teamId"].capitalize(): t for t in match["teams"]}
+    red_team_entry, blue_team_entry = teams["Red"], teams["Blue"]
+
+    results = {
+        "Red": "Win" if red_team_entry["won"] else "Loss" if blue_team_entry["won"] else "Draw",
+        "Blue": "Win" if blue_team_entry["won"] else "Loss" if red_team_entry["won"] else "Draw",
+    }
+
+    agents_per_team = {
+        "Red": [],
+        "Blue": [],
+    }
+    for player in match["players"]:
+        agents_per_team[player["teamId"]].append(vc.agent_names[player["characterId"]])
+
+    other_team = {
+        "Red": "Blue",
+        "Blue": "Red",
+    }
+
+    stats_dict = {}
+    weapon_rounds = []
+    player_rank_values = []
+
+    for player in match["players"]:
+        if player["isObserver"]:
+            continue
+
+        if vc.rank_names[player["competitiveTier"]] != "Unranked":
+            player_rank_values.append(player["competitiveTier"])
+        stats_dict[player["puuid"]] = {
+            "Agent": vc.agent_names[player["characterId"]],
+            "Result": results[player["teamId"]],
+            "Mirror": vc.agent_names[player["characterId"]] in agents_per_team[other_team[player["teamId"]]],
+            "K/R": player["stats"]["kills"] / player["stats"]["roundsPlayed"],
+            "A/R": player["stats"]["assists"] / player["stats"]["roundsPlayed"],
+            "rounds": player["stats"]["roundsPlayed"],
+            "kills": player["stats"]["kills"],
+            "deaths": player["stats"]["deaths"],
+            "team": player["teamId"],
+            **{k: 0 for k in ("temp_damage","temp_kastRounds","temp_usagePoints")}
+        }
+
+
+    for match_round in match["roundResults"]:
+        if match_round["roundResult"].lower() == "surrendered":
+            continue
+
+        round_stats = match_round["playerStats"]
+        playersKast = {key: False for key in stats_dict.keys()}
+        kills = []
+
+        team_players_active = { "Red": 0, "Blue": 0 }
+        team_money_spent = { "Red": 0, "Blue": 0 }
+        for player_round_stats in round_stats:
+            player_team = stats_dict[player_round_stats["puuid"]]["team"]
+            team_players_active[player_team] += 1
+            team_money_spent[player_team] += player_round_stats["economy"]["loadoutValue"]
+        team_loadouts = {
+            "Red": team_money_spent["Red"] / team_players_active["Red"],
+            "Blue": team_money_spent["Blue"] / team_players_active["Blue"],
+        }
+
+        for player_round_stats in round_stats:
+            player_round_damage = 0
+            player_round_headshots = 0
+            player_round_bodyshots = 0
+            player_round_legshots = 0
+
+            player_stats_dict_entry = stats_dict[player_round_stats["puuid"]]
+            for damage_instance in player_round_stats["damage"]:
+                if player_stats_dict_entry["team"] != stats_dict[damage_instance["receiver"]]["team"]:
+                    player_stats_dict_entry["temp_damage"] += damage_instance["damage"]
+                    player_round_damage += damage_instance["damage"]
+                    player_round_headshots += damage_instance["headshots"]
+                    player_round_bodyshots += damage_instance["bodyshots"]
+                    player_round_legshots += damage_instance["legshots"]
+
+            for kill_instance in player_round_stats["kills"]:
+                kill_entry = {
+                    "killer": kill_instance["killer"],
+                    "victim": kill_instance["victim"],
+                    "time": kill_instance["timeSinceRoundStartMillis"],
+                    "assistants": kill_instance["assistants"],
+                    "playersAliveBefore": {"Red": 0, "Blue": 0},
+                }
+                kill_entry["playersAliveBefore"][stats_dict[kill_instance["victim"]]["team"]] += 1
+                for survivor in kill_instance["playerLocations"]:
+                    kill_entry["playersAliveBefore"][stats_dict[survivor["puuid"]]["team"]] += 1
+                kills.append(kill_entry)
+
+            # print(f"{player_stats_dict_entry["Agent"]} has {vc.weapon_names[player_round_stats["economy"]["weapon"]]} and {vc.shield_names[player_round_stats["economy"]["armor"]]} -> money spent: {player_round_stats["economy"]["spent"]}, loadout value: {player_round_stats["economy"]["loadoutValue"]}")
+
+            if player_round_stats["puuid"] == puuid:
+                weapon_rounds.append({
+                    "Agent": player_stats_dict_entry["Agent"],
+                    "Weapon": vc.weapon_names[player_round_stats["economy"]["weapon"]],
+                    "Win": match_round["winningTeam"] == player_stats_dict_entry["team"],
+                    "PistolRound": match_round["roundNum"] == 0 or match_round["roundNum"] == 12,
+                    "OpponentAverageLoadout": team_loadouts[other_team[player_stats_dict_entry["team"]]],
+                    "Kills": len(player_round_stats["kills"]),
+                    "Damage": player_round_damage,
+                    "Headshots": player_round_headshots,
+                    "Bodyshots": player_round_bodyshots,
+                    "Legshots": player_round_legshots
+                })
+
+        for kill_entry in kills:
+            if stats_dict[kill_entry["killer"]]["team"] != stats_dict[kill_entry["victim"]]["team"]:
+                playersKast[kill_entry["killer"]] = True
+
+            for assistant in kill_entry["assistants"]:
+                playersKast[assistant] = True
+
+            if any((k.get("victim") == kill_entry["killer"] or k.get("victim") in kill_entry["assistants"]) for k in kills if kill_entry["time"] < k.get("time") <= kill_entry["time"] + TRADE_DURATION):
+                playersKast[kill_entry["victim"]] = True
+
+
+            stats_dict[kill_entry["killer"]]["temp_usagePoints"] += min(kill_entry["playersAliveBefore"]["Red"], kill_entry["playersAliveBefore"]["Blue"])
+            stats_dict[kill_entry["victim"]]["temp_usagePoints"] += min(kill_entry["playersAliveBefore"]["Red"], kill_entry["playersAliveBefore"]["Blue"])
+
+        for player in playersKast:
+            if playersKast[player] or not any(k.get("victim") == player for k in kills):
+                stats_dict[player]["temp_kastRounds"] += 1
+
+
+    team_total_usage_points = {
+        "Red": sum([p["temp_usagePoints"] for p in stats_dict.values() if p["team"] == "Red"]),
+        "Blue": sum([p["temp_usagePoints"] for p in stats_dict.values() if p["team"] == "Blue"]),
+    }
+
+    for player_stats in stats_dict.values():
+        dpr = player_stats["deaths"] / player_stats["rounds"]
+        adra = (player_stats["temp_damage"] - (player_stats["kills"] * DAMAGE_PER_KILL_ESTIMATION)) / player_stats["rounds"]
+        sr = (player_stats["rounds"] - player_stats["deaths"]) / player_stats["rounds"]
+
+        player_stats["KAST%"] = player_stats["temp_kastRounds"] / player_stats["rounds"]
+        player_stats["USE%"] = (player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]) if team_total_usage_points[player_stats["team"]] > 0 else 0.2
+        player_stats["Rating"] = (player_stats["K/R"] * KPR_MODIFIER) + (player_stats["A/R"] * APR_MODIFIER) + (dpr * DPR_MODIFIER) + (adra * ADRA_MODIFIER) + (sr * SR_MODIFIER) + (player_stats["KAST%"] * KAST_MODIFIER) + GENERAL_MODIFIER
+
+        for key in ("rounds", "kills", "deaths", "team", "temp_damage", "temp_kastRounds", "temp_usagePoints"):
+            player_stats.pop(key, None)
+
+
+    agent_stats = {
+        "MatchId": match["matchInfo"]["matchId"],
+        "Gamemode": match["matchInfo"]["queueId"].lower().capitalize(),
+        "Date": time_string_from_milliseconds(match["matchInfo"]["gameStartMillis"]),
+        "Patch": patch_from_game_version(match["matchInfo"]["gameVersion"]) if match["matchInfo"]["gameVersion"] != None else "",
+        "Map": vc.map_names[match["matchInfo"]["mapId"]],
+        "Rank": vc.rank_names[round(sum(player_rank_values) / len(player_rank_values)) if len(player_rank_values) > 0 else 0],
+        "Draw": results["Red"] == "Draw",
+        "Player": stats_dict[puuid]
+    }
+
+    weapon_stats = {
+        "Gamemode": match["matchInfo"]["queueId"].lower().capitalize(),
+        "Date": time_string_from_milliseconds(match["matchInfo"]["gameStartMillis"]),
+        "Patch": patch_from_game_version(match["matchInfo"]["gameVersion"]) if match["matchInfo"]["gameVersion"] != None else "",
+        "Map": vc.map_names[match["matchInfo"]["mapId"]],
+        "Rank": vc.rank_names[round(sum(player_rank_values) / len(player_rank_values)) if len(player_rank_values) > 0 else 0],
+        "Player_Rounds": weapon_rounds
+    }
+
+    return agent_stats, weapon_stats
+
+
+
+def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, filtered_ranks, filtered_gamemodes = ["Competitive"], single_player_pickrate = False):
     filtered_ranks_extended = [
         f"{word}{suffix}"
         for word in filtered_ranks
@@ -338,7 +524,8 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
     FROM '{filepath}'
     WHERE Map IN {tuple(filtered_maps)}
       AND Rank IN {tuple(filtered_ranks_extended)}
-      AND Agent IN {tuple(filtered_agents)};
+      AND Agent IN {tuple(filtered_agents)}
+      AND Gamemode IN {tuple(filtered_gamemodes)};
     """)
 
     total_matches_df = con.execute("""
@@ -369,7 +556,10 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
     for i, row in enumerate(df.itertuples(index=False)):
         decisive = row.unmirrored_wins + row.unmirrored_losses
         win_rate = (row.unmirrored_wins / decisive) if decisive > 0 else 0
-        pick_rate = float((row.matches / (total_matches * 2))) if total_matches > 0 else 0
+        if single_player_pickrate:
+            pick_rate = float((row.matches / total_matches)) if total_matches > 0 else 0
+        else:
+            pick_rate = float((row.matches / (total_matches * 2))) if total_matches > 0 else 0
 
         processed_stats.append({
             "id": i,
@@ -389,7 +579,7 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
 
 
 
-def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents, filtered_maps, filtered_ranks):
+def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents, filtered_maps, filtered_ranks, filtered_gamemodes = ["Competitive"]):
     filtered_ranks_extended = [
         f"{word}{suffix}"
         for word in filtered_ranks
@@ -411,7 +601,8 @@ def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents,
     WHERE Map IN {tuple(filtered_maps)}
       AND Agent IN {tuple(filtered_agents)}
       AND Weapon IN {tuple(filtered_weapons)}
-      AND Rank IN {tuple(filtered_ranks_extended)};
+      AND Rank IN {tuple(filtered_ranks_extended)}
+      AND Gamemode IN {tuple(filtered_gamemodes)};
     """)
 
     sub_df = con.execute("""

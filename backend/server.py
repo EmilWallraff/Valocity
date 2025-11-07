@@ -23,6 +23,18 @@ from database import UserToken, get_db
 
 import round_prediction
 import match_processing
+import valorant_constants
+
+'''
+Stuff to address at some point:
+- The request classes inherit from pydantic BaseModel (for whatever reason and whatever that does)
+- Some functions are locally just called "calculate"
+- One function is probably not used anymore
+- We sometimes use app.post and sometimes app.get for very similar tasks
+- Some of our functions have Riot/ in their api names (for whatever reason)
+- We have some domains and domain parts defined cleanly as constants and some just defined in the functions using them
+- The actual Riot api requests probably only work on eu (but the whole europe/eu thing is a little sus)
+'''
 
 
 
@@ -539,6 +551,131 @@ async def riot_matches(puuid: str, count: int, offset: int, gamemodes: str = Que
                 print(f"Error fetching match {future_to_match[future]}: {e}")
 
     return match_history
+
+
+
+class StatsRequest(BaseModel):
+    puuid: str
+    gamemodes: List[str]
+    maps: List[str]
+    agents: List[str]
+
+@app.post("/riot/player_stats")
+def get_player_stats(request: StatsRequest):
+    MAX_MATCH_COUNT = 10
+    MAX_THREADS = 10
+
+    # We have to try all regions here, I'm afraid...
+    riot_player_matches_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{request.puuid}"
+
+    headers = {
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+        "X-Riot-Token": f"{API_KEY}"
+    }
+
+    resp = requests.get(riot_player_matches_endpoint, headers=headers)
+
+    if resp.status_code != 200:
+        print("riot wrong response code, probably some error")
+        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
+    
+    player_matches = resp.json()["history"]
+    relevant_match_ids = []
+
+    for match in player_matches:
+        if match["queueId"].lower() in [gamemode.lower() for gamemode in request.gamemodes]:
+            relevant_match_ids.append(match["matchId"])
+            if len(relevant_match_ids) >= MAX_MATCH_COUNT:
+                break
+
+    print(f"Number of relevant matches: {len(relevant_match_ids)}")
+
+    base_path = Path("/data/player_stats_temp")
+    subfolder_path = base_path / request.puuid
+    json_file_path = subfolder_path / "processed_matches.json"
+
+    subfolder_path.mkdir(parents=True, exist_ok=True)
+    if not json_file_path.exists():
+        print(f"JSON file not found. Creating new file at {json_file_path}")
+        processed_match_ids = []
+    else:
+        print(f"JSON file found. Reading contents...")
+        try:
+            with open(json_file_path, "r", encoding="utf-8") as f:
+                processed_match_ids = json.load(f)
+                if not isinstance(processed_match_ids, list):
+                    print("Warning: File contents were not a list. Resetting to empty list.")
+                    processed_match_ids = []
+        except json.JSONDecodeError:
+            print("Warning: File was corrupted or empty. Resetting to empty list.")
+            processed_match_ids = []
+
+    new_match_ids = [mid for mid in relevant_match_ids if mid not in processed_match_ids]
+
+    if new_match_ids:
+        print(f"Adding {len(new_match_ids)} new match IDs to {json_file_path.name}")
+        processed_match_ids.extend(new_match_ids)
+
+        with open(json_file_path, "w", encoding="utf-8") as f:
+            json.dump(processed_match_ids, f, ensure_ascii=False, indent=2)
+    else:
+        print("No new match IDs to add.")
+
+    print(f"Number of new relevant matches: {len(new_match_ids)}")
+
+    agent_rows = []
+    weapon_rows = []
+
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        future_to_match = {executor.submit(fetch_match, mid, headers): mid for mid in new_match_ids}
+        for future in as_completed(future_to_match):
+            try:
+                agent_stats, weapon_stats = match_processing.calculate_player_agent_and_weapon_stats(future.result(), request.puuid)
+                agent_rows.append({
+                    "MatchID": agent_stats["MatchId"],
+                    "Gamemode": agent_stats["Gamemode"],
+                    "Date": agent_stats["Date"],
+                    "Patch": agent_stats["Patch"],
+                    "Map": agent_stats["Map"],
+                    "Rank": agent_stats["Rank"],
+                    **agent_stats["Player"]
+                })
+                for pr in weapon_stats["Player_Rounds"]:
+                    weapon_rows.append({
+                        "Gamemode": weapon_stats["Gamemode"],
+                        "Date": weapon_stats["Date"],
+                        "Patch": weapon_stats["Patch"],
+                        "Map": weapon_stats["Map"],
+                        "Rank": weapon_stats["Rank"],
+                        **pr
+                    })
+            except Exception as e:
+                print(f"Error fetching match {future_to_match[future]}: {e}")
+
+    def append_or_create_parquet(file_path: Path, new_rows: list[dict]):
+        new_df = pd.DataFrame(new_rows)
+
+        if file_path.exists():
+            existing_df = pd.read_parquet(file_path)
+            combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+            print(f"Appended {len(new_rows)} rows to {file_path.name}")
+        else:
+            combined_df = new_df
+            print(f"Created new parquet file {file_path.name}")
+
+        combined_df.to_parquet(file_path, index=False)
+
+    agent_parquet_file_path = subfolder_path / "agent_stats.parquet"
+    weapon_parquet_file_path = subfolder_path / "weapon_stats.parquet"
+    append_or_create_parquet(agent_parquet_file_path, agent_rows)
+    append_or_create_parquet(weapon_parquet_file_path, weapon_rows)
+    agent_display_stats = match_processing.format_agent_stats_for_display(agent_parquet_file_path, request.agents, request.maps, list(valorant_constants.rank_names.values()), request.gamemodes, True)
+    weapon_display_stats = match_processing.format_weapon_stats_for_display(weapon_parquet_file_path, list(valorant_constants.weapon_names.values()), request.agents, request.maps, list(valorant_constants.rank_names.values()), request.gamemodes)
+    print(agent_display_stats)
+    print(weapon_display_stats)
+
+    return agent_display_stats, weapon_display_stats
 
 
 
