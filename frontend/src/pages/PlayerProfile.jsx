@@ -223,7 +223,7 @@ function PlayerProfile() {
                   )
                 ) : (
                   <div className="flex flex-col items-center space-y-8">
-                    <StatsList data={agentStats} headers={agentHeaders} defaultHeader={"Win%"} headerTooltips={agentHeaderTooltips} imageType={"agents"} />
+                    <StatsList key="agents" data={agentStats} headers={agentHeaders} defaultHeader={"Win%"} headerTooltips={agentHeaderTooltips} imageType={"agents"} />
                   </div>
                 )}
               </div>
@@ -241,7 +241,7 @@ function PlayerProfile() {
                   )
                 ) : (
                   <div className="flex flex-col items-center space-y-8">
-                    <StatsList data={weaponStats} headers={weaponHeaders} defaultHeader={"K/R"} headerTooltips={weaponHeaderTooltips} imageType={"weapons"} />
+                    <StatsList key="weapons" data={weaponStats} headers={weaponHeaders} defaultHeader={"K/R"} headerTooltips={weaponHeaderTooltips} imageType={"weapons"} />
                   </div>
                 )}
               </div>
