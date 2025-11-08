@@ -86,7 +86,7 @@ function Weapons() {
           </div>
         ) : (
           <div>
-            <StatsList data={data} headers={headers} defaultHeader={"Dmg/R"} headerTooltips={headerTooltips} imageType={"weapons"} />
+            <StatsList data={data} headers={headers} defaultHeader={"K/R"} headerTooltips={headerTooltips} imageType={"weapons"} />
           </div>
         )}
       </div>

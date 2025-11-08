@@ -223,23 +223,27 @@ function PlayerProfile() {
                   )
                 ) : (
                   <div className="flex flex-col items-center space-y-8">
-                    <GamesList data={matches} puuid={playerinfo.puuid} />
                     <StatsList data={agentStats} headers={agentHeaders} defaultHeader={"Win%"} headerTooltips={agentHeaderTooltips} imageType={"agents"} />
                   </div>
                 )}
               </div>
             ) : subPage === "Weapons" ? (
               <div>
-                <div className="flex flex-col items-center space-y-8">
-                  <h2 className="text-4xl font-bold text-accent mb-4">Work in Progress</h2>
-                  <button
-                    onClick={() => updateStats(filteredGamemodes)}
-                    disabled={loadingStats}
-                    className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
-                  >
-                    {loadingStats ? "Testing..." : "Test"}
-                  </button>
-                </div>
+                {weaponStats === null ? (
+                  loadingStats ? (
+                    <div className="flex flex-col items-center space-y-8">
+                      <h2 className="text-4xl font-bold text-accent mb-4">Loading Weapon Stats...</h2>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center space-y-8">
+                      <h2 className="text-4xl font-bold text-accent mb-4">No Weapon Stats found.</h2>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex flex-col items-center space-y-8">
+                    <StatsList data={weaponStats} headers={weaponHeaders} defaultHeader={"K/R"} headerTooltips={weaponHeaderTooltips} imageType={"weapons"} />
+                  </div>
+                )}
               </div>
             ) : ( <></> )}
           </>
