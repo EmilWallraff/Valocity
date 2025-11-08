@@ -43,7 +43,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
           <div
             key={header}
             onClick={() => handleSort(header)}
-            className={`group relative flex-1 text-${sortKey === header ? sortOrder === "asc" ? "accent" : "brand" : "white"} text-center cursor-pointer`}
+            className={`group relative flex-1 text-center cursor-pointer ${sortKey === header ? sortOrder === "asc" ? "text-accent" : "text-brand" : "text-white"}`}
           >
             {header}
             {headerTooltips[header] && (
@@ -57,7 +57,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
 
       {sortedData.map((element, index) => (
         <div key={element.id}>
-          <div className={`flex items-center py-2 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}>
+          <div className={`flex items-center py-2 border-b border-l border-r border-element-lighter ${index % 2 === 0 ? "bg-element-dark" : "bg-element"}`}>
             {element.subentries && Object.keys(element.subentries).length > 0 ? (
               <div
                 onClick={() => toggleExpand(element.id)}
@@ -109,7 +109,7 @@ export default function StatsList({ data, headers = [], defaultHeader, headerToo
               {Object.entries(element.subentries).map(([name, entry], i) => (
                 <div
                   key={name}
-                  className={`flex items-center py-1 border-b border-l border-r border-element-lighter bg-${index % 2 === 0 ? "element-dark" : "element"}`}
+                  className={`flex items-center py-1 border-b border-l border-r border-element-lighter ${index % 2 === 0 ? "bg-element-dark" : "bg-element"}`}
                 >
                   <div className="w-8" />
                   <div className="basis-2/6">{name}</div>
