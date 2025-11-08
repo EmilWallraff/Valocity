@@ -6,9 +6,46 @@ import { fetchWithRetry } from "../utils/fetchWithRetry";
 import SegmentedControl from "../components/SegmentedControl";
 import MultiSelect from "../components/MultiSelect";
 import GamesList from "../components/GamesList";
+import StatsList from "../components/StatsList";
 import { gamemodeOptions } from "../data/imageSelectSets";
 import { mapOptions } from "../data/imageSelectSets";
 import { agentOptions } from "../data/imageSelectSets";
+
+const agentHeaders = [
+  "Agent",
+  "Pick%",
+  "Win%",
+  "Rating",
+  "K/R",
+  "A/R",
+  "KAST%",
+  "USE%",
+];
+
+const agentHeaderTooltips = {
+  "Pick%": "Percentage of games where the agent was picked",
+  "Win%": "Wins per non-drawn matches against a team without the agent",
+  "Rating": "Average overall rating (with 1.0 being an average performance)",
+  "K/R": "Kills per round",
+  "A/R": "Assists per round",
+  "KAST%": "Average percentage of rounds with kill, assist, survival or trade",
+  "USE%": "Average percentage of contribution to team's engagements (weighted)"
+};
+
+const weaponHeaders = [
+  "Weapon",
+  "Dmg/R",
+  "K/R",
+  "Win%",
+  "HS%"
+];
+
+const weaponHeaderTooltips = {
+  "Dmg/R": "Damage per round",
+  "K/R": "Kills per round",
+  "Win%": "Percentage of rounds won when starting with the weapon as main weapon",
+  "HS%": "Headshots per hits on enemy agents"
+};
 
 function PlayerProfile() {
   const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
@@ -106,7 +143,7 @@ function PlayerProfile() {
         },
         body: JSON.stringify({
           puuid: playerinfo.puuid,
-          gamemodes: filteredGamemodes,
+          gamemodes: gameModes,
           maps: mapOptions.map(mapOption => mapOption.label),
           agents: agentOptions.map(agentOption => agentOption.label)
         }),
@@ -114,9 +151,8 @@ function PlayerProfile() {
 
       console.log("Stats request response: ", responseData);
 
-      //setWeaponStats(responseData);
-      //setAgentStats(responseData);
-
+      setAgentStats(responseData[0]);
+      setWeaponStats(responseData[1]);
     } catch (error) {
       console.error("Failed to fetch player stats: ", error);
     } finally {
@@ -141,7 +177,7 @@ function PlayerProfile() {
             </h2>
 
             <div className="flex flex-row gap-4">
-              <MultiSelect items={gamemodeOptions} label="Filter Gamemodes" sizeClass="w-60 h-20" defaultSelected={filteredGamemodes} onChange={(selected) => { setFilteredGamemodes(selected); updateMatchHistory(selected, false); }} />
+              <MultiSelect items={gamemodeOptions} label="Filter Gamemodes" sizeClass="w-60 h-20" defaultSelected={filteredGamemodes} onChange={(selected) => { setFilteredGamemodes(selected); updateMatchHistory(selected, false); updateStats(selected); }} />
             </div>
             <SegmentedControl items={["Matches", "Agents", "Weapons"]} defaultSelected={subPage} onChange={(selected) => { setSubPage(selected); }} />
           </div>
@@ -175,16 +211,22 @@ function PlayerProfile() {
               </div>
             ) : subPage === "Agents" ? (
               <div>
-                <div className="flex flex-col items-center space-y-8">
-                  <h2 className="text-4xl font-bold text-accent mb-4">Work in Progress</h2>
-                  <button
-                    onClick={() => updateStats(filteredGamemodes)}
-                    disabled={loadingStats}
-                    className="w-60 h-20 bg-element border border-element-lighter text-white rounded-xl hover:bg-element-light transition text-lg flex items-center justify-center disabled:opacity-50"
-                  >
-                    {loadingStats ? "Testing..." : "Test"}
-                  </button>
-                </div>
+                {agentStats === null ? (
+                  loadingStats ? (
+                    <div className="flex flex-col items-center space-y-8">
+                      <h2 className="text-4xl font-bold text-accent mb-4">Loading Agent Stats...</h2>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center space-y-8">
+                      <h2 className="text-4xl font-bold text-accent mb-4">No Agent Stats found.</h2>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex flex-col items-center space-y-8">
+                    <GamesList data={matches} puuid={playerinfo.puuid} />
+                    <StatsList data={agentStats} headers={agentHeaders} defaultHeader={"Win%"} headerTooltips={agentHeaderTooltips} imageType={"agents"} />
+                  </div>
+                )}
               </div>
             ) : subPage === "Weapons" ? (
               <div>
