@@ -25,15 +25,6 @@ import round_prediction
 import match_processing
 import valorant_constants
 
-'''
-Stuff to address at some point:
-- One function is probably not used anymore
-- We have some domains and domain parts defined cleanly as constants and some just defined in the functions using them
-- The actual Riot api requests probably only work on eu (but the whole europe/eu thing is a little sus)
-- Some constants in the class, some in the functions
-- some functions are async, other similar ones are not
-'''
-
 
 
 # Initialize FastAPI app:
@@ -53,9 +44,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# region Constants
 load_dotenv()
-
 
 # Riot OAuth config:
 CLIENT_ID = os.getenv("RIOT_CLIENT_ID")
@@ -71,7 +61,6 @@ AUTHORIZE_URL = f"{PROVIDER}/authorize"
 TOKEN_URL = f"{PROVIDER}/token"
 USERINFO_URL = f"{PROVIDER}/userinfo"
 
-
 # Signing Cookies:
 APP_SECRET = os.getenv("APP_SECRET")
 if not APP_SECRET:
@@ -79,7 +68,6 @@ if not APP_SECRET:
 ALGORITHM = "HS256"
 COOKIE_NAME = "session"
 FRONTEND_URL = "https://valocity.app"
-
 
 # Riot API access:
 API_KEY = os.getenv("RIOT_API_KEY")
@@ -92,17 +80,16 @@ API_CALL_HEADERS = {
     "X-Riot-Token": f"{API_KEY}"
 }
 
-
 # Workload settings:
 MAX_THREADS = 10
 PLAYER_STATS_MATCH_COUNT = MAX_THREADS
+# endregion
 
 
 
-# Load encoders
+# region Win Prediction
 encoders = joblib.load("models/round_win_predictor_v01_encoders.pkl")
 
-# Reconstruct model
 model = round_prediction.RoundClassifier(
     num_agents=len(encoders['agent'].classes_),
     num_weapons=len(encoders['weapon'].classes_),
@@ -111,10 +98,8 @@ model = round_prediction.RoundClassifier(
     num_maps=len(encoders['map'].classes_)
 )
 
-# Load weights
 model.load_state_dict(torch.load('models/round_win_predictor_v01.pth', map_location=torch.device('cpu')))
 model.eval()
-
 
 
 class PredictRequest(BaseModel):
@@ -209,242 +194,11 @@ def predict(request: PredictRequest):
     logits = model.predict_proba_from_row(dataframe)
     class_names = encoders['team'].classes_
     return {k: float(v) for k, v in zip(class_names, logits)}
+# endregion
 
 
 
-class WeaponsRequest(BaseModel):
-    weapons: List[str]
-    maps: List[str]
-    agents: List[str]
-    ranks: List[str]
-
-@app.post("/weapons")
-def get_weapon_stats(request: WeaponsRequest):
-    folder = Path("data")
-    files = folder.glob("weapon_stats*")
-
-    def parse_version(filename):
-        version_str = filename.stem.split("_")[-1]
-        return tuple(map(int, version_str.split(".")))
-
-    latest_file = max(files, key=parse_version)
-    return match_processing.format_weapon_stats_for_display(latest_file, request.weapons, request.agents, request.maps, request.ranks)
-
-
-
-class AgentsRequest(BaseModel):
-    agents: List[str]
-    maps: List[str]
-    ranks: List[str]
-
-@app.post("/agents")
-def get_agent_stats(request: AgentsRequest):
-    folder = Path("data")
-    files = folder.glob("agent_stats_*")
-
-    def parse_version(filename):
-        version_str = filename.stem.split("_")[-1]
-        return tuple(map(int, version_str.split(".")))
-
-    latest_file = max(files, key=parse_version)
-    return match_processing.format_agent_stats_for_display(latest_file, request.agents, request.maps, request.ranks)
-
-
-
-@app.api_route("/ping", methods=["GET", "HEAD"])
-def ping():
-    return {"status": "ok"}
-
-
-
-@app.get("/login")
-async def login():
-    link = (
-        f"{AUTHORIZE_URL}?redirect_uri={REDIRECT_URI}"
-        f"&client_id={CLIENT_ID}"
-        f"&response_type=code"
-        f"&scope=openid offline_access"
-    )
-    return RedirectResponse(link)
-
-@app.get("/oauth/callback")
-async def oauth_callback(response: Response, request: Request, db: Session = Depends(get_db)):
-    code = request.query_params.get("code")
-    if not code:
-        return JSONResponse({"error": "Missing code"}, status_code=400)
-
-    # Exchange code for tokens
-    auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
-
-    # Exchange code for tokens
-    token_resp = requests.post(
-        TOKEN_URL,
-        headers={"Authorization": f"Basic {auth_header}"},
-        data={
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri": REDIRECT_URI,
-        },
-    )
-
-    if token_resp.status_code != 200:
-        return JSONResponse({"error": "Token request failed", "details": token_resp.text}, status_code=400)
-
-    tokens = token_resp.json()
-
-    expires_in = tokens.get("expires_in", 3600)
-
-    # Fetch Riot user info
-    userinfo = requests.get(
-        USERINFO_URL,
-        headers={"Authorization": f"Bearer {tokens['access_token']}"},
-    ).json()
-
-    user_id = userinfo["sub"]
-
-    # Save/update in SQLite
-    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
-    if db_user:
-        db_user.access_token = tokens["access_token"]
-        db_user.refresh_token = tokens["refresh_token"]
-        db_user.id_token = tokens["id_token"]
-        db_user.scope = tokens.get("scope", "")
-        db_user.expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
-
-    else:
-        # Riot account endpoint (choose region closest to your server)
-        riot_endpoint = "https://europe.api.riotgames.com/riot/account/v1/accounts/me"
-
-        resp = requests.get(
-            riot_endpoint,
-            headers={"Authorization": f"Bearer {tokens['access_token']}"}
-        )
-
-        if resp.status_code != 200:
-            print("riot wrong response code, probably some error")
-            raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
-
-        db_user = UserToken(
-            user_id=user_id,
-            puuid=resp.json()["puuid"],
-            access_token=tokens["access_token"],
-            refresh_token=tokens["refresh_token"],
-            id_token=tokens["id_token"],
-            scope=tokens.get("scope", ""),
-            expires_at=datetime.utcnow() + timedelta(seconds=expires_in)
-        )
-        db.add(db_user)
-
-    db.commit()
-
-    # Create your own session cookie
-    session_token = create_session_token(user_id)
-    response = RedirectResponse(url=FRONTEND_URL)  # redirect to frontend
-    response.set_cookie(
-        key=COOKIE_NAME,
-        value=session_token,
-        httponly=True,
-        secure=True,            # must be True in production (https only)
-        samesite="none",        # required for cross-site cookies
-        domain=APP_BASE_DOMAIN  # force backend domain
-    )
-
-    return response
-
-
-
-def create_session_token(user_id: str):
-    payload = {
-        "sub": user_id,
-        "exp": int(time.time()) + 7*24*3600, # expiry for session
-    }
-    return jwt.encode(payload, APP_SECRET, algorithm=ALGORITHM)
-
-def verify_session_token(token: str):
-    try:
-        return jwt.decode(token, APP_SECRET, algorithms=[ALGORITHM])
-    except Exception:
-        return None
-
-def refresh_tokens(db, user: UserToken):
-    if not user.refresh_token:
-        return None
-
-    auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
-    resp = requests.post(
-        TOKEN_URL,
-        headers={"Authorization": f"Basic {auth_header}"},
-        data={"grant_type": "refresh_token", "refresh_token": user.refresh_token},
-    )
-
-    if resp.status_code != 200:
-        return None
-
-    new_tokens = resp.json()
-    expires_in = new_tokens.get("expires_in", 3600)
-
-    # Update DB
-    user.access_token = new_tokens["access_token"]
-    user.refresh_token = new_tokens.get("refresh_token", user.refresh_token)
-    user.id_token = new_tokens.get("id_token", user.id_token)
-    user.expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
-    db.commit()
-    db.refresh(user)
-
-    return user
-
-
-
-@app.get("/riot/me")
-async def riot_me(request: Request, db: Session = Depends(get_db)):
-    # Verify session cookie
-    session_token = request.cookies.get(COOKIE_NAME)
-    if not session_token:
-        raise HTTPException(401, "Not logged in")
-    else:
-        print("session token found")
-
-    payload = verify_session_token(session_token)
-    if not payload:
-        raise HTTPException(401, "Invalid session")
-    else:
-        print("session token verified")
-
-    user_id = payload["sub"]
-    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
-    if not db_user:
-        raise HTTPException(404, "User not found")
-    else:
-        print("user found in database")
-
-    # Refresh if expired
-    if not db_user.expires_at or datetime.utcnow() >= db_user.expires_at:
-        refreshed = refresh_tokens(db, db_user)
-        if not refreshed:
-            print("tried and failed to refresh token")
-            raise HTTPException(401, "Failed to refresh token")
-        else:
-            print("token refreshed")
-        db_user = refreshed
-
-    access_token = db_user.access_token
-
-    # Riot account endpoint (choose region closest to your server)
-    riot_endpoint = "https://europe.api.riotgames.com/riot/account/v1/accounts/me"
-
-    resp = requests.get(
-        riot_endpoint,
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
-
-    if resp.status_code != 200:
-        print("riot wrong response code, probably some error")
-        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
-
-    return resp.json()
-
-
-
+# region Player and Stats Requests
 @app.get("/player_by_riot_id")
 async def get_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
@@ -471,7 +225,6 @@ async def get_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depen
     else:
         print("riot wrong response code, probably some error")
         raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
-
 
 
 class PlayerMatchesRequest(BaseModel):
@@ -517,7 +270,6 @@ async def get_matches(request: PlayerMatchesRequest):
                 print(f"Error fetching match {future_to_match[future]}: {e}")
 
     return match_history
-
 
 
 class PlayerStatsRequest(BaseModel):
@@ -631,6 +383,43 @@ async def get_player_stats(request: PlayerStatsRequest):
     return agent_display_stats, weapon_display_stats
 
 
+class WeaponsRequest(BaseModel):
+    weapons: List[str]
+    maps: List[str]
+    agents: List[str]
+    ranks: List[str]
+
+@app.post("/weapons")
+def get_weapon_stats(request: WeaponsRequest):
+    folder = Path("data")
+    files = folder.glob("weapon_stats*")
+
+    def parse_version(filename):
+        version_str = filename.stem.split("_")[-1]
+        return tuple(map(int, version_str.split(".")))
+
+    latest_file = max(files, key=parse_version)
+    return match_processing.format_weapon_stats_for_display(latest_file, request.weapons, request.agents, request.maps, request.ranks)
+
+
+class AgentsRequest(BaseModel):
+    agents: List[str]
+    maps: List[str]
+    ranks: List[str]
+
+@app.post("/agents")
+def get_agent_stats(request: AgentsRequest):
+    folder = Path("data")
+    files = folder.glob("agent_stats_*")
+
+    def parse_version(filename):
+        version_str = filename.stem.split("_")[-1]
+        return tuple(map(int, version_str.split(".")))
+
+    latest_file = max(files, key=parse_version)
+    return match_processing.format_agent_stats_for_display(latest_file, request.agents, request.maps, request.ranks)
+
+
 
 def fetch_match(match_id):
     riot_match_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matches/{match_id}"
@@ -642,3 +431,198 @@ def fetch_match(match_id):
         print("riot wrong response code, probably some error")
         raise HTTPException(match_resp.status_code, f"Riot API error: {match_resp.text}")
     return match_resp.json()
+# endregion
+
+
+
+# region Authentification
+@app.get("/login")
+async def login():
+    link = (
+        f"{AUTHORIZE_URL}?redirect_uri={REDIRECT_URI}"
+        f"&client_id={CLIENT_ID}"
+        f"&response_type=code"
+        f"&scope=openid offline_access"
+    )
+    return RedirectResponse(link)
+
+@app.get("/oauth/callback")
+async def oauth_callback(response: Response, request: Request, db: Session = Depends(get_db)):
+    code = request.query_params.get("code")
+    if not code:
+        return JSONResponse({"error": "Missing code"}, status_code=400)
+
+    # Exchange code for tokens
+    auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+
+    # Exchange code for tokens
+    token_resp = requests.post(
+        TOKEN_URL,
+        headers={"Authorization": f"Basic {auth_header}"},
+        data={
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": REDIRECT_URI,
+        },
+    )
+
+    if token_resp.status_code != 200:
+        return JSONResponse({"error": "Token request failed", "details": token_resp.text}, status_code=400)
+
+    tokens = token_resp.json()
+
+    expires_in = tokens.get("expires_in", 3600)
+
+    # Fetch Riot user info
+    userinfo = requests.get(
+        USERINFO_URL,
+        headers={"Authorization": f"Bearer {tokens['access_token']}"},
+    ).json()
+
+    user_id = userinfo["sub"]
+
+    # Save/update in SQLite
+    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
+    if db_user:
+        db_user.access_token = tokens["access_token"]
+        db_user.refresh_token = tokens["refresh_token"]
+        db_user.id_token = tokens["id_token"]
+        db_user.scope = tokens.get("scope", "")
+        db_user.expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+
+    else:
+        # Riot account endpoint (choose region closest to your server)
+        riot_endpoint = "https://europe.api.riotgames.com/riot/account/v1/accounts/me"
+
+        resp = requests.get(
+            riot_endpoint,
+            headers={"Authorization": f"Bearer {tokens['access_token']}"}
+        )
+
+        if resp.status_code != 200:
+            print("riot wrong response code, probably some error")
+            raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
+
+        db_user = UserToken(
+            user_id=user_id,
+            puuid=resp.json()["puuid"],
+            access_token=tokens["access_token"],
+            refresh_token=tokens["refresh_token"],
+            id_token=tokens["id_token"],
+            scope=tokens.get("scope", ""),
+            expires_at=datetime.utcnow() + timedelta(seconds=expires_in)
+        )
+        db.add(db_user)
+
+    db.commit()
+
+    # Create your own session cookie
+    session_token = create_session_token(user_id)
+    response = RedirectResponse(url=FRONTEND_URL)  # redirect to frontend
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=session_token,
+        httponly=True,
+        secure=True,            # must be True in production (https only)
+        samesite="none",        # required for cross-site cookies
+        domain=APP_BASE_DOMAIN  # force backend domain
+    )
+
+    return response
+
+@app.get("/riot/me")
+async def riot_me(request: Request, db: Session = Depends(get_db)):
+    # Verify session cookie
+    session_token = request.cookies.get(COOKIE_NAME)
+    if not session_token:
+        raise HTTPException(401, "Not logged in")
+    else:
+        print("session token found")
+
+    payload = verify_session_token(session_token)
+    if not payload:
+        raise HTTPException(401, "Invalid session")
+    else:
+        print("session token verified")
+
+    user_id = payload["sub"]
+    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
+    if not db_user:
+        raise HTTPException(404, "User not found")
+    else:
+        print("user found in database")
+
+    # Refresh if expired
+    if not db_user.expires_at or datetime.utcnow() >= db_user.expires_at:
+        refreshed = refresh_tokens(db, db_user)
+        if not refreshed:
+            print("tried and failed to refresh token")
+            raise HTTPException(401, "Failed to refresh token")
+        else:
+            print("token refreshed")
+        db_user = refreshed
+
+    access_token = db_user.access_token
+
+    # Riot account endpoint (choose region closest to your server)
+    riot_endpoint = "https://europe.api.riotgames.com/riot/account/v1/accounts/me"
+
+    resp = requests.get(
+        riot_endpoint,
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+
+    if resp.status_code != 200:
+        print("riot wrong response code, probably some error")
+        raise HTTPException(resp.status_code, f"Riot API error: {resp.text}")
+
+    return resp.json()
+
+
+
+def create_session_token(user_id: str):
+    payload = {
+        "sub": user_id,
+        "exp": int(time.time()) + 7*24*3600, # expiry for session
+    }
+    return jwt.encode(payload, APP_SECRET, algorithm=ALGORITHM)
+
+def verify_session_token(token: str):
+    try:
+        return jwt.decode(token, APP_SECRET, algorithms=[ALGORITHM])
+    except Exception:
+        return None
+
+def refresh_tokens(db, user: UserToken):
+    if not user.refresh_token:
+        return None
+
+    auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+    resp = requests.post(
+        TOKEN_URL,
+        headers={"Authorization": f"Basic {auth_header}"},
+        data={"grant_type": "refresh_token", "refresh_token": user.refresh_token},
+    )
+
+    if resp.status_code != 200:
+        return None
+
+    new_tokens = resp.json()
+    expires_in = new_tokens.get("expires_in", 3600)
+
+    # Update DB
+    user.access_token = new_tokens["access_token"]
+    user.refresh_token = new_tokens.get("refresh_token", user.refresh_token)
+    user.id_token = new_tokens.get("id_token", user.id_token)
+    user.expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+    db.commit()
+    db.refresh(user)
+
+    return user
+# endregion
+
+
+
+@app.api_route("/ping", methods=["GET", "HEAD"])
+def ping():
+    return {"status": "ok"}

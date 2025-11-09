@@ -518,15 +518,27 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
     
     con = duckdb.connect()
 
-    con.execute(f"""
+    filters = []
+
+    if filtered_maps:
+        filters.append(f"Map IN {tuple(filtered_maps)}")
+    if filtered_ranks_extended:
+        filters.append(f"Rank IN {tuple(filtered_ranks_extended)}")
+    if filtered_agents:
+        filters.append(f"Agent IN {tuple(filtered_agents)}")
+    if filtered_gamemodes:
+        filters.append(f"Gamemode IN {tuple(filtered_gamemodes)}")
+
+    where_clause = " AND ".join(filters) if filters else "TRUE"
+
+    query = f"""
     CREATE OR REPLACE VIEW filtered_agents AS
     SELECT *
     FROM '{filepath}'
-    WHERE Map IN {tuple(filtered_maps)}
-      AND Rank IN {tuple(filtered_ranks_extended)}
-      AND Agent IN {tuple(filtered_agents)}
-      AND Gamemode IN {tuple(filtered_gamemodes)};
-    """)
+    WHERE {where_clause};
+    """
+
+    con.execute(query)
 
     total_matches_df = con.execute("""
     SELECT COUNT(DISTINCT MatchID) AS total_matches
@@ -588,7 +600,22 @@ def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents,
 
     con = duckdb.connect()
 
-    con.execute(f"""
+    filters = []
+
+    if filtered_maps:
+        filters.append(f"Map IN {tuple(filtered_maps)}")
+    if filtered_ranks_extended:
+        filters.append(f"Rank IN {tuple(filtered_ranks_extended)}")
+    if filtered_agents:
+        filters.append(f"Agent IN {tuple(filtered_agents)}")
+    if filtered_weapons:
+        filters.append(f"Weapon IN {tuple(filtered_weapons)}")
+    if filtered_gamemodes:
+        filters.append(f"Gamemode IN {tuple(filtered_gamemodes)}")
+
+    where_clause = " AND ".join(filters) if filters else "TRUE"
+
+    query = f"""
     CREATE OR REPLACE VIEW filtered_rounds AS
     SELECT *,
         CASE 
@@ -598,12 +625,10 @@ def format_weapon_stats_for_display(filepath, filtered_weapons, filtered_agents,
             ELSE 'vs Fullbuy (>{HALFBUY_FULLBUY_THRESHOLD}$)'
         END AS RoundType
     FROM '{filepath}'
-    WHERE Map IN {tuple(filtered_maps)}
-      AND Agent IN {tuple(filtered_agents)}
-      AND Weapon IN {tuple(filtered_weapons)}
-      AND Rank IN {tuple(filtered_ranks_extended)}
-      AND Gamemode IN {tuple(filtered_gamemodes)};
-    """)
+    WHERE {where_clause};
+    """
+
+    con.execute(query)
 
     sub_df = con.execute("""
     SELECT 
