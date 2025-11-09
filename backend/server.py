@@ -27,11 +27,7 @@ import valorant_constants
 
 '''
 Stuff to address at some point:
-- The request classes inherit from pydantic BaseModel (for whatever reason and whatever that does)
-- Some functions are locally just called "calculate"
 - One function is probably not used anymore
-- We sometimes use app.post and sometimes app.get for very similar tasks
-- Some of our functions have Riot/ in their api names (for whatever reason)
 - We have some domains and domain parts defined cleanly as constants and some just defined in the functions using them
 - The actual Riot api requests probably only work on eu (but the whole europe/eu thing is a little sus)
 - Some constants in the class, some in the functions
@@ -40,11 +36,8 @@ Stuff to address at some point:
 
 
 
-load_dotenv()
-
-# Initialize FastAPI app
-app = FastAPI()
-#app = FastAPI(docs_url=None, redoc_url=None) # Disables FastAPI docs from being exposed publicly
+# Initialize FastAPI app:
+app = FastAPI(docs_url=None, redoc_url=None) # Disables FastAPI docs from being exposed publicly
 
 origins = [
     "https://valocity.app",
@@ -56,39 +49,53 @@ app.add_middleware(
     allow_origins=origins,
     #allow_origins=["*"], # Allows all sources (for example for local testing)
     allow_credentials=True, # False is more secure but must be True for cookies
-    #allow_methods=["GET", "POST", "HEAD"],
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "HEAD"],
     allow_headers=["*"],
 )
 
-# Riot OAuth config
+
+load_dotenv()
+
+
+# Riot OAuth config:
 CLIENT_ID = os.getenv("RIOT_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RIOT_CLIENT_SECRET")
 if not CLIENT_ID or not CLIENT_SECRET:
     raise RuntimeError("Missing Riot OAuth environment variables")
 
-API_KEY = os.getenv("RIOT_API_KEY")
-if not CLIENT_ID or not CLIENT_SECRET:
-    raise RuntimeError("Missing Riot api key variable")
-
-#APP_BASE_URL = "http://localhost:8000" # backend
 APP_BASE_DOMAIN = "valocity.onrender.com"
-APP_BASE_URL = f"https://{APP_BASE_DOMAIN}" # backend
-REDIRECT_URI = f"{APP_BASE_URL}/oauth/callback"
+REDIRECT_URI = f"https://{APP_BASE_DOMAIN}/oauth/callback"
 
 PROVIDER = "https://auth.riotgames.com"
 AUTHORIZE_URL = f"{PROVIDER}/authorize"
 TOKEN_URL = f"{PROVIDER}/token"
 USERINFO_URL = f"{PROVIDER}/userinfo"
 
-# Your app’s secret (for signing cookies)
+
+# Signing Cookies:
 APP_SECRET = os.getenv("APP_SECRET")
 if not APP_SECRET:
     raise RuntimeError("Missing app secret variable")
 ALGORITHM = "HS256"
 COOKIE_NAME = "session"
-
 FRONTEND_URL = "https://valocity.app"
+
+
+# Riot API access:
+API_KEY = os.getenv("RIOT_API_KEY")
+if not API_KEY:
+    raise RuntimeError("Missing Riot API key variable")
+
+API_CALL_HEADERS = {
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+    "X-Riot-Token": f"{API_KEY}"
+}
+
+
+# Workload settings:
+MAX_THREADS = 10
+PLAYER_STATS_MATCH_COUNT = MAX_THREADS
 
 
 
@@ -108,7 +115,8 @@ model = round_prediction.RoundClassifier(
 model.load_state_dict(torch.load('models/round_win_predictor_v01.pth', map_location=torch.device('cpu')))
 model.eval()
 
-# Define request body
+
+
 class PredictRequest(BaseModel):
     attacker_team: str
     map: str
@@ -143,7 +151,6 @@ class PredictRequest(BaseModel):
     BLUE_5_weapon: str
     BLUE_5_armor: str
 
-# Define prediction endpoint
 @app.post("/predict")
 def predict(request: PredictRequest):
     round_variables = []
@@ -344,44 +351,6 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
 
     return response
 
-# This might or might not be outdated and unused...
-@app.get("/me")
-async def me(request: Request, db: Session = Depends(get_db)):
-    print("WE CALLED THE FUNCTION THAT I WASN'T SURE WE NEEDED!!!")
-
-    session_token = request.cookies.get(COOKIE_NAME)
-    if not session_token:
-        raise HTTPException(401, "Not logged in")
-    else:
-        print("session token found")
-
-    payload = verify_session_token(session_token)
-    if not payload:
-        raise HTTPException(401, "Session expired, please log in again")
-    else:
-        print("session token verified")
-
-    user_id = payload["sub"]
-    db_user = db.query(UserToken).filter(UserToken.user_id == user_id).first()
-    if not db_user:
-        raise HTTPException(404, "User not found in database")
-    else:
-        print("user found in database")
-
-    # Refresh if expired
-    if not db_user.expires_at or datetime.utcnow() >= db_user.expires_at:
-        refreshed = refresh_tokens(db, db_user)
-        if not refreshed:
-            raise HTTPException(401, "Failed to refresh token")
-        else:
-            print("token refreshed")
-        db_user = refreshed
-
-    return {
-        "user_id": db_user.user_id,
-        "scope": db_user.scope,
-    }
-
 
 
 def create_session_token(user_id: str):
@@ -481,13 +450,7 @@ async def get_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depen
     # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
     riot_endpoint = f"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(gameName)}/{quote(tagLine)}"
 
-    headers = {
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-Riot-Token": f"{API_KEY}"
-    }
-
-    resp = requests.get(riot_endpoint, headers=headers)
+    resp = requests.get(riot_endpoint, headers=API_CALL_HEADERS)
     
     if resp.status_code == 404:
         print("user not found by Riot")
@@ -522,13 +485,7 @@ async def get_matches(request: PlayerMatchesRequest):
     # We have to try all regions here, I'm afraid...
     riot_player_matches_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{request.puuid}"
 
-    headers = {
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-Riot-Token": f"{API_KEY}"
-    }
-
-    resp = requests.get(riot_player_matches_endpoint, headers=headers)
+    resp = requests.get(riot_player_matches_endpoint, headers=API_CALL_HEADERS)
 
     if resp.status_code != 200:
         print("riot wrong response code, probably some error")
@@ -551,8 +508,8 @@ async def get_matches(request: PlayerMatchesRequest):
     
     match_history = []
 
-    with ThreadPoolExecutor(max_workers=request.count) as executor:
-        future_to_match = {executor.submit(fetch_match, mid, headers): mid for mid in relevant_match_ids}
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        future_to_match = {executor.submit(fetch_match, mid): mid for mid in relevant_match_ids}
         for future in as_completed(future_to_match):
             try:
                 match_history.append(match_processing.format_match(future.result()))
@@ -570,20 +527,11 @@ class PlayerStatsRequest(BaseModel):
     agents: List[str]
 
 @app.post("/player_stats")
-def get_player_stats(request: PlayerStatsRequest):
-    MAX_MATCH_COUNT = 10
-    MAX_THREADS = 10
-
+async def get_player_stats(request: PlayerStatsRequest):
     # We have to try all regions here, I'm afraid...
     riot_player_matches_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{request.puuid}"
 
-    headers = {
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-Riot-Token": f"{API_KEY}"
-    }
-
-    resp = requests.get(riot_player_matches_endpoint, headers=headers)
+    resp = requests.get(riot_player_matches_endpoint, headers=API_CALL_HEADERS)
 
     if resp.status_code != 200:
         print("riot wrong response code, probably some error")
@@ -595,7 +543,7 @@ def get_player_stats(request: PlayerStatsRequest):
     for match in player_matches:
         if match["queueId"].lower() in [gamemode.lower() for gamemode in request.gamemodes]:
             relevant_match_ids.append(match["matchId"])
-            if len(relevant_match_ids) >= MAX_MATCH_COUNT:
+            if len(relevant_match_ids) >= PLAYER_STATS_MATCH_COUNT:
                 break
 
     print(f"Number of relevant matches: {len(relevant_match_ids)}")
@@ -635,7 +583,7 @@ def get_player_stats(request: PlayerStatsRequest):
     weapon_rows = []
 
     with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
-        future_to_match = {executor.submit(fetch_match, mid, headers): mid for mid in new_match_ids}
+        future_to_match = {executor.submit(fetch_match, mid): mid for mid in new_match_ids}
         for future in as_completed(future_to_match):
             try:
                 agent_stats, weapon_stats = match_processing.calculate_player_agent_and_weapon_stats(future.result(), request.puuid)
@@ -684,11 +632,11 @@ def get_player_stats(request: PlayerStatsRequest):
 
 
 
-def fetch_match(match_id, headers):
+def fetch_match(match_id):
     riot_match_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matches/{match_id}"
     print(f"Requesting match with: {riot_match_endpoint}")
 
-    match_resp = requests.get(riot_match_endpoint, headers=headers)
+    match_resp = requests.get(riot_match_endpoint, headers=API_CALL_HEADERS)
 
     if match_resp.status_code != 200:
         print("riot wrong response code, probably some error")
