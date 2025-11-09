@@ -34,6 +34,8 @@ Stuff to address at some point:
 - Some of our functions have Riot/ in their api names (for whatever reason)
 - We have some domains and domain parts defined cleanly as constants and some just defined in the functions using them
 - The actual Riot api requests probably only work on eu (but the whole europe/eu thing is a little sus)
+- Some constants in the class, some in the functions
+- some functions are async, other similar ones are not
 '''
 
 
@@ -210,7 +212,7 @@ class WeaponsRequest(BaseModel):
     ranks: List[str]
 
 @app.post("/weapons")
-def calculate(request: WeaponsRequest):
+def get_weapon_stats(request: WeaponsRequest):
     folder = Path("data")
     files = folder.glob("weapon_stats*")
 
@@ -229,7 +231,7 @@ class AgentsRequest(BaseModel):
     ranks: List[str]
 
 @app.post("/agents")
-def calculate(request: AgentsRequest):
+def get_agent_stats(request: AgentsRequest):
     folder = Path("data")
     files = folder.glob("agent_stats_*")
 
@@ -345,6 +347,8 @@ async def oauth_callback(response: Response, request: Request, db: Session = Dep
 # This might or might not be outdated and unused...
 @app.get("/me")
 async def me(request: Request, db: Session = Depends(get_db)):
+    print("WE CALLED THE FUNCTION THAT I WASN'T SURE WE NEEDED!!!")
+
     session_token = request.cookies.get(COOKIE_NAME)
     if not session_token:
         raise HTTPException(401, "Not logged in")
@@ -472,8 +476,8 @@ async def riot_me(request: Request, db: Session = Depends(get_db)):
 
 
 
-@app.get("/riot/player_by_riot_id")
-async def riot_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depends(get_db)):
+@app.get("/player_by_riot_id")
+async def get_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depends(get_db)):
     # parameters are already URI encoded. If we need them raw, we can use 'unquote()'
     riot_endpoint = f"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(gameName)}/{quote(tagLine)}"
 
@@ -507,10 +511,16 @@ async def riot_player_by_riot_id(gameName: str, tagLine: str, db: Session = Depe
 
 
 
-@app.get("/riot/player_matches")
-async def riot_matches(puuid: str, count: int, offset: int, gamemodes: str = Query("")):
+class PlayerMatchesRequest(BaseModel):
+    puuid: str
+    count: int
+    offset: int
+    gamemodes: List[str]
+
+@app.post("/player_matches")
+async def get_matches(request: PlayerMatchesRequest):
     # We have to try all regions here, I'm afraid...
-    riot_player_matches_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{puuid}"
+    riot_player_matches_endpoint = f"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/{request.puuid}"
 
     headers = {
         "Accept-Language": "en-US,en;q=0.9",
@@ -527,22 +537,21 @@ async def riot_matches(puuid: str, count: int, offset: int, gamemodes: str = Que
     player_matches = resp.json()["history"]
     relevant_match_ids = []
     offset_counter = 0
-    gamemodes_list = gamemodes.split(",") if gamemodes else []
 
     for match in player_matches:
-        if match["queueId"].lower() in [gamemode.lower() for gamemode in gamemodes_list]:
-            if offset_counter < offset:
+        if match["queueId"].lower() in [gamemode.lower() for gamemode in request.gamemodes]:
+            if offset_counter < request.offset:
                 offset_counter += 1
             else:
                 relevant_match_ids.append(match["matchId"])
-                if len(relevant_match_ids) >= count:
+                if len(relevant_match_ids) >= request.count:
                     break
 
     print(f"Number of relevant matches: {len(relevant_match_ids)}")
     
     match_history = []
 
-    with ThreadPoolExecutor(max_workers=count) as executor:
+    with ThreadPoolExecutor(max_workers=request.count) as executor:
         future_to_match = {executor.submit(fetch_match, mid, headers): mid for mid in relevant_match_ids}
         for future in as_completed(future_to_match):
             try:
@@ -554,14 +563,14 @@ async def riot_matches(puuid: str, count: int, offset: int, gamemodes: str = Que
 
 
 
-class StatsRequest(BaseModel):
+class PlayerStatsRequest(BaseModel):
     puuid: str
     gamemodes: List[str]
     maps: List[str]
     agents: List[str]
 
-@app.post("/riot/player_stats")
-def get_player_stats(request: StatsRequest):
+@app.post("/player_stats")
+def get_player_stats(request: PlayerStatsRequest):
     MAX_MATCH_COUNT = 10
     MAX_THREADS = 10
 
@@ -622,8 +631,6 @@ def get_player_stats(request: StatsRequest):
     else:
         print("No new match IDs to add.")
 
-    print(f"Number of new relevant matches: {len(new_match_ids)}")
-
     agent_rows = []
     weapon_rows = []
 
@@ -672,8 +679,6 @@ def get_player_stats(request: StatsRequest):
     append_or_create_parquet(weapon_parquet_file_path, weapon_rows)
     agent_display_stats = match_processing.format_agent_stats_for_display(agent_parquet_file_path, request.agents, request.maps, list(valorant_constants.rank_names.values()), request.gamemodes, True)
     weapon_display_stats = match_processing.format_weapon_stats_for_display(weapon_parquet_file_path, list(valorant_constants.weapon_names.values()), request.agents, request.maps, list(valorant_constants.rank_names.values()), request.gamemodes)
-    print(agent_display_stats)
-    print(weapon_display_stats)
 
     return agent_display_stats, weapon_display_stats
 

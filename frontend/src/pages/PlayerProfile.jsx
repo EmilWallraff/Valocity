@@ -85,7 +85,7 @@ function PlayerProfile() {
 
   const fetchPlayer = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/riot/player_by_riot_id?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`, { credentials: "include" });
+      const res = await fetch(`${BASE_URL}/player_by_riot_id?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`, { credentials: "include" });
 
       if (!res.ok) {
         setLoading(false);
@@ -118,7 +118,18 @@ function PlayerProfile() {
     try {
       setLoadingMatches(true);
 
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_matches?puuid=${playerinfo.puuid}&count=${5}&offset=${expand ? matches.length : 0}&gamemodes=${gameModes}`, { credentials: "include" });
+      const responseData = await fetchWithRetry(`${BASE_URL}/player_matches`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          puuid: playerinfo.puuid,
+          count: 5,
+          offset: expand ? matches.length : 0,
+          gamemodes: gameModes
+        }),
+      });
 
       if (expand) {
         setMatches(prev => [...prev, ...responseData]);
@@ -136,7 +147,7 @@ function PlayerProfile() {
     try {
       setLoadingStats(true);
 
-      const responseData = await fetchWithRetry(`${BASE_URL}/riot/player_stats`, {
+      const responseData = await fetchWithRetry(`${BASE_URL}/player_stats`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

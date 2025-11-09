@@ -1,15 +1,9 @@
 import { useEffect, useState } from "react";
 
-import { useUser } from "../contexts/UserContext";
-import { fetchWithRetry } from "../utils/fetchWithRetry";
-
 import ProfileSearchBar from "../components/ProfileSearchBar";
 
 function ProfileSearch() {
-  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
   const storageKey = "recentProfiles";
-  const { userinfo, fetchUserinfo } = useUser();
-  const [data, setData] = useState([]);
   const [searching, setSearching] = useState(false);
 
   useEffect(() => {
