@@ -13,7 +13,7 @@ const statKeyMap = {
   "Assists": "assists",
   "Dmg/R": "damage",
   "KAST%": "kast",
-  "USE%": "use",
+  "Usg%": "use",
   "HS%": "headshot",
 };
 
@@ -24,7 +24,7 @@ const headers = [
   "Assists",
   "Dmg/R",
   "KAST%",
-  "USE%",
+  "Usg%",
   "HS%",
 ];
 
@@ -35,7 +35,7 @@ const headerTooltips = {
   "Assists": "Total assists",
   "Dmg/R": "Damage per round",
   "KAST%": "Percentage of rounds with kill, assist, survival or trade",
-  "USE%": "Percentage of contribution to team's engagements (weighted)",
+  "Usg%": "Percentage of contribution to team's engagements (weighted)",
   "HS%": "Headshots per hits on enemy agents",
 };
 
@@ -46,7 +46,7 @@ const statFormatters = {
   "Assists": (val) => val.toFixed(0),
   "Dmg/R": (val) => val.toFixed(0),
   "KAST%": (val) => (val * 100).toFixed(0) + "%",
-  "USE%": (val) => (val * 100).toFixed(0) + "%",
+  "Usg%": (val) => (val * 100).toFixed(0) + "%",
   "HS%": (val) => (val * 100).toFixed(0) + "%",
 };
 

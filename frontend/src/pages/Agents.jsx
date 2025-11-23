@@ -15,7 +15,7 @@ const headers = [
   "K/R",
   "A/R",
   "KAST%",
-  "USE%",
+  "Usg%",
 ];
 
 const headerTooltips = {
@@ -25,7 +25,7 @@ const headerTooltips = {
   "K/R": "Kills per round",
   "A/R": "Assists per round",
   "KAST%": "Average percentage of rounds with kill, assist, survival or trade",
-  "USE%": "Average percentage of contribution to team's engagements (weighted)"
+  "Usg%": "Average percentage of contribution to team's engagements (weighted)"
 };
 
 function Agents() {

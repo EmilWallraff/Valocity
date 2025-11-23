@@ -299,7 +299,7 @@ def calculate_agent_and_weapon_stats(matches):
             sr = (player_stats["rounds"] - player_stats["deaths"]) / player_stats["rounds"]
 
             player_stats["KAST%"] = player_stats["temp_kastRounds"] / player_stats["rounds"]
-            player_stats["USE%"] = (
+            player_stats["Usg%"] = (
                 player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]
                 if team_total_usage_points[player_stats["team"]] > 0
                 else (print(f"Warning: team_total_usage_points is 0 for team {player_stats['team']} in {match['matchInfo']['matchId']}") or 0.2)
@@ -478,7 +478,7 @@ def calculate_player_agent_and_weapon_stats(match, puuid):
         sr = (player_stats["rounds"] - player_stats["deaths"]) / player_stats["rounds"]
 
         player_stats["KAST%"] = player_stats["temp_kastRounds"] / player_stats["rounds"]
-        player_stats["USE%"] = (player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]) if team_total_usage_points[player_stats["team"]] > 0 else 0.2
+        player_stats["Usg%"] = (player_stats["temp_usagePoints"] / team_total_usage_points[player_stats["team"]]) if team_total_usage_points[player_stats["team"]] > 0 else 0.2
         player_stats["Rating"] = (player_stats["K/R"] * KPR_MODIFIER) + (player_stats["A/R"] * APR_MODIFIER) + (dpr * DPR_MODIFIER) + (adra * ADRA_MODIFIER) + (sr * SR_MODIFIER) + (player_stats["KAST%"] * KAST_MODIFIER) + GENERAL_MODIFIER
 
         for key in ("rounds", "kills", "deaths", "team", "temp_damage", "temp_kastRounds", "temp_usagePoints"):
