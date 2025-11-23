@@ -581,7 +581,7 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
                 "K/R": row.avg_kr,
                 "A/R": row.avg_ar,
                 "KAST%": row.avg_kast,
-                "USE%": row.avg_use,
+                "Usg%": row.avg_use,
                 "Win%": win_rate,
                 "Pick%": pick_rate,
             }
