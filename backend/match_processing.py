@@ -553,7 +553,7 @@ def format_agent_stats_for_display(filepath, filtered_agents, filtered_maps, fil
         AVG("K/R") AS avg_kr,
         AVG("A/R") AS avg_ar,
         AVG("KAST%") AS avg_kast,
-        AVG("USE%") AS avg_use,
+        AVG("Usg%") AS avg_use,
         COUNT(*) AS matches,
         SUM(CASE WHEN NOT Mirror AND Result = 'Win' THEN 1 ELSE 0 END) AS unmirrored_wins,
         SUM(CASE WHEN NOT Mirror AND Result = 'Loss' THEN 1 ELSE 0 END) AS unmirrored_losses,
