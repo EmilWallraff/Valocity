@@ -88,90 +88,87 @@ PLAYER_STATS_MATCH_COUNT = MAX_THREADS
 
 
 # region Win Prediction
-encoders = joblib.load("models/round_win_predictor_v01_encoders.pkl")
+encoders = joblib.load("models/round_win_predictor_v05_encoders.pkl")
 
 model = round_prediction.RoundClassifier(
     num_agents=len(encoders['agent'].classes_),
     num_weapons=len(encoders['weapon'].classes_),
     num_armor=len(encoders['armor'].classes_),
-    num_teams=len(encoders['team'].classes_),
     num_maps=len(encoders['map'].classes_)
 )
 
-model.load_state_dict(torch.load('models/round_win_predictor_v01.pth', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('models/round_win_predictor_v05.pth', map_location=torch.device('cpu')))
 model.eval()
 
 
 class PredictRequest(BaseModel):
-    attacker_team: str
     map: str
-    RED_1_agent: str
-    RED_1_weapon: str
-    RED_1_armor: str
-    RED_2_agent: str
-    RED_2_weapon: str
-    RED_2_armor: str
-    RED_3_agent: str
-    RED_3_weapon: str
-    RED_3_armor: str
-    RED_4_agent: str
-    RED_4_weapon: str
-    RED_4_armor: str
-    RED_5_agent: str
-    RED_5_weapon: str
-    RED_5_armor: str
-    BLUE_1_agent: str
-    BLUE_1_weapon: str
-    BLUE_1_armor: str
-    BLUE_2_agent: str
-    BLUE_2_weapon: str
-    BLUE_2_armor: str
-    BLUE_3_agent: str
-    BLUE_3_weapon: str
-    BLUE_3_armor: str
-    BLUE_4_agent: str
-    BLUE_4_weapon: str
-    BLUE_4_armor: str
-    BLUE_5_agent: str
-    BLUE_5_weapon: str
-    BLUE_5_armor: str
+    attack_1_agent: str
+    attack_1_weapon: str
+    attack_1_armor: str
+    attack_2_agent: str
+    attack_2_weapon: str
+    attack_2_armor: str
+    attack_3_agent: str
+    attack_3_weapon: str
+    attack_3_armor: str
+    attack_4_agent: str
+    attack_4_weapon: str
+    attack_4_armor: str
+    attack_5_agent: str
+    attack_5_weapon: str
+    attack_5_armor: str
+    defense_1_agent: str
+    defense_1_weapon: str
+    defense_1_armor: str
+    defense_2_agent: str
+    defense_2_weapon: str
+    defense_2_armor: str
+    defense_3_agent: str
+    defense_3_weapon: str
+    defense_3_armor: str
+    defense_4_agent: str
+    defense_4_weapon: str
+    defense_4_armor: str
+    defense_5_agent: str
+    defense_5_weapon: str
+    defense_5_armor: str
 
 @app.post("/predict")
 def predict(request: PredictRequest):
     round_variables = []
     round_variables.append({
-        "attacker_team": request.attacker_team,
         "map": request.map,
-        "RED_1_agent": request.RED_1_agent,
-        "RED_1_weapon": request.RED_1_weapon,
-        "RED_1_armor": request.RED_1_armor,
-        "RED_2_agent": request.RED_2_agent,
-        "RED_2_weapon": request.RED_2_weapon,
-        "RED_2_armor": request.RED_2_armor,
-        "RED_3_agent": request.RED_3_agent,
-        "RED_3_weapon": request.RED_3_weapon,
-        "RED_3_armor": request.RED_3_armor,
-        "RED_4_agent": request.RED_4_agent,
-        "RED_4_weapon": request.RED_4_weapon,
-        "RED_4_armor": request.RED_4_armor,
-        "RED_5_agent": request.RED_5_agent,
-        "RED_5_weapon": request.RED_5_weapon,
-        "RED_5_armor": request.RED_5_armor,
-        "BLUE_1_agent": request.BLUE_1_agent,
-        "BLUE_1_weapon": request.BLUE_1_weapon,
-        "BLUE_1_armor": request.BLUE_1_armor,
-        "BLUE_2_agent": request.BLUE_2_agent,
-        "BLUE_2_weapon": request.BLUE_2_weapon,
-        "BLUE_2_armor": request.BLUE_2_armor,
-        "BLUE_3_agent": request.BLUE_3_agent,
-        "BLUE_3_weapon": request.BLUE_3_weapon,
-        "BLUE_3_armor": request.BLUE_3_armor,
-        "BLUE_4_agent": request.BLUE_4_agent,
-        "BLUE_4_weapon": request.BLUE_4_weapon,
-        "BLUE_4_armor": request.BLUE_4_armor,
-        "BLUE_5_agent": request.BLUE_5_agent,
-        "BLUE_5_weapon": request.BLUE_5_weapon,
-        "BLUE_5_armor": request.BLUE_5_armor
+        "attack_1_agent": request.attack_1_agent,
+        "attack_1_weapon": request.attack_1_weapon,
+        "attack_1_armor": request.attack_1_armor,
+        "attack_2_agent": request.attack_2_agent,
+        "attack_2_weapon": request.attack_2_weapon,
+        "attack_2_armor": request.attack_2_armor,
+        "attack_3_agent": request.attack_3_agent,
+        "attack_3_weapon": request.attack_3_weapon,
+        "attack_3_armor": request.attack_3_armor,
+        "attack_4_agent": request.attack_4_agent,
+        "attack_4_weapon": request.attack_4_weapon,
+        "attack_4_armor": request.attack_4_armor,
+        "attack_5_agent": request.attack_5_agent,
+        "attack_5_weapon": request.attack_5_weapon,
+        "attack_5_armor": request.attack_5_armor,
+        "defense_1_agent": request.defense_1_agent,
+        "defense_1_weapon": request.defense_1_weapon,
+        "defense_1_armor": request.defense_1_armor,
+        "defense_2_agent": request.defense_2_agent,
+        "defense_2_weapon": request.defense_2_weapon,
+        "defense_2_armor": request.defense_2_armor,
+        "defense_3_agent": request.defense_3_agent,
+        "defense_3_weapon": request.defense_3_weapon,
+        "defense_3_armor": request.defense_3_armor,
+        "defense_4_agent": request.defense_4_agent,
+        "defense_4_weapon": request.defense_4_weapon,
+        "defense_4_armor": request.defense_4_armor,
+        "defense_5_agent": request.defense_5_agent,
+        "defense_5_weapon": request.defense_5_weapon,
+        "defense_5_armor": request.defense_5_armor
     })
     dataframe = pd.DataFrame(round_variables)
 
@@ -181,19 +178,17 @@ def predict(request: PredictRequest):
     weapon_cols = [col for col in dataframe.columns if 'weapon' in col]
     for col in weapon_cols:
         dataframe[col] = encoders['weapon'].transform(dataframe[col])
-    armor_cols  = [col for col in dataframe.columns if 'armor'  in col]
+    armor_cols  = [col for col in dataframe.columns if 'armor' in col]
     for col in armor_cols:
         dataframe[col] = encoders['armor'].transform(dataframe[col])
-    team_cols  = [col for col in dataframe.columns if 'team'  in col]
-    for col in team_cols:
-        dataframe[col] = encoders['team'].transform(dataframe[col])
-    map_cols  = [col for col in dataframe.columns if 'map'  in col]
+    map_cols  = [col for col in dataframe.columns if 'map' in col]
     for col in map_cols:
         dataframe[col] = encoders['map'].transform(dataframe[col])
 
-    logits = model.predict_proba_from_row(dataframe)
+    row = dataframe.iloc[0]
+    probabilities = model.predict_proba_from_row(row)
     class_names = encoders['team'].classes_
-    return {k: float(v) for k, v in zip(class_names, logits)}
+    return {k: float(v) for k, v in zip(class_names, probabilities)}
 # endregion
 
 

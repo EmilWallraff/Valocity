@@ -41,45 +41,43 @@ function WinProbability() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          attacker_team: isAttackers ? "RED" : "BLUE",
           map: map,
-          RED_1_agent: playersRed[0]["agent"],
-          RED_1_weapon: playersRed[0]["weapon"],
-          RED_1_armor: playersRed[0]["armor"],
-          RED_2_agent: playersRed[1]["agent"],
-          RED_2_weapon: playersRed[1]["weapon"],
-          RED_2_armor: playersRed[1]["armor"],
-          RED_3_agent: playersRed[2]["agent"],
-          RED_3_weapon: playersRed[2]["weapon"],
-          RED_3_armor: playersRed[2]["armor"],
-          RED_4_agent: playersRed[3]["agent"],
-          RED_4_weapon: playersRed[3]["weapon"],
-          RED_4_armor: playersRed[3]["armor"],
-          RED_5_agent: playersRed[4]["agent"],
-          RED_5_weapon: playersRed[4]["weapon"],
-          RED_5_armor: playersRed[4]["armor"],
-          BLUE_1_agent: playersBlue[0]["agent"],
-          BLUE_1_weapon: playersBlue[0]["weapon"],
-          BLUE_1_armor: playersBlue[0]["armor"],
-          BLUE_2_agent: playersBlue[1]["agent"],
-          BLUE_2_weapon: playersBlue[1]["weapon"],
-          BLUE_2_armor: playersBlue[1]["armor"],
-          BLUE_3_agent: playersBlue[2]["agent"],
-          BLUE_3_weapon: playersBlue[2]["weapon"],
-          BLUE_3_armor: playersBlue[2]["armor"],
-          BLUE_4_agent: playersBlue[3]["agent"],
-          BLUE_4_weapon: playersBlue[3]["weapon"],
-          BLUE_4_armor: playersBlue[3]["armor"],
-          BLUE_5_agent: playersBlue[4]["agent"],
-          BLUE_5_weapon: playersBlue[4]["weapon"],
-          BLUE_5_armor: playersBlue[4]["armor"]
+          attack_1_agent: isAttackers ? playersRed[0]["agent"] : playersBlue[0]["agent"],
+          attack_1_weapon: isAttackers ? playersRed[0]["weapon"] : playersBlue[0]["weapon"],
+          attack_1_armor: isAttackers ? playersRed[0]["armor"] : playersBlue[0]["armor"],
+          attack_2_agent: isAttackers ? playersRed[1]["agent"] : playersBlue[1]["agent"],
+          attack_2_weapon: isAttackers ? playersRed[1]["weapon"] : playersBlue[1]["weapon"],
+          attack_2_armor: isAttackers ? playersRed[1]["armor"] : playersBlue[1]["armor"],
+          attack_3_agent: isAttackers ? playersRed[2]["agent"] : playersBlue[2]["agent"],
+          attack_3_weapon: isAttackers ? playersRed[2]["weapon"] : playersBlue[2]["weapon"],
+          attack_3_armor: isAttackers ? playersRed[2]["armor"] : playersBlue[2]["armor"],
+          attack_4_agent: isAttackers ? playersRed[3]["agent"] : playersBlue[3]["agent"],
+          attack_4_weapon: isAttackers ? playersRed[3]["weapon"] : playersBlue[3]["weapon"],
+          attack_4_armor: isAttackers ? playersRed[3]["armor"] : playersBlue[3]["armor"],
+          attack_5_agent: isAttackers ? playersRed[4]["agent"] : playersBlue[4]["agent"],
+          attack_5_weapon: isAttackers ? playersRed[4]["weapon"] : playersBlue[4]["weapon"],
+          attack_5_armor: isAttackers ? playersRed[4]["armor"] : playersBlue[4]["armor"],
+          defense_1_agent: isAttackers ? playersBlue[0]["agent"] : playersRed[0]["agent"],
+          defense_1_weapon: isAttackers ? playersBlue[0]["weapon"] : playersRed[0]["weapon"],
+          defense_1_armor: isAttackers ? playersBlue[0]["armor"] : playersRed[0]["armor"],
+          defense_2_agent: isAttackers ? playersBlue[1]["agent"] : playersRed[1]["agent"],
+          defense_2_weapon: isAttackers ? playersBlue[1]["weapon"] : playersRed[1]["weapon"],
+          defense_2_armor: isAttackers ? playersBlue[1]["armor"] : playersRed[1]["armor"],
+          defense_3_agent: isAttackers ? playersBlue[2]["agent"] : playersRed[2]["agent"],
+          defense_3_weapon: isAttackers ? playersBlue[2]["weapon"] : playersRed[2]["weapon"],
+          defense_3_armor: isAttackers ? playersBlue[2]["armor"] : playersRed[2]["armor"],
+          defense_4_agent: isAttackers ? playersBlue[3]["agent"] : playersRed[3]["agent"],
+          defense_4_weapon: isAttackers ? playersBlue[3]["weapon"] : playersRed[3]["weapon"],
+          defense_4_armor: isAttackers ? playersBlue[3]["armor"] : playersRed[3]["armor"],
+          defense_5_agent: isAttackers ? playersBlue[4]["agent"] : playersRed[4]["agent"],
+          defense_5_weapon: isAttackers ? playersBlue[4]["weapon"] : playersRed[4]["weapon"],
+          defense_5_armor: isAttackers ? playersBlue[4]["armor"] : playersRed[4]["armor"]
         }),
       });
 
-      setBlueProbability((responseData.BLUE * 100).toFixed(2));
-      setRedProbability((responseData.RED * 100).toFixed(2));
+      setRedProbability(((isAttackers ? responseData.attacker : responseData.defender) * 100).toFixed(2));
+      setBlueProbability(((isAttackers ? responseData.defender : responseData.attacker) * 100).toFixed(2));
       setProbabilityState("Updated");
-      console.log("Win Probability:", redProbability, blueProbability);
     } catch (error) {
       console.error("Failed to fetch prediction: ", error);
     }
