@@ -27,7 +27,7 @@ import valorant_constants
 
 
 
-# Initialize FastAPI app:
+# Initialize FastAPI app
 app = FastAPI(docs_url=None, redoc_url=None) # Disables FastAPI docs from being exposed publicly
 
 origins = [

@@ -1,10 +1,17 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { useUser } from "../contexts/UserContext";
 
 import NavigationDropdown from "../components/NavigationDropdown";
 
 function Layout() {
   const { userinfo, loading } = useUser();
+  const { pathname } = useLocation();
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div className="flex flex-col h-screen bg-darkness text-white">
@@ -42,7 +49,7 @@ function Layout() {
       </nav>
 
       {/* Scrollable content (main + footer) */}
-      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto flex flex-col">
         {/* Page content */}
         <main className="flex-grow pb-4">
           <Outlet />

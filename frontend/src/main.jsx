@@ -6,7 +6,6 @@ import './index.css';
 import { UserProvider } from './contexts/UserContext';
 
 import Layout from './components/Layout';
-import ScrollToTop from './components/ScrollToTop';
 
 import Home from './pages/Home';
 import Impressum from './pages/Impressum';
@@ -29,7 +28,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <UserProvider>
       <BrowserRouter>
-        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
