@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
   const [userinfo, setUserinfo] = useState(null);
   const [loading, setLoading] = useState(true);

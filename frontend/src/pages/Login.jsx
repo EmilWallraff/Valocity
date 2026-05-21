@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from "../contexts/UserContext";
 
 function Login() {
-  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
   const { userinfo, fetchUserinfo } = useUser();
 

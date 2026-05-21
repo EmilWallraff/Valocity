@@ -29,7 +29,7 @@ const headerTooltips = {
 };
 
 function Agents() {
-  const BASE_URL = "https://valocity.onrender.com";
+  const BASE_URL = import.meta.env.VITE_API_URL;
   const [data, setData] = useState(null);
   const [filteredAgents, setFiltereAgents] = useState(() => 
     agentOptions.map(agentOption => agentOption.label)

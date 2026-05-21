@@ -24,7 +24,7 @@ const headerTooltips = {
 };
 
 function Weapons() {
-  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
+  const BASE_URL = import.meta.env.VITE_API_URL;
   const [data, setData] = useState(null);
   const [filteredWeapons, setFilteredWeapons] = useState(() => 
     weaponOptions.map(weaponOption => weaponOption.label)

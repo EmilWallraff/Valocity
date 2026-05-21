@@ -48,7 +48,7 @@ const weaponHeaderTooltips = {
 };
 
 function PlayerProfile() {
-  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
+  const BASE_URL = import.meta.env.VITE_API_URL;
   const storageKey = "recentProfiles";
   const [playerinfo, setPlayerinfo] = useState(null);
   const [loading, setLoading] = useState(true);
