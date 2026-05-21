@@ -8,12 +8,7 @@ import { armorOptions } from "../data/imageSelectSets";
 import { mapOptions } from "../data/imageSelectSets";
 
 function WinProbability() {
-  console.log({
-    PROD: import.meta.env.PROD,
-    MODE: import.meta.env.MODE,
-    BASE_URL,
-  });
-  const BASE_URL = "https://valocity.onrender.com";
+  const BASE_URL = import.meta.env.VITE_API_URL;
   const [isAttackers, setIsAttackers] = useState(true);
   const [map, setMap] = useState("Ascent");
   const [playersRed, setPlayersRed] = useState([
