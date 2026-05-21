@@ -8,7 +8,7 @@ import { armorOptions } from "../data/imageSelectSets";
 import { mapOptions } from "../data/imageSelectSets";
 
 function WinProbability() {
-  const BASE_URL = import.meta.env.PROD ? "https://valocity.onrender.com" : "http://localhost:8000";
+  const BASE_URL = "https://valocity.onrender.com";
   const [isAttackers, setIsAttackers] = useState(true);
   const [map, setMap] = useState("Ascent");
   const [playersRed, setPlayersRed] = useState([
