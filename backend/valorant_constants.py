@@ -11,6 +11,7 @@ map_names = {
     "/Game/Maps/Pitt/Pitt": "Pearl",
     "/Game/Maps/Bonsai/Bonsai": "Split",
     "/Game/Maps/Juliett/Juliett": "Sunset",
+    "/Game/Maps/Plummet/Plummet": "Summit",
 }
 
 agent_names = {

@@ -73,6 +73,7 @@ export const maps = {
     "Split": "D960549E-485C-E861-8D71-AA9D1AED12A2",
     "Sunset": "92584FBE-486A-B1B2-9FAA-39B0F486B498",
     "Corrode": "1C18AB1F-420D-0D8B-71D0-77AD3C439115",
+    "Summit": "756DA597-416B-C0F2-F47B-AFBDF28670BC",
 }
 
 export const ranks = {
