@@ -88,7 +88,7 @@ PLAYER_STATS_MATCH_COUNT = MAX_THREADS
 
 
 # region Win Prediction
-encoders = joblib.load("models/round_win_predictor_v06_encoders.pkl")
+encoders = joblib.load("models/round_win_predictor_v07_encoders.pkl")
 
 model = round_prediction.RoundClassifier(
     num_agents=len(encoders['agent'].classes_),
@@ -97,7 +97,7 @@ model = round_prediction.RoundClassifier(
     num_maps=len(encoders['map'].classes_)
 )
 
-model.load_state_dict(torch.load('models/round_win_predictor_v06.pth', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('models/round_win_predictor_v07.pth', map_location=torch.device('cpu')))
 model.eval()
 
 
