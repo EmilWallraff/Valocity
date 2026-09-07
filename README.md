@@ -2,7 +2,7 @@
 
 A website using machine learning models and the Valorant API to provide analysis and unique insights into the Valorant meta and the theory behind it.
 
-[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://valocity.app)
+[\[Live Demo\]](https://valocity.app)
 
 ## Description
 
@@ -10,4 +10,4 @@ There are too many variables to rely on simple statistics like win rates if you 
 
 ## Note on Running Locally
 
-This repository is provided for portfolio demonstration purposes. The backend requires a restricted Riot Games/Valorant API key which is not publicly available, so the application will not function locally without it. Please visit the [\[Live Demo\]](https://valocity.app) to see the project in action.
+This repository is provided for portfolio demonstration purposes. The backend requires a restricted Riot Games/Valorant API key which is not publicly available, so the application will not function locally without it. Please visit https://valocity.app to see the project in action.
