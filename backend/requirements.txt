@@ -19,4 +19,5 @@ sqlalchemy
 aiosqlite
 duckdb
 pyarrow
-psycopg2-binary
+#psycopg2-binary -> we used to use this but it isn't compatible with new sqlalchemy, so let's hope for the best
+psycopg[binary]
