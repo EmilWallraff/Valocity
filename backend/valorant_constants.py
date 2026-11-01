@@ -44,6 +44,7 @@ agent_names = {
     "95b78ed7-4637-86d9-7e41-71ba8c293152": "Harbor",
     "92eeef5d-43b5-1d4a-8d03-b3927a09034b": "Veto",
     "7c8a4701-4de6-9355-b254-e09bc2a34b72": "Miks",
+    "ddd5a15c-4fbe-42fa-3789-11a55ca5ee04": "Hush",
 }
 
 weapon_names = {
